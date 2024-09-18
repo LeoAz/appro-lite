@@ -3,6 +3,7 @@
 namespace App\Livewire\Load;
 
 use App\Models\Load;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -13,7 +14,10 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -56,8 +60,59 @@ class ListLoad extends Component implements HasForms, HasTable
             ])
             ->emptyStateHeading('Aucun Chargements n\'est disponible')
             ->filters([
-                //
+                Filter::make("is_unload")
+                    ->label("Décharger ?")
+                    ->query(
+                        fn(Builder $query): Builder => $query->where(
+                            "is_unload",
+                            true
+                        )
+                    )
+                    ->toggle(),
+
+                SelectFilter::make("Véhicule")
+                    ->relationship("vehicle", "registration")
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make("status")
+                    ->options([
+                        "EN COURS" => "EN COURS",
+                        "DECHARGÉ" => "DECHARGÉ",
+                    ])
+                    ->selectablePlaceholder(false),
+
+                Filter::make("created_at")
+                    ->form([DatePicker::make("De"), DatePicker::make("A")])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data["De"],
+                                fn(
+                                    Builder $query,
+                                    $date
+                                ): Builder => $query->whereDate(
+                                    "load_date",
+                                    ">=",
+                                    $date
+                                )
+                            )
+                            ->when(
+                                $data["A"],
+                                fn(
+                                    Builder $query,
+                                    $date
+                                ): Builder => $query->whereDate(
+                                    "load_date",
+                                    "<=",
+                                    $date
+                                )
+                            );
+                    }),
             ])
+            ->filtersTriggerAction(
+                fn(Action $action) => $action->button()->label("Filter")
+            )
             ->actions([
                 ActionGroup::make([
                     Action::make("edit")
