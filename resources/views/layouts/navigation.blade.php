@@ -12,8 +12,23 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                    <x-nav-link :href="route('carriers')" :active="request()->routeIs('carriers')">
+                        Transporteurs
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('vehicles')" :active="request()->routeIs('vehicles')">
+                        Véhicules
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('depots')" :active="request()->routeIs('depots')">
+                        Dépots
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('loads')" :active="request()->routeIs('loads')">
+                        Chargements
                     </x-nav-link>
                 </div>
             </div>
@@ -66,10 +81,26 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+        <!-- Navigation Links -->
+        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+            <x-nav-link :href="route('vehicles')" :active="request()->routeIs('vehicles')">
+                Véhicules
+            </x-nav-link>
+        </div>
+        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                Dépots
+            </x-nav-link>
+        </div>
+        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                Chargements
+            </x-nav-link>
+        </div>
+        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                Rapports
+            </x-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
