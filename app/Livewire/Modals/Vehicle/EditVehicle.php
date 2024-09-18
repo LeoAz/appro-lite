@@ -41,11 +41,6 @@ class EditVehicle extends ModalComponent implements HasForms
                     ->name("N° de plaque")
                     ->required(),
                 TextInput::make("capacity")->name("La capacité")->required(),
-                TextInput::make("driver")->name("Le chauffeur")->required(),
-                TextInput::make("contact")
-                    ->name("Contact chauffeur")
-                    ->required(),
-
                 Select::make("carrier_id")
                     ->label("Le transporteur")
                     ->relationship("carrier", "nom")
