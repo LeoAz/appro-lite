@@ -96,6 +96,7 @@ class ListLoad extends Component implements HasForms, HasTable
                         ->preload(),
 
                     SelectFilter::make("Ville")
+                        ->multiple()
                         ->relationship("city", "name")
                         ->searchable()
                         ->preload(),
