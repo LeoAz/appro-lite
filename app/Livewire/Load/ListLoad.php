@@ -14,6 +14,7 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -39,7 +40,11 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->label("Date")
                     ->date("d-m-Y")
                     ->searchable(),
-                TextColumn::make("load_location")->label("Lieu")->searchable(),
+                TextColumn::make("city_id")
+                    ->name("city.name")
+                    ->exists("city")
+                    ->label("Ville")
+                    ->searchable(),
                 TextColumn::make("product")->label("Produit")->searchable(),
                 TextColumn::make("capacity")->label("Litres")->searchable(),
                 TextColumn::make("vehicle_id")
@@ -47,69 +52,94 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->exists("vehicle")
                     ->label("Véhicule")
                     ->searchable(),
+                TextColumn::make("vehicle_id")
+                    ->name("vehicle.carrier.nom")
+                    ->exists("vehicle")
+                    ->label("Transporteur")
+                    ->searchable(),
                 TextColumn::make("depot_id")
                     ->name("depot.name")
                     ->exists("depot")
                     ->label("Dépôt")
                     ->searchable(),
-                TextColumn::make("status")->label("Status")->searchable(),
+                TextColumn::make("status")
+                    ->label("Status")
+                    ->searchable()
+                    ->badge()
+                    ->color(
+                        fn(string $state): string => match ($state) {
+                            "EN COURS" => "success",
+                            "DECHARGÉ" => "gray",
+                        }
+                    ),
                 TextColumn::make("unload_date")
                     ->label("Date")
                     ->date("d-m-Y")
                     ->searchable(),
             ])
             ->emptyStateHeading('Aucun Chargements n\'est disponible')
-            ->filters([
-                Filter::make("is_unload")
-                    ->label("Décharger ?")
-                    ->query(
-                        fn(Builder $query): Builder => $query->where(
-                            "is_unload",
-                            true
-                        )
-                    )
-                    ->toggle(),
-
-                SelectFilter::make("Véhicule")
-                    ->relationship("vehicle", "registration")
-                    ->searchable()
-                    ->preload(),
-
-                SelectFilter::make("status")
-                    ->options([
-                        "EN COURS" => "EN COURS",
-                        "DECHARGÉ" => "DECHARGÉ",
-                    ])
-                    ->selectablePlaceholder(false),
-
-                Filter::make("created_at")
-                    ->form([DatePicker::make("De"), DatePicker::make("A")])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data["De"],
-                                fn(
-                                    Builder $query,
-                                    $date
-                                ): Builder => $query->whereDate(
-                                    "load_date",
-                                    ">=",
-                                    $date
-                                )
+            ->filters(
+                [
+                    Filter::make("is_unload")
+                        ->label("Décharger ?")
+                        ->query(
+                            fn(Builder $query): Builder => $query->where(
+                                "is_unload",
+                                true
                             )
-                            ->when(
-                                $data["A"],
-                                fn(
-                                    Builder $query,
-                                    $date
-                                ): Builder => $query->whereDate(
-                                    "load_date",
-                                    "<=",
-                                    $date
+                        )
+                        ->toggle(),
+
+                    SelectFilter::make("Véhicule")
+                        ->relationship("vehicle", "registration")
+                        ->searchable()
+                        ->preload(),
+
+                    SelectFilter::make("Ville")
+                        ->relationship("city", "name")
+                        ->searchable()
+                        ->preload(),
+
+                    SelectFilter::make("status")
+                        ->options([
+                            "EN COURS" => "EN COURS",
+                            "DECHARGÉ" => "DECHARGÉ",
+                        ])
+                        ->selectablePlaceholder(false),
+
+                    Filter::make("created_at")
+                        ->form([DatePicker::make("De"), DatePicker::make("A")])
+                        ->query(function (
+                            Builder $query,
+                            array $data
+                        ): Builder {
+                            return $query
+                                ->when(
+                                    $data["De"],
+                                    fn(
+                                        Builder $query,
+                                        $date
+                                    ): Builder => $query->whereDate(
+                                        "load_date",
+                                        ">=",
+                                        $date
+                                    )
                                 )
-                            );
-                    }),
-            ])
+                                ->when(
+                                    $data["A"],
+                                    fn(
+                                        Builder $query,
+                                        $date
+                                    ): Builder => $query->whereDate(
+                                        "load_date",
+                                        "<=",
+                                        $date
+                                    )
+                                );
+                        }),
+                ],
+                layout: FiltersLayout::Modal
+            )
             ->filtersTriggerAction(
                 fn(Action $action) => $action->button()->label("Filter")
             )

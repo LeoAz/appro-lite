@@ -27,6 +27,7 @@ class AddLoad extends ModalComponent implements HasForms
     public $load_date;
     public $load_location;
     public $depot_id;
+    public $city_id;
     public $vehicle_id;
     public $capacity;
     public $product;
@@ -51,12 +52,11 @@ class AddLoad extends ModalComponent implements HasForms
                     ->default(now())
                     ->closeOnDateSelection()
                     ->required(),
-                TextInput::make("load_location")->label("Lieu")->required(),
                 Select::make("product")
                     ->label("Le produit")
                     ->options([
                         "Fuel" => "Fuel",
-                        "Essence" => "Essence",
+                        "Super" => "Super",
                         "Gasoil" => "Gasoil",
                     ])
                     ->required()
@@ -65,6 +65,19 @@ class AddLoad extends ModalComponent implements HasForms
                 Select::make("depot_id")
                     ->label("Le depot")
                     ->relationship("depot", "name")
+                    ->createOptionForm([
+                        TextInput::make("name")->name("Nom")->required(),
+                    ])
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+
+                Select::make("city_id")
+                    ->label("Le lieux")
+                    ->relationship("city", "name")
+                    ->createOptionForm([
+                        TextInput::make("name")->name("Nom")->required(),
+                    ])
                     ->searchable()
                     ->preload()
                     ->required(),
@@ -72,8 +85,37 @@ class AddLoad extends ModalComponent implements HasForms
                 Select::make("vehicle_id")
                     ->label("Le véhicule")
                     ->relationship("vehicle", "registration")
+                    ->options(
+                        Vehicle::where(
+                            "status",
+                            VehicleStatus::Available
+                        )->pluck("registration", "id")
+                    )
+                    ->createOptionForm([
+                        TextInput::make("registration")
+                            ->name("N° de plaque")
+                            ->required(),
+                        TextInput::make("capacity")
+                            ->name("La capacité")
+                            ->required(),
+                        Select::make("carrier_id")
+                            ->label("Le transporteur")
+                            ->relationship("carrier", "nom")
+                            ->createOptionForm([
+                                TextInput::make("nom")->name("Nom")->required(),
+                                TextInput::make("contact")
+                                    ->label("Contact")
+                                    ->required(),
+                                TextInput::make("address")
+                                    ->label("Adresse")
+                                    ->columnSpan(2),
+                            ])
+                            ->searchable()
+                            ->preload()
+                            ->columnSpan(2)
+                            ->required(),
+                    ])
                     ->searchable()
-                    ->preload()
                     ->required(),
 
                 TextInput::make("capacity")
@@ -106,7 +148,7 @@ class AddLoad extends ModalComponent implements HasForms
 
     public static function modalMaxWidth(): string
     {
-        return "3xl";
+        return "5xl";
     }
 
     public function render()

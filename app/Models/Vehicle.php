@@ -10,15 +10,7 @@ class Vehicle extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        "chassis",
-        "registration",
-        "capacity",
-        "driver",
-        "contact",
-        "carrier_id",
-        "status",
-    ];
+    protected $fillable = ["registration", "capacity", "carrier_id", "status"];
 
     public function carrier(): BelongsTo
     {

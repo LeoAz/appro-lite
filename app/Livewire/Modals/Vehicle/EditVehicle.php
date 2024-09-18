@@ -36,7 +36,6 @@ class EditVehicle extends ModalComponent implements HasForms
         return $form
             ->columns(2)
             ->schema([
-                TextInput::make("chassis")->name("N° de chassis"),
                 TextInput::make("registration")
                     ->name("N° de plaque")
                     ->required(),
@@ -51,7 +50,7 @@ class EditVehicle extends ModalComponent implements HasForms
                             ->required(),
                         TextInput::make("address")
                             ->label("Adresse")
-                            ->columnSpan(3),
+                            ->columnSpan(2),
                     ])
                     ->searchable()
                     ->preload()

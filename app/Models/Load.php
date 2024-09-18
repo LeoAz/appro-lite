@@ -11,7 +11,7 @@ class Load extends Model
 
     protected $fillable = [
         "load_date",
-        "load_location",
+        "city_id",
         "product",
         "capacity",
         "vehicle_id",
@@ -36,5 +36,10 @@ class Load extends Model
     public function depot()
     {
         return $this->belongsTo(Depot::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
     }
 }

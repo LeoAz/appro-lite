@@ -31,7 +31,6 @@ class AddCarrier extends ModalComponent implements HasForms
                 TextInput::make("nom")->name("Nom")->required(),
                 TextInput::make("contact")->label("Contact")->required(),
                 Textarea::make("address")->label("Adresse")->columnSpan(2),
-                // ...
             ])
             ->statePath("data");
     }

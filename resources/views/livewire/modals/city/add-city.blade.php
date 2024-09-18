@@ -4,14 +4,13 @@
     footerClasses="mt-4 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border border-t border-secondary-100"
 >
     <x-slot name="title">
-        <span>Ajouter un chargement</span>
+        <span>Ajouter une ville</span>
     </x-slot>
 
     <x-slot name="content">
         <form wire:submit="create">
             {{ $this->form }}
         </form>
-        <x-filament-actions::modals />
     </x-slot>
 
     <x-slot name="buttons">

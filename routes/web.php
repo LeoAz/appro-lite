@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CarrierController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\DepotController;
 use App\Http\Controllers\LoadController;
 use App\Http\Controllers\ProfileController;
@@ -11,6 +12,7 @@ Route::middleware("auth")->group(function () {
     Route::get("/vehicles", VehicleController::class)->name("vehicles");
     Route::get("/", CarrierController::class)->name("carriers");
     Route::get("/depots", DepotController::class)->name("depots");
+    Route::get("/cities", CityController::class)->name("cities");
     Route::get("/loads", LoadController::class)->name("loads");
 
     Route::get("/profile", [ProfileController::class, "edit"])->name(

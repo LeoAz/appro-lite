@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Livewire\Vehicle;
+namespace App\Livewire\City;
 
-use App\Models\Vehicle;
+use App\Models\City;
+use App\Models\Depot;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -10,15 +11,15 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-class ListVehicle extends Component implements HasForms, HasTable
+class ListCity extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -26,27 +27,17 @@ class ListVehicle extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Vehicle::query())
+            ->query(City::query())
             ->defaultSort("created_at", "desc")
             ->paginated([10, 25, 50, 100])
             ->selectable()
             ->columns([
-                TextColumn::make("registration")
-                    ->label("N° Plaque")
+                TextColumn::make("name")
+                    ->label("Nom")
                     ->weight(FontWeight::SemiBold)
                     ->searchable(),
-                TextColumn::make("capacity")->label("Capacité")->searchable(),
-                TextColumn::make("carrier.nom")
-                    ->label("Transporteur")
-                    ->searchable(),
-                TextColumn::make("status")->badge()->searchable()->color(
-                    fn(string $state): string => match ($state) {
-                        "Disponble" => "success",
-                        "En chargement" => "gray",
-                    }
-                ),
             ])
-            ->emptyStateHeading('Aucun véhicule n\'est disponible')
+            ->emptyStateHeading('Aucune ville n\'est disponible')
             ->filters([
                 //
             ])
@@ -56,33 +47,28 @@ class ListVehicle extends Component implements HasForms, HasTable
                         ->label("Modifier")
                         ->icon("heroicon-m-eye")
                         ->action(
-                            fn(
-                                Vehicle $record,
-                                $livewire
-                            ) => $livewire->dispatch(
+                            fn(City $record, $livewire) => $livewire->dispatch(
                                 "openModal",
-                                "modals.vehicle.edit-vehicle",
-                                ["vehicle" => $record]
+                                "modals.city.edit-city",
+                                ["city" => $record]
                             )
                         ),
                     Action::make("delete")
-                        ->label("Supprimer")
+                        ->label("Supprimé")
                         ->color("danger")
                         ->requiresConfirmation()
-                        ->action(function (Vehicle $record) {
+                        ->action(function (City $record) {
                             $record->delete();
                             Notification::make()
-                                ->title("Véhicule supprimé")
+                                ->title("Ville supprimé")
                                 ->success()
-                                ->body(
-                                    "Le vehicule a été supprimé avec succés!"
-                                )
+                                ->body("La ville a été supprimé avec succés!")
                                 ->send();
                         })
-                        ->modalHeading("Supprimé le véhicule")
+                        ->modalHeading("Supprimé la ville")
                         ->icon("heroicon-m-trash")
                         ->modalDescription(
-                            'Etes vous sûr(e) de vouloir supprimer ce vehicule ?, La supression de ce vehicule entrainera automatiquement la supression de l\'ensemble des chargements liés'
+                            'Etes vous sûr(e) de vouloir supprimer cette ville ?, La supression de cette ville entrainera automatiquement la supression de l\'ensemble des informations liées'
                         )
                         ->modalSubmitActionLabel("Oui, Supprimé")
                         ->modalCancelActionLabel("Annulé")
@@ -91,33 +77,31 @@ class ListVehicle extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 BulkAction::make("delete")
-                    ->label("Supprimé les véhicules")
+                    ->label("Supprimé les villes")
                     ->color("danger")
                     ->requiresConfirmation()
                     ->deselectRecordsAfterCompletion()
-                    ->modalHeading("Supprimé les véhicules")
+                    ->modalHeading("Supprimé les villes")
                     ->icon("heroicon-m-trash")
                     ->modalDescription(
-                        'Etes vous sûr(e) de vouloir supprimer ces véhicules ?, La supression de ces fournisseurs entrainera automatiquement la supression de l\'ensemble des chargements liés'
+                        'Etes vous sûr(e) de vouloir supprimer ces villes ?, La supression de ces villes entrainera automatiquement la supression de l\'ensemble des informations liées'
                     )
                     ->modalSubmitActionLabel("Oui, Supprimé")
                     ->modalCancelActionLabel("Annulé")
                     ->action(function (Collection $records) {
                         $records->each->delete();
                         Notification::make()
-                            ->title("Véhicules supprimés")
+                            ->title("Villes supprimés")
                             ->success()
-                            ->body(
-                                "Les véhicules ont été supprimé avec succés!"
-                            )
+                            ->body("Les villes ont été supprimé avec succés!")
                             ->send();
                     }),
             ]);
     }
 
-    #[On("add-vehicle"), On("update-vehicle")]
+    #[On("add-city"), On("update-city")]
     public function render()
     {
-        return view("livewire.vehicle.list-vehicle");
+        return view("livewire.city.list-city");
     }
 }
