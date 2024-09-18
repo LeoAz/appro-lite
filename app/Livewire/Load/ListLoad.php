@@ -70,6 +70,16 @@ class ListLoad extends Component implements HasForms, HasTable
                                 ["load" => $record]
                             )
                         ),
+                    Action::make("unload")
+                        ->label("Décharger")
+                        ->icon("heroicon-m-arrow-down-on-square")
+                        ->action(
+                            fn(Load $record, $livewire) => $livewire->dispatch(
+                                "openModal",
+                                "modals.load.add-unload",
+                                ["load" => $record]
+                            )
+                        ),
                     Action::make("delete")
                         ->label("Supprimé")
                         ->color("danger")

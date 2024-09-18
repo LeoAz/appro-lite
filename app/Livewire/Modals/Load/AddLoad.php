@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Modals\Load;
 
+use App\Enums\VehicleStatus;
 use App\Models\Depot;
 use App\Models\Load;
 use App\Models\Vehicle;
@@ -87,6 +88,12 @@ class AddLoad extends ModalComponent implements HasForms
     {
         $attributes = $this->form->getState();
         Load::create($attributes);
+
+        $vehicle = Vehicle::whereId($attributes["vehicle_id"])->first();
+        $vehicle->update([
+            "status" => VehicleStatus::Loaded,
+        ]);
+
         Notification::make()
             ->title("Nouveau chargement ajouté")
             ->success()
