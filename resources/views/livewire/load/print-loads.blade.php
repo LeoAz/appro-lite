@@ -66,7 +66,7 @@
                     <td>{{ $load->product }}</td>
                     <td>{{ $load->capacity}}</td>
                     <td>{{ $load->vehicle->registration ?? '-' }}</td>
-                    <td>{{ $load->vehicle->carrier->nom }}</td>
+                    <td>{{ $load->vehicle->carrier->nom  ?? '-'}}</td>
                     <td>{{ $load->depot->name}}</td>
                     <td>{{ $load->status }}</td>
                     <td>{{ $load->unload_date?->format('d/m/Y')}}</td>
