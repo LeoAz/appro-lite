@@ -55,9 +55,9 @@ class AddLoad extends ModalComponent implements HasForms
                 Select::make("product")
                     ->label("Le produit")
                     ->options([
-                        "Fuel" => "Fuel",
-                        "Super" => "Super",
-                        "Gasoil" => "Gasoil",
+                        "FUEL" => "FUEL",
+                        "SUPER" => "SUPER",
+                        "GASOIL" => "GASOIL",
                     ])
                     ->required()
                     ->searchable(),
