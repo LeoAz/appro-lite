@@ -3,6 +3,7 @@
 namespace App\Livewire\Load;
 
 use App\Models\Load;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use PhpParser\Node\Stmt\Foreach_;
 
 class ListLoad extends Component implements HasForms, HasTable
 {
@@ -214,6 +216,28 @@ class ListLoad extends Component implements HasForms, HasTable
                             ->send();
                     }),
             ]);
+    }
+
+    public function getLoads()
+    {
+        $query = $this->getFilteredTableQuery();
+        $this->applySortingToTableQuery($query);
+
+        $loads = $query->get();
+
+        return $loads;
+    }
+
+    public function printLoads()
+    {
+        $loads = $this->getLoads();
+
+        $pdf = Pdf::loadView("livewire.load.print-loads", ["loads" => $loads]);
+
+        return response()->streamDownload(
+            fn() => print $pdf->output(),
+            "Liste_des_chargements.pdf"
+        );
     }
 
     #[On("add-load"), On("update-load")]

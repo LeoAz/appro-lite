@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.0",
         "bensampo/laravel-enum": "^6.11",
         "filament/forms": "^3.2",
         "filament/notifications": "^3.2",

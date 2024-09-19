@@ -6,6 +6,6 @@ use BenSampo\Enum\Enum;
 
 final class VehicleStatus extends Enum
 {
-    const Available = "Disponble";
+    const Available = "Disponible";
     const Loaded = "En chargement";
 }
