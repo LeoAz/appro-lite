@@ -28,12 +28,12 @@
 
             th {
                 background-color: #f2f2f2;
-                font-size: 13px; /* Taille de police pour l'en-tête */
+                font-size: 12px; /* Taille de police pour l'en-tête */
                 text-align: left;
             }
 
             td {
-                font-size: 12px; /* Taille de police pour le corps */
+                font-size: 11px; /* Taille de police pour le corps */
             }
 
             /* Alternance des couleurs pour les lignes */
