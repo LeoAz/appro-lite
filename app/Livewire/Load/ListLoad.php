@@ -93,17 +93,29 @@ class ListLoad extends Component implements HasForms, HasTable
                         ->toggle(),
 
                     SelectFilter::make("Véhicule")
+                        ->label("Filtre par véhicule")
                         ->relationship("vehicle", "registration")
                         ->searchable()
                         ->preload(),
 
                     SelectFilter::make("Ville")
+                        ->label("Filtre par ville")
                         ->multiple()
                         ->relationship("city", "name")
                         ->searchable()
                         ->preload(),
 
+                    SelectFilter::make("product")
+                        ->label("Filtre par produit")
+                        ->options([
+                            "FUEL" => "FUEL",
+                            "SUPER" => "SUPER",
+                            "GASOIL" => "GASOIL",
+                        ])
+                        ->selectablePlaceholder(false),
+
                     SelectFilter::make("status")
+                        ->label("Filtre par status")
                         ->options([
                             "EN COURS" => "EN COURS",
                             "DECHARGÉ" => "DECHARGÉ",
@@ -144,7 +156,7 @@ class ListLoad extends Component implements HasForms, HasTable
                 layout: FiltersLayout::Modal
             )
             ->filtersTriggerAction(
-                fn(Action $action) => $action->button()->label("Filter")
+                fn(Action $action) => $action->button()->label("Filtre")
             )
             ->actions([
                 ActionGroup::make([
