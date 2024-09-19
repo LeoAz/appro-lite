@@ -55,7 +55,7 @@
                 <th>Transporteur</th>
                 <th>Dépot</th>
                 <th>Status</th>
-                <th>Date Déchmt</th>
+                <th>Déchmt</th>
             </tr>
         </thead>
         <tbody>
