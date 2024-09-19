@@ -115,7 +115,6 @@ class AddLoad extends ModalComponent implements HasForms
                             ->columnSpan(2)
                             ->required(),
                     ])
-                    ->preload()
                     ->searchable()
                     ->required(),
 
