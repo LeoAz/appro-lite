@@ -41,7 +41,7 @@ class ListVehicle extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make("status")->badge()->searchable()->color(
                     fn(string $state): string => match ($state) {
-                        "Disponble" => "success",
+                        "Disponible" => "success",
                         "En chargement" => "gray",
                     }
                 ),
