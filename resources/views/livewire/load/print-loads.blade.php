@@ -65,7 +65,7 @@
                     <td>{{ $load->city->name }}</td>
                     <td>{{ $load->product }}</td>
                     <td>{{ $load->capacity}}</td>
-                    <td>{{ $load->vehicle->registration }}</td>
+                    <td>{{ $load->vehicle->registration ?? '-' }}</td>
                     <td>{{ $load->vehicle->carrier->nom }}</td>
                     <td>{{ $load->depot->name}}</td>
                     <td>{{ $load->status }}</td>
