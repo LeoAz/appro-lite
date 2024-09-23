@@ -78,6 +78,9 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->label("Date")
                     ->date("d-m-Y")
                     ->searchable(),
+                TextColumn::make("unload_location")
+                    ->label("Lieu")
+                    ->searchable(),
             ])
             ->emptyStateHeading('Aucun Chargements n\'est disponible')
             ->filters(
