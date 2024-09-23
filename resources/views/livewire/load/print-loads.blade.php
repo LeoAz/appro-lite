@@ -56,6 +56,7 @@
                 <th>Dépot</th>
                 <th>Status</th>
                 <th>Déchmt</th>
+                <th>Lieu</th>
             </tr>
         </thead>
         <tbody>
@@ -70,6 +71,7 @@
                     <td>{{ $load->depot->name}}</td>
                     <td>{{ $load->status }}</td>
                     <td>{{ $load->unload_date?->format('d/m/Y')}}</td>
+                    <td>{{ $load->unload_location ?? '-'}}</td>
 
                 </tr>
             @endforeach
