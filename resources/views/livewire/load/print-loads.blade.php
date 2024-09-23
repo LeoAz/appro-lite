@@ -33,7 +33,7 @@
             }
 
             td {
-                font-size: 11px; /* Taille de police pour le corps */
+                font-size: 10px; /* Taille de police pour le corps */
             }
 
             /* Alternance des couleurs pour les lignes */
