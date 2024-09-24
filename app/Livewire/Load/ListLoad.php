@@ -174,7 +174,7 @@ class ListLoad extends Component implements HasForms, HasTable
                             )
                         ),
                     Action::make("unload")
-                        ->label("Décharger")
+                        ->label("Déchargé")
                         ->icon("heroicon-m-arrow-down-on-square")
                         ->action(
                             fn(Load $record, $livewire) => $livewire->dispatch(
