@@ -43,7 +43,7 @@
         </style>
 </head>
 <body>
-    <h1>Liste des chargements</h1>
+    <h1>LISTE DES CHARGEMENTS {{$status}}</h1>
     <table>
         <thead>
             <tr>

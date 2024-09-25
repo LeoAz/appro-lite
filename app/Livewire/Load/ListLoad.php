@@ -104,6 +104,43 @@ class ListLoad extends Component implements HasForms, HasTable
                             )
                         )
                         ->toggle(),
+                    Filter::make("updated_at")
+                        ->form([
+                            DatePicker::make("date_chargt")->label(
+                                "Date dechargement"
+                            ),
+                            DatePicker::make("fin_chargt")->label(
+                                "fin dechargement"
+                            ),
+                        ])
+                        ->query(function (
+                            Builder $query,
+                            array $data
+                        ): Builder {
+                            return $query
+                                ->when(
+                                    $data["date_chargt"],
+                                    fn(
+                                        Builder $query,
+                                        $date
+                                    ): Builder => $query->whereDate(
+                                        "unload_date",
+                                        ">=",
+                                        $date
+                                    )
+                                )
+                                ->when(
+                                    $data["fin_chargt"],
+                                    fn(
+                                        Builder $query,
+                                        $date
+                                    ): Builder => $query->whereDate(
+                                        "unload_date",
+                                        "<=",
+                                        $date
+                                    )
+                                );
+                        }),
 
                     SelectFilter::make("Véhicule")
                         ->label("Filtre par véhicule")
@@ -136,14 +173,21 @@ class ListLoad extends Component implements HasForms, HasTable
                         ->selectablePlaceholder(false),
 
                     Filter::make("created_at")
-                        ->form([DatePicker::make("De"), DatePicker::make("A")])
+                        ->form([
+                            DatePicker::make("date_chargt")->label(
+                                "Date chargement"
+                            ),
+                            DatePicker::make("fin_chargt")->label(
+                                "fin chargement"
+                            ),
+                        ])
                         ->query(function (
                             Builder $query,
                             array $data
                         ): Builder {
                             return $query
                                 ->when(
-                                    $data["De"],
+                                    $data["date_chargt"],
                                     fn(
                                         Builder $query,
                                         $date
@@ -154,7 +198,7 @@ class ListLoad extends Component implements HasForms, HasTable
                                     )
                                 )
                                 ->when(
-                                    $data["A"],
+                                    $data["fin_chargt"],
                                     fn(
                                         Builder $query,
                                         $date
@@ -168,6 +212,7 @@ class ListLoad extends Component implements HasForms, HasTable
                 ],
                 layout: FiltersLayout::Modal
             )
+
             ->filtersTriggerAction(
                 fn(Action $action) => $action->button()->label("Filtre")
             )
@@ -257,7 +302,10 @@ class ListLoad extends Component implements HasForms, HasTable
     {
         $loads = $this->getLoads();
 
-        $pdf = Pdf::loadView("livewire.load.print-loads", ["loads" => $loads]);
+        $pdf = Pdf::loadView("livewire.load.print-loads", [
+            "loads" => $loads,
+            "status" => $this->status,
+        ]);
 
         return response()->streamDownload(
             fn() => print $pdf->output(),
