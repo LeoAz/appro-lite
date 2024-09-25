@@ -30,10 +30,20 @@ class ListLoad extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    public $status;
+
+    public function mount($status)
+    {
+        $this->status = $status;
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->query(Load::query())
+            ->modifyQueryUsing(
+                fn(Builder $query) => $query->where("status", $this->status)
+            )
             ->defaultSort("created_at", "desc")
             ->paginated([10, 25, 50, 100])
             ->selectable()
