@@ -19,6 +19,7 @@ class Load extends Model
         "is_unload",
         "unload_date",
         "unload_location",
+        "client",
         "status",
     ];
 

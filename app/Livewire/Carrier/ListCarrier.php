@@ -58,7 +58,7 @@ class ListCarrier extends Component implements HasForms, HasTable
                             )
                         ),
                     Action::make("delete")
-                        ->label("Supprimé")
+                    ->label('')
                         ->color("danger")
                         ->requiresConfirmation()
                         ->action(function (Carrier $record) {

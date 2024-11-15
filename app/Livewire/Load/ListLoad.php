@@ -91,6 +91,7 @@ class ListLoad extends Component implements HasForms, HasTable
                 TextColumn::make("unload_location")
                     ->label("Lieu")
                     ->searchable(),
+                TextColumn::make("client")->label("Client")->searchable(),
             ])
             ->emptyStateHeading('Aucun Chargements n\'est disponible')
             ->filters(

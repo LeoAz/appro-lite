@@ -57,6 +57,7 @@
                 <th>Status</th>
                 <th>Déchmt</th>
                 <th>Lieu</th>
+                <th>client</th>
             </tr>
         </thead>
         <tbody>
@@ -72,6 +73,7 @@
                     <td>{{ $load->status }}</td>
                     <td>{{ $load->unload_date?->format('d/m/Y')}}</td>
                     <td>{{ $load->unload_location ?? '-'}}</td>
+                    <td>{{ $load->client ?? '-'}}</td>
 
                 </tr>
             @endforeach

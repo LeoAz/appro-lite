@@ -33,7 +33,7 @@ class AddUnload extends ModalComponent implements HasForms
     public function form(Form $form): Form
     {
         return $form
-            ->columns(2)
+            ->columns(3)
             ->schema([
                 DatePicker::make("unload_date")
                     ->name("Date")
@@ -45,6 +45,7 @@ class AddUnload extends ModalComponent implements HasForms
                 TextInput::make("unload_location")
                     ->label("Lieu déchargement")
                     ->required(),
+                TextInput::make("client")->label("Le client")->required(),
             ])
             //->statePath("data");
             ->model($this->load);
@@ -72,6 +73,11 @@ class AddUnload extends ModalComponent implements HasForms
 
         $this->dispatch("update-load");
         $this->closeModal();
+    }
+
+    public static function modalMaxWidth(): string
+    {
+        return "5xl";
     }
 
     public function render()
