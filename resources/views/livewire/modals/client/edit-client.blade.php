@@ -4,19 +4,18 @@
     footerClasses="mt-4 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border border-t border-secondary-100"
 >
     <x-slot name="title">
-        <span>Ajouter un déchargement</span>
+        <span>Modifié le client</span>
     </x-slot>
 
     <x-slot name="content">
-        <form wire:submit="unload">
+        <form wire:submit="update">
             {{ $this->form }}
         </form>
-        <x-filament-actions::modals />
     </x-slot>
 
     <x-slot name="buttons">
         <button type="button" class="ml-4 inline-flex items-center gap-x-1.5 rounded-md bg-primary-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-                wire:click="unload"
+                wire:click="update"
         >
             <div wire:loading.remove>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="-ml-0.5 h-4 w-4">

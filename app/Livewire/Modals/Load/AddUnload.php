@@ -4,9 +4,11 @@ namespace App\Livewire\Modals\Load;
 
 use App\Enums\LoadStatus;
 use App\Enums\VehicleStatus;
+use App\Models\Client;
 use App\Models\Load;
 use App\Models\Vehicle;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -20,13 +22,16 @@ class AddUnload extends ModalComponent implements HasForms
     use InteractsWithForms;
 
     public Load $load;
+    public Client $client;
 
     public $unload_date;
     public $unload_location;
+    public $client_id;
 
-    public function mount(load $load): void
+    public function mount(load $load, Client $client): void
     {
         $this->load = $load;
+        $this->client = $client;
         $this->form->fill($load->toArray());
     }
 
@@ -45,7 +50,15 @@ class AddUnload extends ModalComponent implements HasForms
                 TextInput::make("unload_location")
                     ->label("Lieu déchargement")
                     ->required(),
-                TextInput::make("client")->label("Le client")->required(),
+                Select::make("client_id")
+                    ->label("Le client")
+                    ->relationship("client", "nom")
+                    ->createOptionForm([
+                        TextInput::make("nom")->name("Nom")->required(),
+                    ])
+                    ->searchable()
+                    ->preload()
+                    ->required(),
             ])
             //->statePath("data");
             ->model($this->load);

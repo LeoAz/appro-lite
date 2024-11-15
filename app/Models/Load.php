@@ -19,7 +19,7 @@ class Load extends Model
         "is_unload",
         "unload_date",
         "unload_location",
-        "client",
+        "client_id",
         "status",
     ];
 
@@ -42,5 +42,10 @@ class Load extends Model
     public function city()
     {
         return $this->belongsTo(City::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
     }
 }
