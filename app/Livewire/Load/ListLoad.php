@@ -26,19 +26,39 @@ class ListLoad extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public $status;
+    public $selectedLocations = [];
+    public $selectedProduct = '';
+    public $dateFrom = '';
+    public $dateUntil = '';
 
     public function mount($status)
     {
         $this->status = $status;
     }
 
+    public function updated($propertyName)
+    {
+        if (in_array($propertyName, ['selectedLocations', 'selectedProduct', 'dateFrom', 'dateUntil'])) {
+            $this->resetTable();
+        }
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->query(Load::query())
-            ->modifyQueryUsing(
-                fn(Builder $query) => $query->where("status", $this->status)
-            )
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->where("status", $this->status);
+
+                // Application des filtres personnalisés
+                $locationField = $this->status === 'EN COURS' ? 'load_location' : 'unload_location';
+                $dateField = $this->status === 'EN COURS' ? 'load_date' : 'unload_date';
+
+                $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
+                    ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
+                    ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
+                    ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
+            })
             ->defaultSort("created_at", "desc")
             ->paginated([10, 25, 50, 100])
             ->selectable()
@@ -51,7 +71,11 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->label("Lieu Chargement")
                     ->searchable(),
                 TextColumn::make("product")->label("Produit")->searchable(),
-                TextColumn::make("capacity")->label("Litres")->searchable(),
+                TextColumn::make("capacity")
+                    ->label("Litres")
+                    ->numeric(decimalPlaces: 0, decimalSeparator: ',', thousandsSeparator: ' ')
+                    ->summarize(\Filament\Tables\Columns\Summarizers\Sum::make()->label('Total')->numeric(decimalPlaces: 0, decimalSeparator: ',', thousandsSeparator: ' '))
+                    ->searchable(),
                 TextColumn::make("vehicle_registration")
                     ->label("Véhicule")
                     ->searchable(),
@@ -160,7 +184,18 @@ class ListLoad extends Component implements HasForms, HasTable
 
     public function getLoads()
     {
-        $query = $this->getFilteredTableQuery();
+        $query = Load::query();
+        $query->where("status", $this->status);
+
+        // Application des filtres personnalisés
+        $locationField = $this->status === 'EN COURS' ? 'load_location' : 'unload_location';
+        $dateField = $this->status === 'EN COURS' ? 'load_date' : 'unload_date';
+
+        $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
+            ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
+            ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
+            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
+
         $this->applySortingToTableQuery($query);
 
         $loads = $query->get();
@@ -175,11 +210,15 @@ class ListLoad extends Component implements HasForms, HasTable
         $pdf = Pdf::loadView("livewire.load.print-loads", [
             "loads" => $loads,
             "status" => $this->status,
+            "selectedLocations" => $this->selectedLocations,
+            "selectedProduct" => $this->selectedProduct,
+            "dateFrom" => $this->dateFrom,
+            "dateUntil" => $this->dateUntil,
         ]);
 
         return response()->streamDownload(
             fn() => print $pdf->output(),
-            "Liste_des_chargements.pdf"
+            "Liste_des_" . strtolower($this->status === 'EN COURS' ? 'chargements' : 'livraisons') . ".pdf"
         );
     }
 

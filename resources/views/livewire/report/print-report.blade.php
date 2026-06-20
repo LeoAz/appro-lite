@@ -47,7 +47,19 @@
     </style>
 </head>
 <body>
-    <h1>RAPPORT DES {{ $type }}S</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px;">
+        <div style="width: 30%;">
+            <div style="font-weight: bold; font-size: 14px;">APPRO-LITE</div>
+            <div style="font-size: 10px;">Gestion des transports</div>
+        </div>
+        <div style="width: 40%; text-align: center;">
+            <h1 style="margin: 0; font-size: 18px;">RAPPORT DES {{ $type }}S</h1>
+            <div style="font-size: 10px;">Date d'édition: {{ now()->format('d/m/Y H:i') }}</div>
+        </div>
+        <div style="width: 30%; text-align: right;">
+            <div style="font-size: 10px;">Document Officiel</div>
+        </div>
+    </div>
 
     @if($dateFrom || $dateUntil || $selectedProduct || !empty($selectedLocations))
         <div style="margin-bottom: 10px; font-size: 10px;">

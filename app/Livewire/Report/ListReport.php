@@ -71,7 +71,9 @@ class ListReport extends Component implements HasForms, HasTable
                 TextColumn::make("product")
                     ->label("Produit"),
                 TextColumn::make("capacity")
-                    ->label("Litres"),
+                    ->label("Litres")
+                    ->numeric(decimalPlaces: 0, decimalSeparator: ',', thousandsSeparator: ' ')
+                    ->summarize(\Filament\Tables\Columns\Summarizers\Sum::make()->label('Total')->numeric(decimalPlaces: 0, decimalSeparator: ',', thousandsSeparator: ' ')),
                 TextColumn::make("vehicle_registration")
                     ->label("Véhicule"),
                 TextColumn::make("status")
