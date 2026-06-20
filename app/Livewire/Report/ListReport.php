@@ -13,6 +13,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
@@ -22,10 +23,24 @@ class ListReport extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    public $type;
+
+    public function mount($type = 'chargement')
+    {
+        $this->type = $type;
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->query(Load::query())
+            ->modifyQueryUsing(function (Builder $query) {
+                if ($this->type === 'chargement') {
+                    $query->where('status', 'EN COURS');
+                } else {
+                    $query->where('status', 'LIVRÉ');
+                }
+            })
             ->columns([
                 TextColumn::make("load_date")
                     ->label("Date Chargement")
@@ -49,11 +64,20 @@ class ListReport extends Component implements HasForms, HasTable
                     }),
                 TextColumn::make("unload_date")
                     ->label("Date Livraison")
-                    ->date("d-m-Y"),
+                    ->date("d-m-Y")
+                    ->toggleable()
+                    ->hidden(fn() => $this->type === 'chargement')
+                    ->searchable(),
                 TextColumn::make("unload_location")
-                    ->label("Lieu Livraison"),
+                    ->label("Lieu Livraison")
+                    ->toggleable()
+                    ->hidden(fn() => $this->type === 'chargement')
+                    ->searchable(),
                 TextColumn::make("client_name")
-                    ->label("Client"),
+                    ->label("Client")
+                    ->toggleable()
+                    ->hidden(fn() => $this->type === 'chargement')
+                    ->searchable(),
             ])
             ->filters([
                 SelectFilter::make('product')
@@ -63,26 +87,15 @@ class ListReport extends Component implements HasForms, HasTable
                         "SUPER" => "SUPER",
                         "GASOIL" => "GASOIL",
                     ]),
-                Filter::make('load_location')
+                Filter::make('location')
                     ->form([
-                        TextInput::make('load_location')
-                            ->label('Lieu de chargement'),
+                        TextInput::make('location')
+                            ->label(fn() => $this->type === 'chargement' ? 'Lieu de chargement' : 'Lieu de livraison'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
-                            $data['load_location'],
-                            fn (Builder $query, $value): Builder => $query->where('load_location', 'like', "%{$value}%"),
-                        );
-                    }),
-                Filter::make('unload_location')
-                    ->form([
-                        TextInput::make('unload_location')
-                            ->label('Lieu de livraison'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['unload_location'],
-                            fn (Builder $query, $value): Builder => $query->where('unload_location', 'like', "%{$value}%"),
+                            $data['location'],
+                            fn (Builder $query, $value): Builder => $query->where($this->type === 'chargement' ? 'load_location' : 'unload_location', 'like', "%{$value}%"),
                         );
                     }),
                 Filter::make('date')
@@ -94,14 +107,18 @@ class ListReport extends Component implements HasForms, HasTable
                         return $query
                             ->when(
                                 $data['from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('load_date', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate($this->type === 'chargement' ? 'load_date' : 'unload_date', '>=', $date),
                             )
                             ->when(
                                 $data['until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('load_date', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate($this->type === 'chargement' ? 'load_date' : 'unload_date', '<=', $date),
                             );
                     })
-            ]);
+            ])
+            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filtersTriggerAction(
+                fn(\Filament\Tables\Actions\Action $action) => $action->button()->label("Filtre")->hidden()
+            );
     }
 
     public function render()

@@ -219,11 +219,11 @@ class ListLoad extends Component implements HasForms, HasTable
                                 );
                         }),
                 ],
-                layout: FiltersLayout::Modal
+                layout: FiltersLayout::AboveContent
             )
 
             ->filtersTriggerAction(
-                fn(Action $action) => $action->button()->label("Filtre")
+                fn(Action $action) => $action->button()->label("Filtre")->hidden()
             )
             ->actions([
                 ActionGroup::make([
