@@ -8,15 +8,15 @@
         });
     </script>
     @endscript
-</div>
 
-<style>
-    @media print {
-        header, nav, .fi-sidebar, .fi-topbar, .fi-header-actions, .fi-ta-filters, .fi-ta-header-toolbar {
-            display: none !important;
+    <style>
+        @media print {
+            header, nav, .fi-sidebar, .fi-topbar, .fi-header-actions, .fi-ta-filters, .fi-ta-header-toolbar {
+                display: none !important;
+            }
+            .fi-main {
+                padding: 0 !important;
+            }
         }
-        .fi-main {
-            padding: 0 !important;
-        }
-    }
-</style>
+    </style>
+</div>
