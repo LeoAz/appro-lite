@@ -4,6 +4,7 @@ namespace App\Livewire\Report;
 
 use App\Models\City;
 use App\Models\Load;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -111,7 +112,48 @@ class ListReport extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-printer')
                     ->color('info')
                     ->action(fn () => $this->dispatch('print-report')),
+                Action::make('downloadPdf')
+                    ->label('PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->action('downloadPdf'),
             ]);
+    }
+
+    public function downloadPdf()
+    {
+        $query = Load::query();
+
+        if ($this->type === 'chargement') {
+            $query->where('status', 'EN COURS');
+        } else {
+            $query->where('status', 'LIVRÉ');
+        }
+
+        // Application des filtres personnalisés
+        $locationField = $this->type === 'chargement' ? 'load_location' : 'unload_location';
+        $dateField = $this->type === 'chargement' ? 'load_date' : 'unload_date';
+
+        $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
+            ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
+            ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
+            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
+
+        $loads = $query->get();
+
+        $pdf = Pdf::loadView('livewire.report.print-report', [
+            'loads' => $loads,
+            'type' => $this->type,
+            'selectedLocations' => $this->selectedLocations,
+            'selectedProduct' => $this->selectedProduct,
+            'dateFrom' => $this->dateFrom,
+            'dateUntil' => $this->dateUntil,
+        ]);
+
+        return response()->streamDownload(
+            fn() => print $pdf->output(),
+            "Rapport_" . $this->type . "_" . now()->format('Y-m-d') . ".pdf"
+        );
     }
 
     public function render()
