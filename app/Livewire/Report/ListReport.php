@@ -28,9 +28,22 @@ class ListReport extends Component implements HasForms, HasTable
 
     public $type;
 
+    // Filtres personnalisés
+    public $selectedLocations = [];
+    public $selectedProduct = '';
+    public $dateFrom = '';
+    public $dateUntil = '';
+
     public function mount($type = 'chargement')
     {
         $this->type = $type;
+    }
+
+    public function updated($propertyName)
+    {
+        if (in_array($propertyName, ['selectedLocations', 'selectedProduct', 'dateFrom', 'dateUntil'])) {
+            $this->resetTable();
+        }
     }
 
     public function table(Table $table): Table
@@ -43,6 +56,15 @@ class ListReport extends Component implements HasForms, HasTable
                 } else {
                     $query->where('status', 'LIVRÉ');
                 }
+
+                // Application des filtres personnalisés
+                $locationField = $this->type === 'chargement' ? 'load_location' : 'unload_location';
+                $dateField = $this->type === 'chargement' ? 'load_date' : 'unload_date';
+
+                $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
+                    ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
+                    ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
+                    ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
             })
             ->columns([
                 TextColumn::make("load_date")
@@ -82,55 +104,14 @@ class ListReport extends Component implements HasForms, HasTable
                     ->hidden(fn() => $this->type === 'chargement')
                     ->searchable(),
             ])
-            ->filters([
-                SelectFilter::make('product')
-                    ->label('Produit')
-                    ->options([
-                        "FUEL" => "FUEL",
-                        "SUPER" => "SUPER",
-                        "GASOIL" => "GASOIL",
-                    ]),
-                Filter::make('locations')
-                    ->form([
-                        CheckboxList::make('locations')
-                            ->label('Villes')
-                            ->options(City::pluck('name', 'name'))
-                            ->columns(4),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['locations'],
-                            fn (Builder $query, $values): Builder => $query->whereIn($this->type === 'chargement' ? 'load_location' : 'unload_location', $values),
-                        );
-                    }),
-                Filter::make('date')
-                    ->form([
-                        DatePicker::make('from')->label('Du')->native(false),
-                        DatePicker::make('until')->label('Au')->native(false),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate($this->type === 'chargement' ? 'load_date' : 'unload_date', '>=', $date),
-                            )
-                            ->when(
-                                $data['until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate($this->type === 'chargement' ? 'load_date' : 'unload_date', '<=', $date),
-                            );
-                    })
-            ])
-            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filters([])
             ->headerActions([
                 Action::make('print')
                     ->label('Imprimer')
                     ->icon('heroicon-o-printer')
                     ->color('info')
                     ->action(fn () => $this->dispatch('print-report')),
-            ])
-            ->filtersTriggerAction(
-                fn(\Filament\Tables\Actions\Action $action) => $action->button()->label("Filtre")->hidden()
-            );
+            ]);
     }
 
     public function render()
