@@ -11,7 +11,7 @@ class Load extends Model
 
     protected $fillable = [
         "load_date",
-        "city_id",
+        "load_location",
         "product",
         "capacity",
         "vehicle_id",
@@ -20,6 +20,7 @@ class Load extends Model
         "unload_date",
         "unload_location",
         "client_id",
+        "client_name",
         "status",
     ];
 

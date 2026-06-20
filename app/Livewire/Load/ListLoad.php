@@ -52,10 +52,8 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->label("Date")
                     ->date("d-m-Y")
                     ->searchable(),
-                TextColumn::make("city_id")
-                    ->name("city.name")
-                    ->exists("city")
-                    ->label("Ville")
+                TextColumn::make("load_location")
+                    ->label("Lieu")
                     ->searchable(),
                 TextColumn::make("product")->label("Produit")->searchable(),
                 TextColumn::make("capacity")->label("Litres")->searchable(),
@@ -69,11 +67,6 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->exists("vehicle")
                     ->label("Transporteur")
                     ->searchable(),
-                TextColumn::make("depot_id")
-                    ->name("depot.name")
-                    ->exists("depot")
-                    ->label("Dépôt")
-                    ->searchable(),
                 TextColumn::make("status")
                     ->label("Status")
                     ->searchable()
@@ -81,7 +74,7 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->color(
                         fn(string $state): string => match ($state) {
                             "EN COURS" => "success",
-                            "DECHARGÉ" => "gray",
+                            "LIVRÉ" => "gray",
                         }
                     ),
                 TextColumn::make("unload_date")
@@ -91,7 +84,7 @@ class ListLoad extends Component implements HasForms, HasTable
                 TextColumn::make("unload_location")
                     ->label("Lieu")
                     ->searchable(),
-                TextColumn::make("client.nom")->label("Client")->searchable(),
+                TextColumn::make("client_name")->label("Client")->searchable(),
             ])
             ->emptyStateHeading('Aucun Chargements n\'est disponible')
             ->filters(
@@ -103,7 +96,7 @@ class ListLoad extends Component implements HasForms, HasTable
                         ->preload(),
 
                     Filter::make("is_unload")
-                        ->label("Décharger ?")
+                        ->label("Livrer ?")
                         ->query(
                             fn(Builder $query): Builder => $query->where(
                                 "is_unload",
@@ -114,10 +107,10 @@ class ListLoad extends Component implements HasForms, HasTable
                     Filter::make("updated_at")
                         ->form([
                             DatePicker::make("date_chargt")->label(
-                                "Date dechargement"
+                                "Date livraison"
                             ),
                             DatePicker::make("fin_chargt")->label(
-                                "fin dechargement"
+                                "fin livraison"
                             ),
                         ])
                         ->query(function (
@@ -175,7 +168,7 @@ class ListLoad extends Component implements HasForms, HasTable
                         ->label("Filtre par status")
                         ->options([
                             "EN COURS" => "EN COURS",
-                            "DECHARGÉ" => "DECHARGÉ",
+                            "LIVRÉ" => "LIVRÉ",
                         ])
                         ->selectablePlaceholder(false),
 
@@ -236,7 +229,7 @@ class ListLoad extends Component implements HasForms, HasTable
                             )
                         ),
                     Action::make("unload")
-                        ->label("Déchargé")
+                        ->label("Livré")
                         ->icon("heroicon-m-arrow-down-on-square")
                         ->action(
                             fn(Load $record, $livewire) => $livewire->dispatch(

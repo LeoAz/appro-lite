@@ -48,16 +48,10 @@ class AddUnload extends ModalComponent implements HasForms
                     ->closeOnDateSelection()
                     ->required(),
                 TextInput::make("unload_location")
-                    ->label("Lieu déchargement")
+                    ->label("Lieu livraison")
                     ->required(),
-                Select::make("client_id")
+                TextInput::make("client_name")
                     ->label("Le client")
-                    ->relationship("client", "nom")
-                    ->createOptionForm([
-                        TextInput::make("nom")->name("Nom")->required(),
-                    ])
-                    ->searchable()
-                    ->preload()
                     ->required(),
             ])
             //->statePath("data");

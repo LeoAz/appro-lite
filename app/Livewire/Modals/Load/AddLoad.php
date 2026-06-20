@@ -62,24 +62,8 @@ class AddLoad extends ModalComponent implements HasForms
                     ->required()
                     ->searchable(),
 
-                Select::make("depot_id")
-                    ->label("Le depot")
-                    ->relationship("depot", "name")
-                    ->createOptionForm([
-                        TextInput::make("name")->name("Nom")->required(),
-                    ])
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                Select::make("city_id")
+                TextInput::make("load_location")
                     ->label("Le lieux")
-                    ->relationship("city", "name")
-                    ->createOptionForm([
-                        TextInput::make("name")->name("Nom")->required(),
-                    ])
-                    ->searchable()
-                    ->preload()
                     ->required(),
 
                 Select::make("vehicle_id")

@@ -12,39 +12,37 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('carriers')" :active="request()->routeIs('carriers')">
-                        Transporteurs
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('clients')" :active="request()->routeIs('clients')">
-                        Clients
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('vehicles')" :active="request()->routeIs('vehicles')">
-                        Véhicules
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('depots')" :active="request()->routeIs('depots')">
-                        Dépots
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('cities')" :active="request()->routeIs('cities')">
-                        Villes
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('loads')" :active="request()->routeIs('loads')">
-                        Chargements
+                        Chargement & Livraison
+                    </x-nav-link>
+                    <x-nav-link :href="route('reports')" :active="request()->routeIs('reports')">
+                        Rapport
                     </x-nav-link>
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <!-- Settings & Configuration Dropdown -->
+            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-4">
+                <x-dropdown align="right" width="48">
+                    <x-slot name="trigger">
+                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            <div>Configuration</div>
+                            <div class="ms-1">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </button>
+                    </x-slot>
+                    <x-slot name="content">
+                        <x-dropdown-link :href="route('carriers')">Transporteurs</x-dropdown-link>
+                        <x-dropdown-link :href="route('clients')">Clients</x-dropdown-link>
+                        <x-dropdown-link :href="route('vehicles')">Véhicules</x-dropdown-link>
+                        <x-dropdown-link :href="route('depots')">Dépots</x-dropdown-link>
+                        <x-dropdown-link :href="route('cities')">Villes</x-dropdown-link>
+                    </x-slot>
+                </x-dropdown>
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
@@ -92,20 +90,24 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <!-- Navigation Links -->
-        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-            <x-nav-link :href="route('vehicles')" :active="request()->routeIs('vehicles')">
-                Véhicules
-            </x-nav-link>
+        <div class="space-y-1 pt-2 pb-3">
+            <x-responsive-nav-link :href="route('loads')" :active="request()->routeIs('loads')">
+                Chargement & Livraison
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('reports')" :active="request()->routeIs('reports')">
+                Rapport
+            </x-responsive-nav-link>
         </div>
-        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-            <x-nav-link :href="route('carriers')" :active="request()->routeIs('carriers')">
-                Dépots
-            </x-nav-link>
-        </div>
-        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-            <x-nav-link :href="route('loads')" :active="request()->routeIs('loads')">
-                Chargements
-            </x-nav-link>
+
+        <div class="pt-4 pb-1 border-t border-gray-200">
+            <div class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Configuration</div>
+            <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="route('carriers')">Transporteurs</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('clients')">Clients</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('vehicles')">Véhicules</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('depots')">Dépots</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('cities')">Villes</x-responsive-nav-link>
+            </div>
         </div>
 
         <!-- Responsive Settings Options -->

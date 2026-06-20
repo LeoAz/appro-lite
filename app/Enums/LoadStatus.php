@@ -7,5 +7,5 @@ use BenSampo\Enum\Enum;
 final class LoadStatus extends Enum
 {
     const Pending = "EN COURS";
-    const Unloaded = "DECHARGÉ";
+    const Unloaded = "LIVRÉ";
 }

@@ -73,7 +73,7 @@
                     class="inline-flex rounded-t-md border-t border-l border-r px-5 py-2.5"
                     role="tab"
                 >
-                    Liste des chargements déchargés
+                    Liste des livraisons
                 </button>
             </li>
         </ul>
@@ -95,7 +95,7 @@
                 role="tabpanel"
                 class="mt-8"
             >
-                 <livewire:load.list-load status="DECHARGÉ" />
+                 <livewire:load.list-load status="LIVRÉ" />
             </section>
         </div>
     </div>
