@@ -29,12 +29,12 @@ class AddUnload extends ModalComponent implements HasForms
     public $client_id;
     public $client_name;
 
-    public function mount(load $load, ?Client $client = null): void
+    public function mount(?Load $load = null, ?Client $client = null): void
     {
-        $this->load = $load;
+        $this->load = $load ?? new Load();
         $this->client = $client ?? new Client();
 
-        $data = $load->toArray();
+        $data = $this->load->toArray();
         if (empty($data['unload_date'])) {
             $data['unload_date'] = now();
         }
