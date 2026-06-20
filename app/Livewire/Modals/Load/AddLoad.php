@@ -37,7 +37,9 @@ class AddLoad extends ModalComponent implements HasForms
         $this->vehicle = $vehicle;
         $this->load = $load;
         $this->depot = $depot;
-        $this->form->fill();
+        $this->form->fill([
+            'load_date' => now(),
+        ]);
     }
 
     public function form(Form $form): Form
