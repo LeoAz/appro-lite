@@ -2,11 +2,8 @@
 
 namespace App\Livewire\Modals\Load;
 
-use App\Enums\VehicleStatus;
 use App\Models\City;
-use App\Models\Depot;
 use App\Models\Load;
-use App\Models\Vehicle;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -14,30 +11,23 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 
 class AddLoad extends ModalComponent implements HasForms
 {
     use InteractsWithForms;
 
-    public Vehicle $vehicle;
-    public Depot $depot;
     public Load $load;
 
     public $load_date;
     public $load_location;
-    public $depot_id;
-    public $city_id;
-    public $vehicle_id;
     public $capacity;
     public $product;
+    public $vehicle_registration;
 
-    public function mount(?Load $load = null, ?Vehicle $vehicle = null, ?Depot $depot = null): void
+    public function mount(?Load $load = null): void
     {
-        $this->vehicle = $vehicle ?? new Vehicle();
         $this->load = $load ?? new Load();
-        $this->depot = $depot ?? new Depot();
         $this->form->fill([
             'load_date' => now(),
         ]);
@@ -71,40 +61,9 @@ class AddLoad extends ModalComponent implements HasForms
                     ->searchable()
                     ->required(),
 
-                Select::make("vehicle_id")
+                TextInput::make("vehicle_registration")
                     ->label("Le véhicule")
-                    ->relationship("vehicle", "registration")
-                    ->options(
-                        Vehicle::where(
-                            "status",
-                            VehicleStatus::Available
-                        )->pluck("registration", "id")
-                    )
-                    ->createOptionForm([
-                        TextInput::make("registration")
-                            ->name("N° de plaque")
-                            ->required(),
-                        TextInput::make("capacity")
-                            ->name("La capacité")
-                            ->required(),
-                        Select::make("carrier_id")
-                            ->label("Le transporteur")
-                            ->relationship("carrier", "nom")
-                            ->createOptionForm([
-                                TextInput::make("nom")->name("Nom")->required(),
-                                TextInput::make("contact")
-                                    ->label("Contact")
-                                    ->required(),
-                                TextInput::make("address")
-                                    ->label("Adresse")
-                                    ->columnSpan(2),
-                            ])
-                            ->searchable()
-                            ->preload()
-                            ->columnSpan(2)
-                            ->required(),
-                    ])
-                    ->searchable()
+                    ->placeholder("Saisir l'immatriculation")
                     ->required(),
 
                 TextInput::make("capacity")
@@ -119,11 +78,6 @@ class AddLoad extends ModalComponent implements HasForms
     {
         $attributes = $this->form->getState();
         Load::create($attributes);
-
-        $vehicle = Vehicle::whereId($attributes["vehicle_id"])->first();
-        $vehicle->update([
-            "status" => VehicleStatus::Loaded,
-        ]);
 
         Notification::make()
             ->title("Nouveau chargement ajouté")

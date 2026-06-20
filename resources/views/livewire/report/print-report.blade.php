@@ -84,7 +84,7 @@
                     <td>{{ $load->load_location }}</td>
                     <td>{{ $load->product }}</td>
                     <td>{{ number_format($load->capacity, 0, ',', ' ') }}</td>
-                    <td>{{ $load->vehicle->registration ?? '-' }}</td>
+                    <td>{{ $load->vehicle_registration ?? '-' }}</td>
                     @if($type === 'livraison')
                         <td>{{ $load->unload_date ? $load->unload_date->format('d/m/Y') : '-' }}</td>
                         <td>{{ $load->unload_location ?? '-' }}</td>

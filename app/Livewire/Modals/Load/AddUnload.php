@@ -3,18 +3,14 @@
 namespace App\Livewire\Modals\Load;
 
 use App\Enums\LoadStatus;
-use App\Enums\VehicleStatus;
 use App\Models\Client;
 use App\Models\Load;
-use App\Models\Vehicle;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 
 class AddUnload extends ModalComponent implements HasForms
@@ -22,17 +18,14 @@ class AddUnload extends ModalComponent implements HasForms
     use InteractsWithForms;
 
     public Load $load;
-    public Client $client;
 
     public $unload_date;
     public $unload_location;
-    public $client_id;
     public $client_name;
 
-    public function mount(?Load $load = null, ?Client $client = null): void
+    public function mount(?Load $load = null): void
     {
         $this->load = $load ?? new Load();
-        $this->client = $client ?? new Client();
 
         $data = $this->load->toArray();
         if (empty($data['unload_date'])) {
@@ -73,10 +66,6 @@ class AddUnload extends ModalComponent implements HasForms
             "status" => LoadStatus::Unloaded,
             "is_unload" => true,
         ];
-        $vehicle = Vehicle::whereId($this->load->vehicle_id)->first();
-        $vehicle->update([
-            "status" => VehicleStatus::Available,
-        ]);
 
         $this->load->update($attributes);
         Notification::make()

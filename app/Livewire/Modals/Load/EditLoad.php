@@ -22,10 +22,9 @@ class EditLoad extends ModalComponent implements HasForms
 
     public $load_date;
     public $load_location;
-    public $depot_id;
-    public $vehicle_id;
     public $capacity;
     public $product;
+    public $vehicle_registration;
 
     public function mount(load $load): void
     {
@@ -53,25 +52,16 @@ class EditLoad extends ModalComponent implements HasForms
                 Select::make("product")
                     ->label("Le produit")
                     ->options([
-                        "Fuel" => "Fuel",
-                        "Essence" => "Essence",
-                        "Gasoil" => "Gasoil",
+                        "FUEL" => "FUEL",
+                        "SUPER" => "SUPER",
+                        "GASOIL" => "GASOIL",
                     ])
                     ->required()
                     ->searchable(),
 
-                Select::make("depot_id")
-                    ->label("Le depot")
-                    ->relationship("depot", "name")
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                Select::make("vehicle_id")
+                TextInput::make("vehicle_registration")
                     ->label("Le véhicule")
-                    ->relationship("vehicle", "registration")
-                    ->searchable()
-                    ->preload()
+                    ->placeholder("Saisir l'immatriculation")
                     ->required(),
 
                 TextInput::make("capacity")

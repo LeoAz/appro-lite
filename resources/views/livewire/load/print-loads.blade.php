@@ -52,8 +52,6 @@
                 <th>Produit</th>
                 <th>Litres</th>
                 <th>Vehicule</th>
-                <th>Transporteur</th>
-                <th>Dépot</th>
                 <th>Status</th>
                 <th>Déchmt</th>
                 <th>Lieu</th>
@@ -64,16 +62,14 @@
             @foreach ($loads as $load)
                 <tr>
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
-                    <td>{{ $load->city->name }}</td>
+                    <td>{{ $load->load_location }}</td>
                     <td>{{ $load->product }}</td>
                     <td>{{ $load->capacity}}</td>
-                    <td>{{ $load->vehicle->registration ?? '-' }}</td>
-                    <td>{{ $load->vehicle->carrier->nom  ?? '-'}}</td>
-                    <td>{{ $load->depot->name}}</td>
+                    <td>{{ $load->vehicle_registration ?? '-' }}</td>
                     <td>{{ $load->status }}</td>
                     <td>{{ $load->unload_date?->format('d/m/Y')}}</td>
                     <td>{{ $load->unload_location ?? '-'}}</td>
-                    <td>{{ $load->client ?? '-'}}</td>
+                    <td>{{ $load->client_name ?? '-'}}</td>
 
                 </tr>
             @endforeach

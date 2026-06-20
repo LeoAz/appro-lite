@@ -5,18 +5,12 @@ namespace App\Livewire\Report;
 use App\Models\City;
 use App\Models\Load;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -78,7 +72,7 @@ class ListReport extends Component implements HasForms, HasTable
                     ->label("Produit"),
                 TextColumn::make("capacity")
                     ->label("Litres"),
-                TextColumn::make("vehicle.registration")
+                TextColumn::make("vehicle_registration")
                     ->label("Véhicule"),
                 TextColumn::make("status")
                     ->label("Statut")
