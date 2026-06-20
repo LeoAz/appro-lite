@@ -32,11 +32,11 @@ class AddLoad extends ModalComponent implements HasForms
     public $capacity;
     public $product;
 
-    public function mount(Load $load, Vehicle $vehicle, Depot $depot): void
+    public function mount(?Load $load = null, ?Vehicle $vehicle = null, ?Depot $depot = null): void
     {
-        $this->vehicle = $vehicle;
-        $this->load = $load;
-        $this->depot = $depot;
+        $this->vehicle = $vehicle ?? new Vehicle();
+        $this->load = $load ?? new Load();
+        $this->depot = $depot ?? new Depot();
         $this->form->fill([
             'load_date' => now(),
         ]);
