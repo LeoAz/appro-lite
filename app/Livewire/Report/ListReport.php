@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Report;
 
+use App\Models\City;
 use App\Models\Load;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -14,6 +16,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
@@ -58,8 +61,8 @@ class ListReport extends Component implements HasForms, HasTable
                     ->label("Statut")
                     ->badge()
                     ->color(fn (?string $state): string => match ($state) {
-                        'EN COURS' => 'success',
-                        'LIVRÉ' => 'gray',
+                        'EN COURS' => 'info',
+                        'LIVRÉ' => 'success',
                         default => 'gray',
                     }),
                 TextColumn::make("unload_date")
@@ -87,21 +90,23 @@ class ListReport extends Component implements HasForms, HasTable
                         "SUPER" => "SUPER",
                         "GASOIL" => "GASOIL",
                     ]),
-                Filter::make('location')
+                Filter::make('locations')
                     ->form([
-                        TextInput::make('location')
-                            ->label(fn() => $this->type === 'chargement' ? 'Lieu de chargement' : 'Lieu de livraison'),
+                        CheckboxList::make('locations')
+                            ->label('Villes')
+                            ->options(City::pluck('name', 'name'))
+                            ->columns(4),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
-                            $data['location'],
-                            fn (Builder $query, $value): Builder => $query->where($this->type === 'chargement' ? 'load_location' : 'unload_location', 'like', "%{$value}%"),
+                            $data['locations'],
+                            fn (Builder $query, $values): Builder => $query->whereIn($this->type === 'chargement' ? 'load_location' : 'unload_location', $values),
                         );
                     }),
                 Filter::make('date')
                     ->form([
-                        DatePicker::make('from')->label('Du'),
-                        DatePicker::make('until')->label('Au'),
+                        DatePicker::make('from')->label('Du')->native(false),
+                        DatePicker::make('until')->label('Au')->native(false),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -116,6 +121,13 @@ class ListReport extends Component implements HasForms, HasTable
                     })
             ])
             ->filtersLayout(FiltersLayout::AboveContent)
+            ->headerActions([
+                Action::make('print')
+                    ->label('Imprimer')
+                    ->icon('heroicon-o-printer')
+                    ->color('info')
+                    ->action(fn () => $this->dispatch('print-report')),
+            ])
             ->filtersTriggerAction(
                 fn(\Filament\Tables\Actions\Action $action) => $action->button()->label("Filtre")->hidden()
             );

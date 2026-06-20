@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-blue-600 border-b border-blue-700 shadow-md">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -6,22 +6,22 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('carriers') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <x-application-logo class="block h-9 w-auto fill-current text-white" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('loads')" :active="request()->routeIs('loads')">
+                    <x-nav-link :href="route('loads')" :active="request()->routeIs('loads')" class="text-white hover:text-blue-100 active:text-white">
                         Chargement
                     </x-nav-link>
-                    <x-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')">
+                    <x-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')" class="text-white hover:text-blue-100 active:text-white">
                         Livraison
                     </x-nav-link>
-                    <x-nav-link :href="route('reports.loads')" :active="request()->routeIs('reports.loads')">
+                    <x-nav-link :href="route('reports.loads')" :active="request()->routeIs('reports.loads')" class="text-white hover:text-blue-100 active:text-white">
                         Rapport Chargement
                     </x-nav-link>
-                    <x-nav-link :href="route('reports.deliveries')" :active="request()->routeIs('reports.deliveries')">
+                    <x-nav-link :href="route('reports.deliveries')" :active="request()->routeIs('reports.deliveries')" class="text-white hover:text-blue-100 active:text-white">
                         Rapport Livraison
                     </x-nav-link>
                 </div>
@@ -31,10 +31,10 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-4">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition ease-in-out duration-150">
                             <div>Configuration</div>
                             <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <svg class="fill-current h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </div>
@@ -51,11 +51,11 @@
 
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <svg class="fill-current h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </div>
@@ -94,43 +94,43 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-blue-700">
         <!-- Navigation Links -->
         <div class="space-y-1 pt-2 pb-3">
-            <x-responsive-nav-link :href="route('loads')" :active="request()->routeIs('loads')">
+            <x-responsive-nav-link :href="route('loads')" :active="request()->routeIs('loads')" class="text-white">
                 Chargement
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')">
+            <x-responsive-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')" class="text-white">
                 Livraison
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('reports.loads')" :active="request()->routeIs('reports.loads')">
+            <x-responsive-nav-link :href="route('reports.loads')" :active="request()->routeIs('reports.loads')" class="text-white">
                 Rapport Chargement
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('reports.deliveries')" :active="request()->routeIs('reports.deliveries')">
+            <x-responsive-nav-link :href="route('reports.deliveries')" :active="request()->routeIs('reports.deliveries')" class="text-white">
                 Rapport Livraison
             </x-responsive-nav-link>
         </div>
 
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Configuration</div>
+        <div class="pt-4 pb-1 border-t border-blue-500">
+            <div class="px-4 text-xs font-semibold text-blue-100 uppercase tracking-wider">Configuration</div>
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('carriers')">Transporteurs</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('clients')">Clients</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('vehicles')">Véhicules</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('depots')">Dépots</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('cities')">Villes</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('carriers')" class="text-white">Transporteurs</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('clients')" class="text-white">Clients</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('vehicles')" class="text-white">Véhicules</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('depots')" class="text-white">Dépots</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('cities')" class="text-white">Villes</x-responsive-nav-link>
             </div>
         </div>
 
         <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
+        <div class="pt-4 pb-1 border-t border-blue-500">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-blue-100">{{ Auth::user()->email }}</div>
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
+                <x-responsive-nav-link :href="route('profile.edit')" class="text-white">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 
@@ -138,7 +138,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
 
-                    <x-responsive-nav-link :href="route('logout')"
+                    <x-responsive-nav-link :href="route('logout')" class="text-white"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
                         {{ __('Se déconnecter') }}

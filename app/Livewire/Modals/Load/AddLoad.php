@@ -3,6 +3,7 @@
 namespace App\Livewire\Modals\Load;
 
 use App\Enums\VehicleStatus;
+use App\Models\City;
 use App\Models\Depot;
 use App\Models\Load;
 use App\Models\Vehicle;
@@ -64,8 +65,10 @@ class AddLoad extends ModalComponent implements HasForms
                     ->required()
                     ->searchable(),
 
-                TextInput::make("load_location")
+                Select::make("load_location")
                     ->label("Le lieux")
+                    ->options(City::pluck("name", "name"))
+                    ->searchable()
                     ->required(),
 
                 Select::make("vehicle_id")

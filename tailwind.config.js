@@ -20,14 +20,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: colors.gray,
-        secondary: colors.slate,
-        gray: colors.slate,
+        danger: colors.rose,
+        primary: colors.blue,
+        success: colors.green,
+        warning: colors.yellow,
+        gray: colors.gray,
         orange: colors.orange,
         positive: colors.emerald,
-        warning: colors.amber,
-        danger: colors.red,
-        info: colors.blue,
+        info: colors.sky,
       },
 
       inset: {
