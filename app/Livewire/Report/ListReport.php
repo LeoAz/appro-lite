@@ -42,9 +42,10 @@ class ListReport extends Component implements HasForms, HasTable
                 TextColumn::make("status")
                     ->label("Statut")
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn (?string $state): string => match ($state) {
                         'EN COURS' => 'success',
                         'LIVRÉ' => 'gray',
+                        default => 'gray',
                     }),
                 TextColumn::make("unload_date")
                     ->label("Date Livraison")

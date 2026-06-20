@@ -16,6 +16,7 @@ Route::middleware("auth")->group(function () {
     Route::get("/depots", DepotController::class)->name("depots");
     Route::get("/cities", CityController::class)->name("cities");
     Route::get("/loads", LoadController::class)->name("loads");
+    Route::get("/deliveries", \App\Http\Controllers\DeliveryController::class)->name("deliveries");
     Route::get("/reports", \App\Http\Controllers\ReportController::class)->name("reports");
 
     Route::get("/profile", [ProfileController::class, "edit"])->name(

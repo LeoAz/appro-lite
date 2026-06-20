@@ -49,11 +49,11 @@ class ListLoad extends Component implements HasForms, HasTable
             ->selectable()
             ->columns([
                 TextColumn::make("load_date")
-                    ->label("Date")
+                    ->label("Date Chargement")
                     ->date("d-m-Y")
                     ->searchable(),
                 TextColumn::make("load_location")
-                    ->label("Lieu")
+                    ->label("Lieu Chargement")
                     ->searchable(),
                 TextColumn::make("product")->label("Produit")->searchable(),
                 TextColumn::make("capacity")->label("Litres")->searchable(),
@@ -72,21 +72,30 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->searchable()
                     ->badge()
                     ->color(
-                        fn(string $state): string => match ($state) {
+                        fn(?string $state): string => match ($state) {
                             "EN COURS" => "success",
                             "LIVRÉ" => "gray",
+                            default => "gray",
                         }
                     ),
                 TextColumn::make("unload_date")
-                    ->label("Date")
+                    ->label("Date Livraison")
                     ->date("d-m-Y")
+                    ->toggleable()
+                    ->hidden(fn() => $this->status === "EN COURS")
                     ->searchable(),
                 TextColumn::make("unload_location")
-                    ->label("Lieu")
+                    ->label("Lieu Livraison")
+                    ->toggleable()
+                    ->hidden(fn() => $this->status === "EN COURS")
                     ->searchable(),
-                TextColumn::make("client_name")->label("Client")->searchable(),
+                TextColumn::make("client_name")
+                    ->label("Client")
+                    ->toggleable()
+                    ->hidden(fn() => $this->status === "EN COURS")
+                    ->searchable(),
             ])
-            ->emptyStateHeading('Aucun Chargements n\'est disponible')
+            ->emptyStateHeading(fn() => $this->status === "EN COURS" ? "Aucun Chargement n'est disponible" : "Aucune Livraison n'est disponible")
             ->filters(
                 [
                     SelectFilter::make("Client")
@@ -230,6 +239,7 @@ class ListLoad extends Component implements HasForms, HasTable
                         ),
                     Action::make("unload")
                         ->label("Livré")
+                        ->hidden(fn () => $this->status === 'LIVRÉ')
                         ->icon("heroicon-m-arrow-down-on-square")
                         ->action(
                             fn(Load $record, $livewire) => $livewire->dispatch(
