@@ -18,8 +18,11 @@
                     <x-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')">
                         Livraison
                     </x-nav-link>
-                    <x-nav-link :href="route('reports')" :active="request()->routeIs('reports')">
-                        Rapport
+                    <x-nav-link :href="route('reports.loads')" :active="request()->routeIs('reports.loads')">
+                        Rapport Chargement
+                    </x-nav-link>
+                    <x-nav-link :href="route('reports.deliveries')" :active="request()->routeIs('reports.deliveries')">
+                        Rapport Livraison
                     </x-nav-link>
                 </div>
             </div>
@@ -100,8 +103,11 @@
             <x-responsive-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')">
                 Livraison
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('reports')" :active="request()->routeIs('reports')">
-                Rapport
+            <x-responsive-nav-link :href="route('reports.loads')" :active="request()->routeIs('reports.loads')">
+                Rapport Chargement
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('reports.deliveries')" :active="request()->routeIs('reports.deliveries')">
+                Rapport Livraison
             </x-responsive-nav-link>
         </div>
 
