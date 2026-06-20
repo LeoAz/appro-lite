@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Modals\Load;
 
+use App\Models\City;
 use App\Models\Load;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -44,7 +45,11 @@ class EditLoad extends ModalComponent implements HasForms
                     ->default(now())
                     ->closeOnDateSelection()
                     ->required(),
-                TextInput::make("load_location")->label("Lieu")->required(),
+                Select::make("load_location")
+                    ->label("Lieu")
+                    ->options(City::pluck("name", "name"))
+                    ->searchable()
+                    ->required(),
                 Select::make("product")
                     ->label("Le produit")
                     ->options([
