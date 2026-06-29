@@ -43,22 +43,24 @@ class ListLoad extends Component implements HasForms, HasTable
         }
     }
 
+    public function getFilteredQuery()
+    {
+        $query = Load::query()->where("status", $this->status);
+
+        // Application des filtres personnalisés
+        $locationField = $this->status === 'EN COURS' ? 'load_location' : 'unload_location';
+        $dateField = $this->status === 'EN COURS' ? 'load_date' : 'unload_date';
+
+        return $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
+            ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
+            ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
+            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(Load::query())
-            ->modifyQueryUsing(function (Builder $query) {
-                $query->where("status", $this->status);
-
-                // Application des filtres personnalisés
-                $locationField = $this->status === 'EN COURS' ? 'load_location' : 'unload_location';
-                $dateField = $this->status === 'EN COURS' ? 'load_date' : 'unload_date';
-
-                $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
-                    ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
-                    ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
-                    ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
-            })
+            ->query($this->getFilteredQuery())
             ->defaultSort("created_at", "desc")
             ->paginated([10, 25, 50, 100])
             ->selectable()
@@ -226,5 +228,33 @@ class ListLoad extends Component implements HasForms, HasTable
     public function render()
     {
         return view("livewire.load.list-load");
+    }
+
+    public function getStatisticsProperty()
+    {
+        $loads = $this->getFilteredQuery()->get();
+
+        $stats = [
+            'count_by_product' => [],
+            'litres_by_product' => [],
+            'total_litres' => 0,
+            'total_trucks' => $loads->count(),
+        ];
+
+        foreach ($loads as $load) {
+            $product = $load->product ?? 'Inconnu';
+            $capacity = (int) $load->capacity;
+
+            if (!isset($stats['count_by_product'][$product])) {
+                $stats['count_by_product'][$product] = 0;
+                $stats['litres_by_product'][$product] = 0;
+            }
+
+            $stats['count_by_product'][$product]++;
+            $stats['litres_by_product'][$product] += $capacity;
+            $stats['total_litres'] += $capacity;
+        }
+
+        return $stats;
     }
 }
