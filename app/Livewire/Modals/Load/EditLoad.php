@@ -3,6 +3,7 @@
 namespace App\Livewire\Modals\Load;
 
 use App\Models\City;
+use App\Models\Client;
 use App\Models\Load;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -34,21 +35,29 @@ class EditLoad extends ModalComponent implements HasForms
 
     public function form(Form $form): Form
     {
+        $isLivre = $this->load->status === 'LIVRÉ';
+
         return $form
             ->columns(2)
             ->schema([
-                DatePicker::make("load_date")
-                    ->name("Date")
+                DatePicker::make($isLivre ? "unload_date" : "load_date")
+                    ->label($isLivre ? "Date Livraison" : "Date Chargement")
                     ->native(false)
                     ->displayFormat("d/m/Y")
                     ->default(now())
                     ->closeOnDateSelection()
                     ->required(),
-                Select::make("load_location")
-                    ->label("Lieu")
+                Select::make($isLivre ? "unload_location" : "load_location")
+                    ->label($isLivre ? "Lieu Livraison" : "Lieu Chargement")
                     ->options(City::pluck("name", "name"))
                     ->searchable()
                     ->required(),
+                Select::make("client_id")
+                    ->label("Client")
+                    ->options(\App\Models\Client::pluck("nom", "id"))
+                    ->searchable()
+                    ->hidden(!$isLivre)
+                    ->required($isLivre),
                 Select::make("product")
                     ->label("Le produit")
                     ->options([
@@ -74,11 +83,20 @@ class EditLoad extends ModalComponent implements HasForms
 
     public function update()
     {
-        $this->load->update($this->form->getState());
+        $data = $this->form->getState();
+
+        if (isset($data['client_id'])) {
+            $client = \App\Models\Client::find($data['client_id']);
+            if ($client) {
+                $data['client_name'] = $client->nom;
+            }
+        }
+
+        $this->load->update($data);
         Notification::make()
-            ->title("Chargement mise à jour")
+            ->title($this->load->status === 'LIVRÉ' ? "Livraison mise à jour" : "Chargement mise à jour")
             ->success()
-            ->body("Le chargement a été mise à jour avec succés!")
+            ->body($this->load->status === 'LIVRÉ' ? "La livraison a été mise à jour avec succès!" : "Le chargement a été mise à jour avec succés!")
             ->send();
 
         $this->dispatch("update-load");

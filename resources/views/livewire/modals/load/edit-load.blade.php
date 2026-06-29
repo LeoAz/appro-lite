@@ -4,7 +4,7 @@
     footerClasses="mt-4 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border border-t border-secondary-100"
 >
     <x-slot name="title">
-        <span>Mise à jour le chargement</span>
+        <span>{{ $load->status === 'LIVRÉ' ? 'Modifier la livraison' : 'Mise à jour le chargement' }}</span>
     </x-slot>
 
     <x-slot name="content">
