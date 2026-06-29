@@ -23,6 +23,9 @@ class EditLoad extends ModalComponent implements HasForms
 
     public $load_date;
     public $load_location;
+    public $unload_date;
+    public $unload_location;
+    public $client_name;
     public $capacity;
     public $product;
     public $vehicle_registration;

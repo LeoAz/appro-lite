@@ -41,26 +41,43 @@ class ListReport extends Component implements HasForms, HasTable
         }
     }
 
+    public function getReportQuery()
+    {
+        $query = Load::query();
+
+        if ($this->type === 'chargement') {
+            $query->where('status', 'EN COURS');
+        } else {
+            $query->where('status', 'LIVRÉ');
+        }
+
+        // Application des filtres personnalisés
+        $locationField = $this->type === 'chargement' ? 'load_location' : 'unload_location';
+        $dateField = $this->type === 'chargement' ? 'load_date' : 'unload_date';
+
+        return $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
+            ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
+            ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
+            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(Load::query())
-            ->modifyQueryUsing(function (Builder $query) {
-                if ($this->type === 'chargement') {
-                    $query->where('status', 'EN COURS');
-                } else {
-                    $query->where('status', 'LIVRÉ');
-                }
-
-                // Application des filtres personnalisés
-                $locationField = $this->type === 'chargement' ? 'load_location' : 'unload_location';
-                $dateField = $this->type === 'chargement' ? 'load_date' : 'unload_date';
-
-                $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
-                    ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
-                    ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
-                    ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
-            })
+            ->query($this->getReportQuery())
+            ->paginated(false)
+            ->headerActions([
+                Action::make('print')
+                    ->label('Imprimer')
+                    ->icon('heroicon-o-printer')
+                    ->color('info')
+                    ->action(fn () => $this->dispatch('print-report')),
+                Action::make('downloadPdf')
+                    ->label('PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->action('downloadPdf'),
+            ])
             ->columns([
                 TextColumn::make("load_date")
                     ->label("Date Chargement")
@@ -100,42 +117,12 @@ class ListReport extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->hidden(fn() => $this->type === 'chargement')
                     ->searchable(),
-            ])
-            ->filters([])
-            ->headerActions([
-                Action::make('print')
-                    ->label('Imprimer')
-                    ->icon('heroicon-o-printer')
-                    ->color('info')
-                    ->action(fn () => $this->dispatch('print-report')),
-                Action::make('downloadPdf')
-                    ->label('PDF')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->color('success')
-                    ->action('downloadPdf'),
             ]);
     }
 
     public function downloadPdf()
     {
-        $query = Load::query();
-
-        if ($this->type === 'chargement') {
-            $query->where('status', 'EN COURS');
-        } else {
-            $query->where('status', 'LIVRÉ');
-        }
-
-        // Application des filtres personnalisés
-        $locationField = $this->type === 'chargement' ? 'load_location' : 'unload_location';
-        $dateField = $this->type === 'chargement' ? 'load_date' : 'unload_date';
-
-        $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
-            ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
-            ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
-            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
-
-        $loads = $query->get();
+        $loads = $this->getReportQuery()->get();
 
         $pdf = Pdf::loadView('livewire.report.print-report', [
             'loads' => $loads,
@@ -150,6 +137,34 @@ class ListReport extends Component implements HasForms, HasTable
             fn() => print $pdf->output(),
             "Rapport_" . $this->type . "_" . now()->format('Y-m-d') . ".pdf"
         );
+    }
+
+    public function getStatisticsProperty()
+    {
+        $loads = $this->getReportQuery()->get();
+
+        $stats = [
+            'count_by_product' => [],
+            'litres_by_product' => [],
+            'total_litres' => 0,
+            'total_trucks' => $loads->count(),
+        ];
+
+        foreach ($loads as $load) {
+            $product = $load->product ?? 'Inconnu';
+            $capacity = (int) $load->capacity;
+
+            if (!isset($stats['count_by_product'][$product])) {
+                $stats['count_by_product'][$product] = 0;
+                $stats['litres_by_product'][$product] = 0;
+            }
+
+            $stats['count_by_product'][$product]++;
+            $stats['litres_by_product'][$product] += $capacity;
+            $stats['total_litres'] += $capacity;
+        }
+
+        return $stats;
     }
 
     public function render()

@@ -114,5 +114,80 @@
             </tr>
         </tfoot>
     </table>
+
+    @php
+        $countByProduct = [];
+        $litresByProduct = [];
+        $totalTrucks = $loads->count();
+        $totalLitres = 0;
+
+        foreach ($loads as $load) {
+            $product = $load->product ?? 'Inconnu';
+            $capacity = (int) $load->capacity;
+
+            if (!isset($countByProduct[$product])) {
+                $countByProduct[$product] = 0;
+                $litresByProduct[$product] = 0;
+            }
+
+            $countByProduct[$product]++;
+            $litresByProduct[$product] += $capacity;
+            $totalLitres += $capacity;
+        }
+    @endphp
+
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; border: 1px solid #333; padding: 10px;">
+            <h2 style="font-size: 14px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Nombre de camions par produit</h2>
+            <table style="border: none; margin-bottom: 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #333;">
+                        <th style="border: none; background: none; padding: 4px; font-size: 10px;">Produit</th>
+                        <th style="border: none; background: none; padding: 4px; font-size: 10px; text-align: right;">Camions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($countByProduct as $product => $count)
+                        <tr>
+                            <td style="border: none; padding: 4px;">{{ $product }}</td>
+                            <td style="border: none; padding: 4px; text-align: right;">{{ $count }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight: bold; border-top: 1px solid #333;">
+                        <td style="border: none; padding: 4px;">TOTAL</td>
+                        <td style="border: none; padding: 4px; text-align: right;">{{ $totalTrucks }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div style="flex: 1; border: 1px solid #333; padding: 10px;">
+            <h2 style="font-size: 14px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Nombre de litres par produit</h2>
+            <table style="border: none; margin-bottom: 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #333;">
+                        <th style="border: none; background: none; padding: 4px; font-size: 10px;">Produit</th>
+                        <th style="border: none; background: none; padding: 4px; font-size: 10px; text-align: right;">Litres</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($litresByProduct as $product => $litres)
+                        <tr>
+                            <td style="border: none; padding: 4px;">{{ $product }}</td>
+                            <td style="border: none; padding: 4px; text-align: right;">{{ number_format($litres, 0, ',', ' ') }} L</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight: bold; border-top: 1px solid #333;">
+                        <td style="border: none; padding: 4px;">TOTAL GÉNÉRAL</td>
+                        <td style="border: none; padding: 4px; text-align: right;">{{ number_format($totalLitres, 0, ',', ' ') }} L</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

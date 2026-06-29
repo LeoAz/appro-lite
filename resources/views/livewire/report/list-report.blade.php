@@ -61,6 +61,60 @@
 
     {{ $this->table }}
 
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 stats-container">
+        <div class="bg-white p-6 shadow rounded-lg stat-box">
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">Nombre de camions par produit</h2>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left border-b">
+                        <th class="pb-2">Produit</th>
+                        <th class="pb-2 text-right">Nombre de camions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($this->statistics['count_by_product'] as $product => $count)
+                        <tr class="border-b last:border-0">
+                            <td class="py-2">{{ $product }}</td>
+                            <td class="py-2 text-right font-semibold">{{ $count }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr class="font-bold">
+                        <td class="pt-2">TOTAL</td>
+                        <td class="pt-2 text-right">{{ $this->statistics['total_trucks'] }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="bg-white p-6 shadow rounded-lg stat-box">
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">Nombre de litres par produit</h2>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left border-b">
+                        <th class="pb-2">Produit</th>
+                        <th class="pb-2 text-right">Total Litres</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($this->statistics['litres_by_product'] as $product => $litres)
+                        <tr class="border-b last:border-0">
+                            <td class="py-2">{{ $product }}</td>
+                            <td class="py-2 text-right font-semibold">{{ number_format($litres, 0, ',', ' ') }} L</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr class="font-bold text-primary-600">
+                        <td class="pt-2">TOTAL GÉNÉRAL</td>
+                        <td class="pt-2 text-right">{{ number_format($this->statistics['total_litres'], 0, ',', ' ') }} L</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
     @script
     <script>
         $wire.on('print-report', () => {
@@ -96,6 +150,24 @@
             .fi-ta-summaries-row {
                 background-color: #f3f4f6 !important;
                 font-weight: bold !important;
+            }
+            .stats-container {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 20px !important;
+                margin-top: 20px !important;
+            }
+            .stat-box {
+                flex: 1 !important;
+                border: 1px solid #333 !important;
+                padding: 10px !important;
+            }
+            .stat-box h2 {
+                font-size: 12px !important;
+                margin-top: 0 !important;
+            }
+            .stat-box table {
+                font-size: 10px !important;
             }
         }
     </style>
