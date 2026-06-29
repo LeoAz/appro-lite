@@ -44,18 +44,20 @@ class EditLoad extends ModalComponent implements HasForms
                     ->label($isLivre ? "Date Livraison" : "Date Chargement")
                     ->native(false)
                     ->displayFormat("d/m/Y")
-                    ->default(now())
                     ->closeOnDateSelection()
                     ->required(),
-                Select::make($isLivre ? "unload_location" : "load_location")
-                    ->label($isLivre ? "Lieu Livraison" : "Lieu Chargement")
-                    ->options(City::pluck("name", "name"))
-                    ->searchable()
-                    ->required(),
-                Select::make("client_id")
+                $isLivre ?
+                    TextInput::make("unload_location")
+                        ->label("Lieu Livraison")
+                        ->required()
+                    :
+                    Select::make("load_location")
+                        ->label("Lieu Chargement")
+                        ->options(City::pluck("name", "name"))
+                        ->searchable()
+                        ->required(),
+                TextInput::make("client_name")
                     ->label("Client")
-                    ->options(\App\Models\Client::pluck("nom", "id"))
-                    ->searchable()
                     ->hidden(!$isLivre)
                     ->required($isLivre),
                 Select::make("product")
@@ -84,13 +86,6 @@ class EditLoad extends ModalComponent implements HasForms
     public function update()
     {
         $data = $this->form->getState();
-
-        if (isset($data['client_id'])) {
-            $client = \App\Models\Client::find($data['client_id']);
-            if ($client) {
-                $data['client_name'] = $client->nom;
-            }
-        }
 
         $this->load->update($data);
         Notification::make()
