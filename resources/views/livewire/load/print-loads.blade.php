@@ -7,6 +7,12 @@
     <style>
             body {
                 font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 1cm;
+            }
+
+            @page {
+                margin: 2cm;
             }
 
             h1 {

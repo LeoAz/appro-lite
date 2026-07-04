@@ -44,11 +44,11 @@
         @media print {
             @page {
                 size: landscape;
-                margin: 1cm;
+                margin: 2cm;
             }
             body {
                 margin: 0;
-                padding: 0;
+                padding: 1cm;
             }
             .no-print {
                 display: none !important;

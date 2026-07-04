@@ -139,7 +139,7 @@
             @page {
                 size: landscape;
             }
-            .no-print, header, nav, .fi-sidebar, .fi-topbar, .fi-header-actions, .fi-ta-filters, .fi-ta-header-toolbar, .fi-ta-pagination, .stats-container, .fi-ta-content {
+            .no-print, header, nav, .fi-sidebar, .fi-topbar, .fi-header-actions, .fi-ta-header-actions, .fi-ta-filters, .fi-ta-header-toolbar, .fi-ta-pagination, .stats-container, .fi-ta-content {
                 display: none !important;
             }
             .fi-main {

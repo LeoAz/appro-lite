@@ -103,7 +103,13 @@
     {{ $this->table }}
     <style>
         @media print {
-            .no-print, header, nav, .fi-sidebar, .fi-topbar, .fi-header-actions, .fi-ta-filters, .fi-ta-header-toolbar, .fi-ta-pagination {
+            @page {
+                margin: 2cm;
+            }
+            body {
+                padding: 1cm;
+            }
+            .no-print, header, nav, .fi-sidebar, .fi-topbar, .fi-header-actions, .fi-ta-header-actions, .fi-ta-filters, .fi-ta-header-toolbar, .fi-ta-pagination {
                 display: none !important;
             }
             .fi-main {
