@@ -73,8 +73,12 @@ class ListReport extends Component implements HasForms, HasTable
         return $table
             ->query($this->getReportQuery())
             ->defaultSort("client_name", "asc")
-            ->defaultGroup('client_name')
+            ->defaultGroup('client_date_group')
             ->groups([
+                \Filament\Tables\Grouping\Group::make('client_date_group')
+                    ->label('Client & Date')
+                    ->getTitleFromRecordUsing(fn (Load $record): string => ($record->client_name ?? 'Sans Client') . ' - ' . ($record->$dateField ? $record->$dateField->format('d/m/Y') : 'Sans Date'))
+                    ->collapsible(),
                 \Filament\Tables\Grouping\Group::make('client_name')
                     ->label('Client')
                     ->collapsible(),
