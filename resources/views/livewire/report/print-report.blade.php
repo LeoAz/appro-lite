@@ -113,21 +113,21 @@
                     $currentDate = $load->$dateField ? $load->$dateField->format('d/m/Y') : 'Sans Date';
                 @endphp
 
-                @if($type === 'livraison' && ($lastClient === null || $lastClient !== $currentClient))
-                    <tr style="background-color: #e5e7eb; font-weight: bold;">
-                        <td colspan="{{ $type === 'livraison' ? 10 : 7 }}">Client : {{ $currentClient }}</td>
+                @if($type === 'livraison' && ($lastDate === null || $lastDate !== $currentDate))
+                    <tr style="background-color: #f3f4f6; font-style: italic;">
+                        <td colspan="{{ $type === 'livraison' ? 10 : 7 }}">Date : {{ $currentDate }}</td>
                     </tr>
                     @php
-                        $lastClient = $currentClient;
-                        $lastDate = null; // Reset date when client changes
+                        $lastDate = $currentDate;
+                        $lastClient = null; // Reset client when date changes
                     @endphp
                 @endif
 
-                @if($lastDate === null || $lastDate !== $currentDate)
-                    <tr style="background-color: #f3f4f6; font-style: italic;">
-                        <td colspan="{{ $type === 'livraison' ? 10 : 7 }}" style="padding-left: 20px;">Date : {{ $currentDate }}</td>
+                @if($type === 'livraison' && ($lastClient === null || $lastClient !== $currentClient))
+                    <tr style="background-color: #e5e7eb; font-weight: bold;">
+                        <td colspan="{{ $type === 'livraison' ? 10 : 7 }}" style="padding-left: 20px;">Client : {{ $currentClient }}</td>
                     </tr>
-                    @php $lastDate = $currentDate; @endphp
+                    @php $lastClient = $currentClient; @endphp
                 @endif
 
                 <tr>

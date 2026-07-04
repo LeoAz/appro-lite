@@ -62,8 +62,8 @@ class ListReport extends Component implements HasForms, HasTable
             ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
             ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
             ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil))
-            ->orderBy('client_name', 'asc')
-            ->orderBy($dateField, 'asc');
+            ->orderBy($dateField, 'asc')
+            ->orderBy('client_name', 'asc');
     }
 
     public function table(Table $table): Table
@@ -72,21 +72,17 @@ class ListReport extends Component implements HasForms, HasTable
 
         return $table
             ->query($this->getReportQuery())
-            ->defaultSort("client_name", "asc")
-            ->defaultGroup('client_date_group')
+            ->defaultSort($dateField, "asc")
             ->groups([
-                \Filament\Tables\Grouping\Group::make('client_date_group')
-                    ->label('Client & Date')
-                    ->getTitleFromRecordUsing(fn (Load $record): string => ($record->client_name ?? 'Sans Client') . ' - ' . ($record->$dateField ? $record->$dateField->format('d/m/Y') : 'Sans Date'))
-                    ->collapsible(),
-                \Filament\Tables\Grouping\Group::make('client_name')
-                    ->label('Client')
-                    ->collapsible(),
                 \Filament\Tables\Grouping\Group::make($dateField)
                     ->label('Date')
                     ->date()
                     ->collapsible(),
+                \Filament\Tables\Grouping\Group::make('client_name')
+                    ->label('Client')
+                    ->collapsible(),
             ])
+            ->defaultGroup($dateField)
             ->paginated(false)
             ->headerActions([
                 Action::make('print')
