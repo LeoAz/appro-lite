@@ -102,15 +102,32 @@
             @php
                 $totalCapacity = 0;
                 $lastClient = null;
+                $lastDate = null;
+                $dateField = $type === 'chargement' ? 'load_date' : 'unload_date';
             @endphp
             @foreach ($loads as $index => $load)
                 @php $totalCapacity += $load->capacity; @endphp
 
-                @if($type === 'livraison' && ($lastClient === null || $lastClient !== ($load->client_name ?? 'Sans Client')))
+                @php
+                    $currentClient = $load->client_name ?? 'Sans Client';
+                    $currentDate = $load->$dateField ? $load->$dateField->format('d/m/Y') : 'Sans Date';
+                @endphp
+
+                @if($type === 'livraison' && ($lastClient === null || $lastClient !== $currentClient))
                     <tr style="background-color: #e5e7eb; font-weight: bold;">
-                        <td colspan="{{ $type === 'livraison' ? 10 : 7 }}">Client : {{ $load->client_name ?? 'Sans Client' }}</td>
+                        <td colspan="{{ $type === 'livraison' ? 10 : 7 }}">Client : {{ $currentClient }}</td>
                     </tr>
-                    @php $lastClient = $load->client_name ?? 'Sans Client'; @endphp
+                    @php
+                        $lastClient = $currentClient;
+                        $lastDate = null; // Reset date when client changes
+                    @endphp
+                @endif
+
+                @if($lastDate === null || $lastDate !== $currentDate)
+                    <tr style="background-color: #f3f4f6; font-style: italic;">
+                        <td colspan="{{ $type === 'livraison' ? 10 : 7 }}" style="padding-left: 20px;">Date : {{ $currentDate }}</td>
+                    </tr>
+                    @php $lastDate = $currentDate; @endphp
                 @endif
 
                 <tr>

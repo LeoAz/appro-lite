@@ -55,7 +55,7 @@
         <div class="mt-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Villes (Lieu de {{ $status === 'EN COURS' ? 'chargement' : 'livraison' }})</label>
             <div class="grid grid-cols-2 md:grid-cols-6 gap-2">
-                @foreach(\App\Models\City::all() as $city)
+                @foreach($cities as $city)
                     <label class="inline-flex items-center">
                         <input type="checkbox" wire:model.live="selectedLocations" value="{{ $city->name }}" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         <span class="ml-2 text-sm text-gray-600">{{ $city->name }}</span>

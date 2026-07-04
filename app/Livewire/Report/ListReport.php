@@ -29,9 +29,12 @@ class ListReport extends Component implements HasForms, HasTable
     public $dateFrom = '';
     public $dateUntil = '';
 
+    public $cities;
+
     public function mount($type = 'chargement')
     {
         $this->type = $type;
+        $this->cities = \App\Models\City::all();
     }
 
     public function updated($propertyName)
@@ -59,11 +62,14 @@ class ListReport extends Component implements HasForms, HasTable
             ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
             ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
             ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil))
-            ->orderBy('client_name', 'asc');
+            ->orderBy('client_name', 'asc')
+            ->orderBy($dateField, 'asc');
     }
 
     public function table(Table $table): Table
     {
+        $dateField = $this->type === 'chargement' ? 'load_date' : 'unload_date';
+
         return $table
             ->query($this->getReportQuery())
             ->defaultSort("client_name", "asc")
@@ -71,6 +77,10 @@ class ListReport extends Component implements HasForms, HasTable
             ->groups([
                 \Filament\Tables\Grouping\Group::make('client_name')
                     ->label('Client')
+                    ->collapsible(),
+                \Filament\Tables\Grouping\Group::make($dateField)
+                    ->label('Date')
+                    ->date()
                     ->collapsible(),
             ])
             ->paginated(false)

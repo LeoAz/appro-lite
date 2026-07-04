@@ -30,10 +30,12 @@ class ListLoad extends Component implements HasForms, HasTable
     public $selectedProduct = '';
     public $dateFrom = '';
     public $dateUntil = '';
+    public $cities;
 
     public function mount($status)
     {
         $this->status = $status;
+        $this->cities = \App\Models\City::all();
     }
 
     public function updated($propertyName)
