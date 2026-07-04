@@ -58,7 +58,8 @@ class ListReport extends Component implements HasForms, HasTable
         return $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
             ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
             ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
-            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
+            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil))
+            ->orderBy('client_name', 'asc');
     }
 
     public function table(Table $table): Table

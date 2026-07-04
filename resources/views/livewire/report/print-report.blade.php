@@ -41,8 +41,18 @@
             background-color: #f9f9f9;
         }
 
-        .text-right {
-            text-align: right;
+        @media print {
+            @page {
+                size: landscape;
+                margin: 1cm;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -89,9 +99,20 @@
             </tr>
         </thead>
         <tbody>
-            @php $totalCapacity = 0; @endphp
+            @php
+                $totalCapacity = 0;
+                $lastClient = null;
+            @endphp
             @foreach ($loads as $index => $load)
                 @php $totalCapacity += $load->capacity; @endphp
+
+                @if($type === 'livraison' && ($lastClient === null || $lastClient !== ($load->client_name ?? 'Sans Client')))
+                    <tr style="background-color: #e5e7eb; font-weight: bold;">
+                        <td colspan="{{ $type === 'livraison' ? 10 : 7 }}">Client : {{ $load->client_name ?? 'Sans Client' }}</td>
+                    </tr>
+                    @php $lastClient = $load->client_name ?? 'Sans Client'; @endphp
+                @endif
+
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
@@ -110,7 +131,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="{{ $type === 'livraison' ? 4 : 4 }}" class="text-right">TOTAL</th>
+                <th colspan="4" class="text-right">TOTAL</th>
                 <th>{{ number_format($totalCapacity, 0, ',', ' ') }}</th>
                 <th colspan="{{ $type === 'livraison' ? 5 : 2 }}"></th>
             </tr>
