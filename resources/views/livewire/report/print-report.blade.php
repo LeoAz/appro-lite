@@ -74,6 +74,7 @@
     <table>
         <thead>
             <tr>
+                <th>N°</th>
                 <th>Date</th>
                 <th>Lieu</th>
                 <th>Produit</th>
@@ -89,9 +90,10 @@
         </thead>
         <tbody>
             @php $totalCapacity = 0; @endphp
-            @foreach ($loads as $load)
+            @foreach ($loads as $index => $load)
                 @php $totalCapacity += $load->capacity; @endphp
                 <tr>
+                    <td>{{ $index + 1 }}</td>
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
                     <td>{{ $load->load_location }}</td>
                     <td>{{ $load->product }}</td>
@@ -108,7 +110,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="{{ $type === 'livraison' ? 3 : 3 }}" class="text-right">TOTAL</th>
+                <th colspan="{{ $type === 'livraison' ? 4 : 4 }}" class="text-right">TOTAL</th>
                 <th>{{ number_format($totalCapacity, 0, ',', ' ') }}</th>
                 <th colspan="{{ $type === 'livraison' ? 5 : 2 }}"></th>
             </tr>
@@ -118,11 +120,13 @@
     @php
         $countByProduct = [];
         $litresByProduct = [];
+        $countByClient = [];
         $totalTrucks = $loads->count();
         $totalLitres = 0;
 
         foreach ($loads as $load) {
             $product = $load->product ?? 'Inconnu';
+            $client = $load->client_name ?? 'Sans Client';
             $capacity = (int) $load->capacity;
 
             if (!isset($countByProduct[$product])) {
@@ -130,15 +134,46 @@
                 $litresByProduct[$product] = 0;
             }
 
+            if (!isset($countByClient[$client])) {
+                $countByClient[$client] = 0;
+            }
+
             $countByProduct[$product]++;
             $litresByProduct[$product] += $capacity;
+            $countByClient[$client]++;
             $totalLitres += $capacity;
         }
     @endphp
 
-    <div style="display: flex; gap: 20px;">
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
         <div style="flex: 1; border: 1px solid #333; padding: 10px;">
-            <h2 style="font-size: 14px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Nombre de camions par produit</h2>
+            <h2 style="font-size: 12px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Nombre de camions par client</h2>
+            <table style="border: none; margin-bottom: 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #333;">
+                        <th style="border: none; background: none; padding: 4px; font-size: 10px;">Client</th>
+                        <th style="border: none; background: none; padding: 4px; font-size: 10px; text-align: right;">Camions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($countByClient as $client => $count)
+                        <tr>
+                            <td style="border: none; padding: 4px;">{{ $client }}</td>
+                            <td style="border: none; padding: 4px; text-align: right;">{{ $count }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight: bold; border-top: 1px solid #333;">
+                        <td style="border: none; padding: 4px;">TOTAL</td>
+                        <td style="border: none; padding: 4px; text-align: right;">{{ $totalTrucks }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div style="flex: 1; border: 1px solid #333; padding: 10px;">
+            <h2 style="font-size: 12px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Nombre de camions par produit</h2>
             <table style="border: none; margin-bottom: 0;">
                 <thead>
                     <tr style="border-bottom: 1px solid #333;">
@@ -164,7 +199,7 @@
         </div>
 
         <div style="flex: 1; border: 1px solid #333; padding: 10px;">
-            <h2 style="font-size: 14px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Nombre de litres par produit</h2>
+            <h2 style="font-size: 12px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Nombre de litres par produit</h2>
             <table style="border: none; margin-bottom: 0;">
                 <thead>
                     <tr style="border-bottom: 1px solid #333;">

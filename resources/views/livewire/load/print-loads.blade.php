@@ -69,6 +69,7 @@
     <table>
         <thead>
             <tr>
+                <th>N°</th>
                 <th>Date</th>
                 <th>Lieu</th>
                 <th>Produit</th>
@@ -84,9 +85,10 @@
         </thead>
         <tbody>
             @php $totalCapacity = 0; @endphp
-            @foreach ($loads as $load)
+            @foreach ($loads as $index => $load)
                 @php $totalCapacity += $load->capacity; @endphp
                 <tr>
+                    <td>{{ $index + 1 }}</td>
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
                     <td>{{ $load->load_location }}</td>
                     <td>{{ $load->product }}</td>
@@ -103,7 +105,7 @@
         </tbody>
         <tfoot>
             <tr style="font-weight: bold; background-color: #f2f2f2;">
-                <td colspan="3" style="text-align: right;">TOTAL</td>
+                <td colspan="4" style="text-align: right;">TOTAL</td>
                 <td>{{ number_format($totalCapacity, 0, ',', ' ') }}</td>
                 <td colspan="{{ $status === 'LIVRÉ' ? 5 : 2 }}"></td>
             </tr>

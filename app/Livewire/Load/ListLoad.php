@@ -65,6 +65,9 @@ class ListLoad extends Component implements HasForms, HasTable
             ->paginated([10, 25, 50, 100])
             ->selectable()
             ->columns([
+                TextColumn::make("index")
+                    ->label("N°")
+                    ->rowIndex(),
                 TextColumn::make("load_date")
                     ->label("Date Chargement")
                     ->date("d-m-Y")

@@ -65,6 +65,12 @@ class ListReport extends Component implements HasForms, HasTable
     {
         return $table
             ->query($this->getReportQuery())
+            ->defaultSort("client_name", "asc")
+            ->groups([
+                \Filament\Tables\Grouping\Group::make('client_name')
+                    ->label('Client')
+                    ->collapsible(),
+            ])
             ->paginated(false)
             ->headerActions([
                 Action::make('print')
@@ -79,6 +85,9 @@ class ListReport extends Component implements HasForms, HasTable
                     ->action('downloadPdf'),
             ])
             ->columns([
+                TextColumn::make("index")
+                    ->label("N°")
+                    ->rowIndex(),
                 TextColumn::make("load_date")
                     ->label("Date Chargement")
                     ->date("d-m-Y")
@@ -146,12 +155,14 @@ class ListReport extends Component implements HasForms, HasTable
         $stats = [
             'count_by_product' => [],
             'litres_by_product' => [],
+            'count_by_client' => [],
             'total_litres' => 0,
             'total_trucks' => $loads->count(),
         ];
 
         foreach ($loads as $load) {
             $product = $load->product ?? 'Inconnu';
+            $client = $load->client_name ?? 'Sans Client';
             $capacity = (int) $load->capacity;
 
             if (!isset($stats['count_by_product'][$product])) {
@@ -159,8 +170,13 @@ class ListReport extends Component implements HasForms, HasTable
                 $stats['litres_by_product'][$product] = 0;
             }
 
+            if (!isset($stats['count_by_client'][$client])) {
+                $stats['count_by_client'][$client] = 0;
+            }
+
             $stats['count_by_product'][$product]++;
             $stats['litres_by_product'][$product] += $capacity;
+            $stats['count_by_client'][$client]++;
             $stats['total_litres'] += $capacity;
         }
 

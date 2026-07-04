@@ -61,7 +61,33 @@
 
     {{ $this->table }}
 
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 stats-container">
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 stats-container">
+        <div class="bg-white p-6 shadow rounded-lg stat-box">
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">Nombre de camions par client</h2>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left border-b">
+                        <th class="pb-2">Client</th>
+                        <th class="pb-2 text-right">Nombre de camions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($this->statistics['count_by_client'] as $client => $count)
+                        <tr class="border-b last:border-0">
+                            <td class="py-2">{{ $client }}</td>
+                            <td class="py-2 text-right font-semibold">{{ $count }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr class="font-bold">
+                        <td class="pt-2">TOTAL</td>
+                        <td class="pt-2 text-right">{{ $this->statistics['total_trucks'] }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
         <div class="bg-white p-6 shadow rounded-lg stat-box">
             <h2 class="text-lg font-bold mb-4 border-b pb-2">Nombre de camions par produit</h2>
             <table class="w-full text-sm">
