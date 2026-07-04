@@ -66,6 +66,7 @@ class ListReport extends Component implements HasForms, HasTable
         return $table
             ->query($this->getReportQuery())
             ->defaultSort("client_name", "asc")
+            ->defaultGroup('client_name')
             ->groups([
                 \Filament\Tables\Grouping\Group::make('client_name')
                     ->label('Client')
@@ -140,7 +141,7 @@ class ListReport extends Component implements HasForms, HasTable
             'selectedProduct' => $this->selectedProduct,
             'dateFrom' => $this->dateFrom,
             'dateUntil' => $this->dateUntil,
-        ]);
+        ])->setPaper('a4', 'landscape');
 
         return response()->streamDownload(
             fn() => print $pdf->output(),

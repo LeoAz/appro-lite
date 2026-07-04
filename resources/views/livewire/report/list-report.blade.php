@@ -151,6 +151,9 @@
 
     <style>
         @media print {
+            @page {
+                size: landscape;
+            }
             .no-print, header, nav, .fi-sidebar, .fi-topbar, .fi-header-actions, .fi-ta-filters, .fi-ta-header-toolbar, .fi-ta-pagination {
                 display: none !important;
             }
