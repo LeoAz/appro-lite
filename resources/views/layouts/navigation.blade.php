@@ -49,9 +49,7 @@
                     <x-slot name="content">
                         <x-dropdown-link :href="route('carriers')">Transporteurs</x-dropdown-link>
                         <x-dropdown-link :href="route('clients')">Clients</x-dropdown-link>
-                        <x-dropdown-link :href="route('vehicles')">Véhicules</x-dropdown-link>
                         <x-dropdown-link :href="route('depots')">Dépots</x-dropdown-link>
-                        <x-dropdown-link :href="route('cities')">Villes</x-dropdown-link>
                     </x-slot>
                 </x-dropdown>
 
@@ -128,9 +126,7 @@
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('carriers')" class="text-white">Transporteurs</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('clients')" class="text-white">Clients</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('vehicles')" class="text-white">Véhicules</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('depots')" class="text-white">Dépots</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('cities')" class="text-white">Villes</x-responsive-nav-link>
             </div>
         </div>
 
