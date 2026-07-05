@@ -22,18 +22,17 @@
             @include('livewire.report.print-stock', ['compartments' => $this->getTableQuery()->get(), 'date' => now()])
         @endif
     </div>
+    <style>
+        @media print {
+            .fi-header-actions, .fi-ta-header-actions, .fi-ta-filters {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .max-w-7xl {
+                max-width: 100% !important;
+            }
+        }
+    </style>
 </div>
-
-<style>
-    @media print {
-        .fi-header-actions, .fi-ta-header-actions, .fi-ta-filters {
-            display: none !important;
-        }
-        body {
-            background: white !important;
-        }
-        .max-w-7xl {
-            max-width: 100% !important;
-        }
-    }
-</style>

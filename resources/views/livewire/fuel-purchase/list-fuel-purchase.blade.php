@@ -22,12 +22,11 @@
             @include('livewire.fuel-purchase.print-purchases', ['purchases' => $this->getTableQuery()->get()])
         @endif
     </div>
-</div>
-
-<style>
-    @media print {
-        .fi-header-actions, .fi-ta-header-actions, .fi-ta-filters {
-            display: none !important;
+    <style>
+        @media print {
+            .fi-header-actions, .fi-ta-header-actions, .fi-ta-filters {
+                display: none !important;
+            }
         }
-    }
-</style>
+    </style>
+</div>
