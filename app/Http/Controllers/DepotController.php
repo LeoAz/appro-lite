@@ -10,4 +10,9 @@ class DepotController extends Controller
     {
         return view("app.depot");
     }
+
+    public function show(\App\Models\Depot $depot)
+    {
+        return view("app.depot-show", compact('depot'));
+    }
 }

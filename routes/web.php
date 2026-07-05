@@ -14,11 +14,14 @@ Route::middleware("auth")->group(function () {
     Route::get("/", CarrierController::class)->name("carriers");
     Route::get("/clients", ClientController::class)->name("clients");
     Route::get("/depots", DepotController::class)->name("depots");
+    Route::get("/depots/{depot}", [DepotController::class, 'show'])->name("depots.show");
     Route::get("/cities", CityController::class)->name("cities");
     Route::get("/loads", LoadController::class)->name("loads");
     Route::get("/deliveries", \App\Http\Controllers\DeliveryController::class)->name("deliveries");
+    Route::get("/fuel-purchases", \App\Http\Controllers\FuelPurchaseController::class)->name("fuel-purchases");
     Route::get("/reports/loads", \App\Http\Controllers\ReportLoadController::class)->name("reports.loads");
     Route::get("/reports/deliveries", \App\Http\Controllers\ReportDeliveryController::class)->name("reports.deliveries");
+    Route::get("/reports/stocks", \App\Http\Controllers\ReportStockController::class)->name("reports.stocks");
 
     Route::get("/profile", [ProfileController::class, "edit"])->name(
         "profile.edit"

@@ -33,7 +33,7 @@ class AddDepot extends ModalComponent implements HasForms
 
     public function create()
     {
-        Depot::create($this->form->getState());
+        $depot = Depot::create($this->form->getState());
         Notification::make()
             ->title("Nouveau dépôt ajouté")
             ->success()
@@ -42,6 +42,8 @@ class AddDepot extends ModalComponent implements HasForms
 
         $this->dispatch("add-depot");
         $this->closeModal();
+
+        return redirect()->route('depots.show', $depot);
     }
 
     public function render()

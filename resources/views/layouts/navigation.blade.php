@@ -18,11 +18,17 @@
                     <x-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')" class="text-white hover:text-blue-100 active:text-white">
                         Livraison
                     </x-nav-link>
+                    <x-nav-link :href="route('fuel-purchases')" :active="request()->routeIs('fuel-purchases')" class="text-white hover:text-blue-100 active:text-white">
+                        Achats Carburant
+                    </x-nav-link>
                     <x-nav-link :href="route('reports.loads')" :active="request()->routeIs('reports.loads')" class="text-white hover:text-blue-100 active:text-white">
                         Rapport Chargement
                     </x-nav-link>
                     <x-nav-link :href="route('reports.deliveries')" :active="request()->routeIs('reports.deliveries')" class="text-white hover:text-blue-100 active:text-white">
                         Rapport Livraison
+                    </x-nav-link>
+                    <x-nav-link :href="route('reports.stocks')" :active="request()->routeIs('reports.stocks')" class="text-white hover:text-blue-100 active:text-white">
+                        Suivi Stock
                     </x-nav-link>
                 </div>
             </div>
@@ -103,11 +109,17 @@
             <x-responsive-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')" class="text-white">
                 Livraison
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('fuel-purchases')" :active="request()->routeIs('fuel-purchases')" class="text-white">
+                Achats Carburant
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('reports.loads')" :active="request()->routeIs('reports.loads')" class="text-white">
                 Rapport Chargement
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('reports.deliveries')" :active="request()->routeIs('reports.deliveries')" class="text-white">
                 Rapport Livraison
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('reports.stocks')" :active="request()->routeIs('reports.stocks')" class="text-white">
+                Suivi Stock
             </x-responsive-nav-link>
         </div>
 

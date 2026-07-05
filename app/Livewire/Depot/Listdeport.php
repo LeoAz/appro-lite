@@ -34,17 +34,22 @@ class Listdeport extends Component implements HasForms, HasTable
                 TextColumn::make("name")
                     ->label("Nom")
                     ->weight(FontWeight::SemiBold)
-                    ->searchable(),
+                    ->searchable()
+                    ->url(fn (Depot $record): string => route('depots.show', $record)),
             ])
-            ->emptyStateHeading('Aucun transporteur n\'est disponible')
+            ->emptyStateHeading('Aucun dépôt n\'est disponible')
             ->filters([
                 //
             ])
             ->actions([
                 ActionGroup::make([
-                    Action::make("edit")
-                        ->label("Modifier")
+                    Action::make("view")
+                        ->label("Détails / Compartiments")
                         ->icon("heroicon-m-eye")
+                        ->url(fn (Depot $record): string => route('depots.show', $record)),
+                    Action::make("edit")
+                        ->label("Modifier le nom")
+                        ->icon("heroicon-m-pencil")
                         ->action(
                             fn(Depot $record, $livewire) => $livewire->dispatch(
                                 "openModal",

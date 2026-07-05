@@ -23,6 +23,7 @@ class Load extends Model
         "client_id",
         "client_name",
         "status",
+        "compartment_id",
     ];
 
     protected $casts = [
@@ -49,5 +50,10 @@ class Load extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function compartment()
+    {
+        return $this->belongsTo(Compartment::class);
     }
 }

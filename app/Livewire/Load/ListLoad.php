@@ -144,7 +144,15 @@ class ListLoad extends Component implements HasForms, HasTable
                         ->color("danger")
                         ->requiresConfirmation()
                         ->action(function (Load $record) {
-                            $record->delete();
+                            \Illuminate\Support\Facades\DB::transaction(function () use ($record) {
+                                if ($record->compartment_id) {
+                                    $compartment = \App\Models\Compartment::find($record->compartment_id);
+                                    if ($compartment) {
+                                        $compartment->increment('quantity', $record->capacity);
+                                    }
+                                }
+                                $record->delete();
+                            });
                             Notification::make()
                                 ->title("Chargement supprimé")
                                 ->success()
@@ -177,7 +185,17 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->modalSubmitActionLabel("Oui, Supprimé")
                     ->modalCancelActionLabel("Annulé")
                     ->action(function (Collection $records) {
-                        $records->each->delete();
+                        \Illuminate\Support\Facades\DB::transaction(function () use ($records) {
+                            $records->each(function ($record) {
+                                if ($record->compartment_id) {
+                                    $compartment = \App\Models\Compartment::find($record->compartment_id);
+                                    if ($compartment) {
+                                        $compartment->increment('quantity', $record->capacity);
+                                    }
+                                }
+                                $record->delete();
+                            });
+                        });
                         Notification::make()
                             ->title("Chargements supprimés")
                             ->success()

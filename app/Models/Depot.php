@@ -10,4 +10,9 @@ class Depot extends Model
     use HasFactory;
 
     protected $fillable = ["name"];
+
+    public function compartments()
+    {
+        return $this->hasMany(Compartment::class);
+    }
 }
