@@ -39,7 +39,7 @@ class ListReport extends Component implements HasForms, HasTable
 
     public function updated($propertyName)
     {
-        if (in_array($propertyName, ['selectedLocations', 'selectedProduct', 'dateFrom', 'dateUntil'])) {
+        if (in_array($propertyName, ['selectedLocations', 'selectedProduct', 'dateFrom', 'dateUntil']) || str_starts_with($propertyName, 'selectedLocations')) {
             $this->resetTable();
         }
     }

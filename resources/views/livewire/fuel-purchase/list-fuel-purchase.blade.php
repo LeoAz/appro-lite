@@ -18,7 +18,9 @@
     </div>
 
     <div class="hidden print:block">
-        @include('livewire.fuel-purchase.print-purchases', ['purchases' => $this->getTableQuery()->get()])
+        @if($this->getTableQuery())
+            @include('livewire.fuel-purchase.print-purchases', ['purchases' => $this->getTableQuery()->get()])
+        @endif
     </div>
 </div>
 

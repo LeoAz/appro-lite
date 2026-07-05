@@ -5,13 +5,18 @@ namespace App\Livewire\Modals\Load;
 use App\Models\City;
 use App\Models\Client;
 use App\Models\Load;
+use App\Models\Depot;
+use App\Models\Compartment;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 
@@ -29,6 +34,8 @@ class EditLoad extends ModalComponent implements HasForms
     public $capacity;
     public $product;
     public $vehicle_registration;
+    public $depot_id;
+    public $compartment_id;
 
     public function mount(load $load): void
     {
@@ -63,15 +70,25 @@ class EditLoad extends ModalComponent implements HasForms
                     ->label("Client")
                     ->hidden(!$isLivre)
                     ->required($isLivre),
-                Select::make("product")
-                    ->label("Le produit")
-                    ->options([
-                        "FUEL" => "FUEL",
-                        "SUPER" => "SUPER",
-                        "GASOIL" => "GASOIL",
-                    ])
+
+                Select::make("depot_id")
+                    ->label("Dépôt")
+                    ->options(Depot::all()->pluck('name', 'id'))
                     ->required()
-                    ->searchable(),
+                    ->live(),
+                Select::make("compartment_id")
+                    ->label("Produit (Compartiment)")
+                    ->options(fn (Get $get) => Compartment::where('depot_id', $get('depot_id'))
+                        ->get()
+                        ->mapWithKeys(fn ($c) => [$c->id => "{$c->product} (Dispo: {$c->quantity} L)"]))
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set, $state) => $set('product', Compartment::find($state)?->product)),
+
+                TextInput::make("product")
+                    ->label("Produit")
+                    ->disabled()
+                    ->dehydrated(),
 
                 TextInput::make("vehicle_registration")
                     ->label("Le véhicule")
@@ -80,17 +97,59 @@ class EditLoad extends ModalComponent implements HasForms
 
                 TextInput::make("capacity")
                     ->label("Nombre de litres")
+                    ->numeric()
                     ->required(),
             ])
-            //->statePath("data");
             ->model($this->load);
     }
 
     public function update()
     {
         $data = $this->form->getState();
+        $oldCapacity = $this->load->capacity;
+        $oldCompartmentId = $this->load->compartment_id;
+        $newCapacity = $data['capacity'];
+        $newCompartmentId = $data['compartment_id'];
 
-        $this->load->update($data);
+        $compartment = Compartment::find($newCompartmentId);
+
+        // Vérification du stock
+        // Si c'est le même compartiment, on vérifie si la nouvelle quantité est possible
+        // (dispo actuelle + ancienne quantité réservée >= nouvelle quantité)
+        if ($oldCompartmentId == $newCompartmentId) {
+            if (($compartment->quantity + $oldCapacity) < $newCapacity) {
+                Notification::make()
+                    ->title("Stock insuffisant")
+                    ->danger()
+                    ->body("La quantité demandée ({$newCapacity} L) dépasse le stock disponible avec l'ajustement.")
+                    ->send();
+                return;
+            }
+        } else {
+            // Si le compartiment change, on vérifie simplement le nouveau stock
+            if ($compartment->quantity < $newCapacity) {
+                Notification::make()
+                    ->title("Stock insuffisant")
+                    ->danger()
+                    ->body("Le nouveau compartiment n'a pas assez de stock ({$compartment->quantity} L).")
+                    ->send();
+                return;
+            }
+        }
+
+        DB::transaction(function () use ($data, $oldCapacity, $oldCompartmentId, $newCapacity, $newCompartmentId) {
+            // Remettre l'ancien stock
+            if ($oldCompartmentId) {
+                Compartment::find($oldCompartmentId)?->increment('quantity', $oldCapacity);
+            }
+
+            // Déduire le nouveau stock
+            Compartment::find($newCompartmentId)->decrement('quantity', $newCapacity);
+
+            // Mettre à jour le chargement
+            $this->load->update($data);
+        });
+
         Notification::make()
             ->title($this->load->status === 'LIVRÉ' ? "Livraison mise à jour" : "Chargement mise à jour")
             ->success()

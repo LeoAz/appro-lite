@@ -18,7 +18,9 @@
     </div>
 
     <div class="hidden print:block">
-        @include('livewire.report.print-stock', ['compartments' => $this->getTableQuery()->get(), 'date' => now()])
+        @if($this->getTableQuery())
+            @include('livewire.report.print-stock', ['compartments' => $this->getTableQuery()->get(), 'date' => now()])
+        @endif
     </div>
 </div>
 
