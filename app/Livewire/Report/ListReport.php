@@ -29,6 +29,11 @@ class ListReport extends Component implements HasForms, HasTable
     public $dateFrom = '';
     public $dateUntil = '';
 
+    public function applyFilters()
+    {
+        $this->resetTable();
+    }
+
     public $cities;
 
     public function mount($type = 'chargement')
@@ -39,9 +44,7 @@ class ListReport extends Component implements HasForms, HasTable
 
     public function updated($propertyName)
     {
-        if (in_array($propertyName, ['selectedLocations', 'selectedProduct', 'dateFrom', 'dateUntil']) || str_starts_with($propertyName, 'selectedLocations')) {
-            $this->resetTable();
-        }
+        // On ne fait plus rien ici pour éviter les rafraîchissements lents
     }
 
     public function getReportQuery()

@@ -32,6 +32,11 @@ class ListLoad extends Component implements HasForms, HasTable
     public $dateUntil = '';
     public $cities;
 
+    public function applyFilters()
+    {
+        $this->resetTable();
+    }
+
     public function mount($status)
     {
         $this->status = $status;
@@ -40,9 +45,7 @@ class ListLoad extends Component implements HasForms, HasTable
 
     public function updated($propertyName)
     {
-        if (in_array($propertyName, ['selectedLocations', 'selectedProduct', 'dateFrom', 'dateUntil'])) {
-            $this->resetTable();
-        }
+        // On ne fait plus rien ici pour éviter les rafraîchissements lents
     }
 
     public function getFilteredQuery()
