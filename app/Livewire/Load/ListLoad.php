@@ -52,16 +52,35 @@ class ListLoad extends Component implements HasForms, HasTable
 
     public function getFilteredQuery()
     {
-        $query = Load::query()->where("status", $this->status);
+        $query = Load::query();
+
+        if ($this->status === 'CHARGÉ') {
+             $query->where("status", "CHARGÉ");
+        } else {
+             $query->where("status", $this->status);
+        }
 
         // Application des filtres personnalisés
-        $locationField = $this->status === 'EN COURS' ? 'load_location' : 'unload_location';
-        $dateField = $this->status === 'EN COURS' ? 'load_date' : 'unload_date';
+        $locationField = ($this->status === 'EN COURS' || $this->status === 'CHARGÉ') ? 'load_location' : 'unload_location';
+        $dateField = ($this->status === 'EN COURS' || $this->status === 'CHARGÉ') ? 'load_date' : 'unload_date';
 
-        return $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
-            ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
-            ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
-            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
+        if (!empty($this->selectedLocations)) {
+            $query->whereIn($locationField, $this->selectedLocations);
+        }
+
+        if ($this->selectedProduct) {
+            $query->where('product', $this->selectedProduct);
+        }
+
+        if ($this->dateFrom) {
+            $query->whereDate($dateField, '>=', $this->dateFrom);
+        }
+
+        if ($this->dateUntil) {
+            $query->whereDate($dateField, '<=', $this->dateUntil);
+        }
+
+        return $query;
     }
 
     public function table(Table $table): Table
@@ -218,13 +237,24 @@ class ListLoad extends Component implements HasForms, HasTable
         $query->where("status", $this->status);
 
         // Application des filtres personnalisés
-        $locationField = $this->status === 'EN COURS' ? 'load_location' : 'unload_location';
-        $dateField = $this->status === 'EN COURS' ? 'load_date' : 'unload_date';
+        $locationField = ($this->status === 'EN COURS' || $this->status === 'CHARGÉ') ? 'load_location' : 'unload_location';
+        $dateField = ($this->status === 'EN COURS' || $this->status === 'CHARGÉ') ? 'load_date' : 'unload_date';
 
-        $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
-            ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
-            ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
-            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil));
+        if (!empty($this->selectedLocations)) {
+            $query->whereIn($locationField, $this->selectedLocations);
+        }
+
+        if ($this->selectedProduct) {
+            $query->where('product', $this->selectedProduct);
+        }
+
+        if ($this->dateFrom) {
+            $query->whereDate($dateField, '>=', $this->dateFrom);
+        }
+
+        if ($this->dateUntil) {
+            $query->whereDate($dateField, '<=', $this->dateUntil);
+        }
 
         $this->applySortingToTableQuery($query);
 

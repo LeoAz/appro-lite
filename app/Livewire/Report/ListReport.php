@@ -54,7 +54,7 @@ class ListReport extends Component implements HasForms, HasTable
         $query = Load::query();
 
         if ($this->type === 'chargement') {
-            $query->where('status', 'EN COURS');
+            $query->where('status', 'CHARGÉ');
         } else {
             $query->where('status', 'LIVRÉ');
         }
@@ -63,11 +63,23 @@ class ListReport extends Component implements HasForms, HasTable
         $locationField = $this->type === 'chargement' ? 'load_location' : 'unload_location';
         $dateField = $this->type === 'chargement' ? 'load_date' : 'unload_date';
 
-        return $query->when($this->selectedLocations, fn($q) => $q->whereIn($locationField, $this->selectedLocations))
-            ->when($this->selectedProduct, fn($q) => $q->where('product', $this->selectedProduct))
-            ->when($this->dateFrom, fn($q) => $q->whereDate($dateField, '>=', $this->dateFrom))
-            ->when($this->dateUntil, fn($q) => $q->whereDate($dateField, '<=', $this->dateUntil))
-            ->orderBy($dateField, 'asc')
+        if (!empty($this->selectedLocations)) {
+            $query->whereIn($locationField, $this->selectedLocations);
+        }
+
+        if ($this->selectedProduct) {
+            $query->where('product', $this->selectedProduct);
+        }
+
+        if ($this->dateFrom) {
+            $query->whereDate($dateField, '>=', $this->dateFrom);
+        }
+
+        if ($this->dateUntil) {
+            $query->whereDate($dateField, '<=', $this->dateUntil);
+        }
+
+        return $query->orderBy($dateField, 'asc')
             ->orderBy('client_name', 'asc');
     }
 
