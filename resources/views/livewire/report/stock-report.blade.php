@@ -131,7 +131,7 @@
             </div>
 
             <h2 class="text-xl font-bold mb-4">État des Compartiments</h2>
-            @include('livewire.report.print-stock', ['compartments' => Compartment::where('depot_id', $this->depot_id)->get(), 'date' => now()])
+            @include('livewire.report.print-stock', ['compartments' => \App\Models\Compartment::where('depot_id', $this->depot_id)->get(), 'date' => now()])
 
             <div class="mt-8">
                 <h2 class="text-xl font-bold mb-4">Historique des 20 derniers Chargements</h2>
@@ -159,7 +159,7 @@
                 </table>
             </div>
         @else
-             @include('livewire.report.print-stock', ['compartments' => Compartment::all(), 'date' => now()])
+             @include('livewire.report.print-stock', ['compartments' => \App\Models\Compartment::all(), 'date' => now()])
         @endif
     </div>
 
