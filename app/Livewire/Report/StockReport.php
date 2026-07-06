@@ -38,11 +38,12 @@ class StockReport extends Component implements HasForms, HasTable
         return $form
             ->schema([
                 Select::make('depot_id')
-                    ->label('Sélectionner un dépôt')
+                    ->hiddenLabel()
+                    ->searchable()
                     ->options(Depot::all()->pluck('name', 'id'))
                     ->live()
                     ->afterStateUpdated(fn () => $this->resetTable())
-                    ->placeholder('Tous les dépôts'),
+                    ->placeholder('Choisir un dépôt'),
             ]);
     }
 

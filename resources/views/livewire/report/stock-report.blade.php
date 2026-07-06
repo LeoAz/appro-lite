@@ -6,7 +6,7 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <div class="w-64">
+            <div class="min-w-[250px]">
                 {{ $this->form }}
             </div>
 
