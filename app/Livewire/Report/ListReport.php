@@ -54,7 +54,7 @@ class ListReport extends Component implements HasForms, HasTable
         $query = Load::query();
 
         if ($this->type === 'chargement') {
-            $query->where('status', 'CHARGÉ');
+            $query->whereIn('status', ['EN COURS', 'CHARGÉ']);
         } else {
             $query->where('status', 'LIVRÉ');
         }
@@ -117,6 +117,12 @@ class ListReport extends Component implements HasForms, HasTable
                 TextColumn::make("index")
                     ->label("N°")
                     ->rowIndex(),
+                TextColumn::make("unload_date")
+                    ->label("Date Livraison")
+                    ->date("d-m-Y")
+                    ->toggleable()
+                    ->hidden(fn() => $this->type === 'chargement')
+                    ->searchable(),
                 TextColumn::make("load_date")
                     ->label("Date Chargement")
                     ->date("d-m-Y")
@@ -136,15 +142,10 @@ class ListReport extends Component implements HasForms, HasTable
                     ->badge()
                     ->color(fn (?string $state): string => match ($state) {
                         'EN COURS' => 'info',
+                        'CHARGÉ' => 'success',
                         'LIVRÉ' => 'success',
                         default => 'gray',
                     }),
-                TextColumn::make("unload_date")
-                    ->label("Date Livraison")
-                    ->date("d-m-Y")
-                    ->toggleable()
-                    ->hidden(fn() => $this->type === 'chargement')
-                    ->searchable(),
                 TextColumn::make("unload_location")
                     ->label("Lieu Livraison")
                     ->toggleable()

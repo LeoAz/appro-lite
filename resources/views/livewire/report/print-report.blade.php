@@ -85,13 +85,15 @@
         <thead>
             <tr>
                 <th>N°</th>
+                @if($type === 'livraison')
+                    <th>Date Liv.</th>
+                @endif
                 <th>Date</th>
                 <th>Lieu</th>
                 <th>Produit</th>
                 <th>Litres</th>
                 <th>Véhicule</th>
                 @if($type === 'livraison')
-                    <th>Date Liv.</th>
                     <th>Lieu Liv.</th>
                     <th>Client</th>
                 @endif
@@ -132,13 +134,15 @@
 
                 <tr>
                     <td>{{ $index + 1 }}</td>
+                    @if($type === 'livraison')
+                        <td>{{ $load->unload_date ? $load->unload_date->format('d/m/Y') : '-' }}</td>
+                    @endif
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
                     <td>{{ $load->load_location }}</td>
                     <td>{{ $load->product }}</td>
                     <td>{{ number_format($load->volume, 0, ',', ' ') }}</td>
                     <td>{{ $load->vehicle_registration ?? '-' }}</td>
                     @if($type === 'livraison')
-                        <td>{{ $load->unload_date ? $load->unload_date->format('d/m/Y') : '-' }}</td>
                         <td>{{ $load->unload_location ?? '-' }}</td>
                         <td>{{ $load->client_name ?? '-' }}</td>
                     @endif
@@ -148,9 +152,9 @@
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="4" class="text-right">TOTAL</th>
+                <th colspan="{{ $type === 'livraison' ? 5 : 4 }}" class="text-right">TOTAL</th>
                 <th>{{ number_format($totalVolume, 0, ',', ' ') }}</th>
-                <th colspan="{{ $type === 'livraison' ? 5 : 2 }}"></th>
+                <th colspan="{{ $type === 'livraison' ? 4 : 2 }}"></th>
             </tr>
         </tfoot>
     </table>
