@@ -64,25 +64,6 @@ class StockReport extends Component implements HasForms, HasTable
                     ->suffix(' L')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('capacity')
-                    ->label('Capacité totale')
-                    ->suffix(' L')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('status')
-                    ->label('État')
-                    ->state(function (Compartment $record): string {
-                        $percentage = $record->capacity > 0 ? ($record->quantity / $record->capacity) * 100 : 0;
-                        if ($percentage < 10) return 'Critique';
-                        if ($percentage < 30) return 'Bas';
-                        return 'Normal';
-                    })
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Critique' => 'danger',
-                        'Bas' => 'warning',
-                        default => 'success',
-                    }),
             ])
             ->paginated(false);
     }

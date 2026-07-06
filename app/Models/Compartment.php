@@ -13,7 +13,6 @@ class Compartment extends Model
         'depot_id',
         'product',
         'quantity',
-        'capacity',
     ];
 
     public function depot()

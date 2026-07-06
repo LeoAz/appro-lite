@@ -102,7 +102,7 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->label("Lieu Chargement")
                     ->searchable(),
                 TextColumn::make("product")->label("Produit")->searchable(),
-                TextColumn::make("capacity")
+                TextColumn::make("volume")
                     ->label("Litres")
                     ->numeric(decimalPlaces: 0, decimalSeparator: ',', thousandsSeparator: ' ')
                     ->summarize(\Filament\Tables\Columns\Summarizers\Sum::make()->label('Total')->numeric(decimalPlaces: 0, decimalSeparator: ',', thousandsSeparator: ' '))
@@ -172,7 +172,7 @@ class ListLoad extends Component implements HasForms, HasTable
                                 if ($record->compartment_id) {
                                     $compartment = \App\Models\Compartment::find($record->compartment_id);
                                     if ($compartment) {
-                                        $compartment->increment('quantity', $record->capacity);
+                                        $compartment->increment('quantity', $record->volume);
                                     }
                                 }
                                 $record->delete();
@@ -214,7 +214,7 @@ class ListLoad extends Component implements HasForms, HasTable
                                 if ($record->compartment_id) {
                                     $compartment = \App\Models\Compartment::find($record->compartment_id);
                                     if ($compartment) {
-                                        $compartment->increment('quantity', $record->capacity);
+                                        $compartment->increment('quantity', $record->volume);
                                     }
                                 }
                                 $record->delete();
@@ -301,7 +301,7 @@ class ListLoad extends Component implements HasForms, HasTable
 
         foreach ($loads as $load) {
             $product = $load->product ?? 'Inconnu';
-            $capacity = (int) $load->capacity;
+            $volume = (int) $load->volume;
 
             if (!isset($stats['count_by_product'][$product])) {
                 $stats['count_by_product'][$product] = 0;
@@ -309,8 +309,8 @@ class ListLoad extends Component implements HasForms, HasTable
             }
 
             $stats['count_by_product'][$product]++;
-            $stats['litres_by_product'][$product] += $capacity;
-            $stats['total_litres'] += $capacity;
+            $stats['litres_by_product'][$product] += $volume;
+            $stats['total_litres'] += $volume;
         }
 
         return $stats;

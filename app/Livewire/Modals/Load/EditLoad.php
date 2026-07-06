@@ -31,7 +31,7 @@ class EditLoad extends ModalComponent implements HasForms
     public $unload_date;
     public $unload_location;
     public $client_name;
-    public $capacity;
+    public $volume;
     public $product;
     public $vehicle_registration;
     public $depot_id;
@@ -95,7 +95,7 @@ class EditLoad extends ModalComponent implements HasForms
                     ->placeholder("Saisir l'immatriculation")
                     ->required(),
 
-                TextInput::make("capacity")
+                TextInput::make("volume")
                     ->label("Nombre de litres")
                     ->numeric()
                     ->required(),
@@ -106,9 +106,9 @@ class EditLoad extends ModalComponent implements HasForms
     public function update()
     {
         $data = $this->form->getState();
-        $oldCapacity = $this->load->capacity;
+        $oldVolume = $this->load->volume;
         $oldCompartmentId = $this->load->compartment_id;
-        $newCapacity = $data['capacity'];
+        $newVolume = $data['volume'];
         $newCompartmentId = $data['compartment_id'];
 
         $compartment = Compartment::find($newCompartmentId);
@@ -117,17 +117,17 @@ class EditLoad extends ModalComponent implements HasForms
         // Si c'est le même compartiment, on vérifie si la nouvelle quantité est possible
         // (dispo actuelle + ancienne quantité réservée >= nouvelle quantité)
         if ($oldCompartmentId == $newCompartmentId) {
-            if (($compartment->quantity + $oldCapacity) < $newCapacity) {
+            if (($compartment->quantity + $oldVolume) < $newVolume) {
                 Notification::make()
                     ->title("Stock insuffisant")
                     ->danger()
-                    ->body("La quantité demandée ({$newCapacity} L) dépasse le stock disponible avec l'ajustement.")
+                    ->body("La quantité demandée ({$newVolume} L) dépasse le stock disponible avec l'ajustement.")
                     ->send();
                 return;
             }
         } else {
             // Si le compartiment change, on vérifie simplement le nouveau stock
-            if ($compartment->quantity < $newCapacity) {
+            if ($compartment->quantity < $newVolume) {
                 Notification::make()
                     ->title("Stock insuffisant")
                     ->danger()
@@ -137,14 +137,14 @@ class EditLoad extends ModalComponent implements HasForms
             }
         }
 
-        DB::transaction(function () use ($data, $oldCapacity, $oldCompartmentId, $newCapacity, $newCompartmentId) {
+        DB::transaction(function () use ($data, $oldVolume, $oldCompartmentId, $newVolume, $newCompartmentId) {
             // Remettre l'ancien stock
             if ($oldCompartmentId) {
-                Compartment::find($oldCompartmentId)?->increment('quantity', $oldCapacity);
+                Compartment::find($oldCompartmentId)?->increment('quantity', $oldVolume);
             }
 
             // Déduire le nouveau stock
-            Compartment::find($newCompartmentId)->decrement('quantity', $newCapacity);
+            Compartment::find($newCompartmentId)->decrement('quantity', $newVolume);
 
             // Mettre à jour le chargement
             $this->load->update($data);

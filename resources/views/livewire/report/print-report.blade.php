@@ -100,13 +100,13 @@
         </thead>
         <tbody>
             @php
-                $totalCapacity = 0;
+                $totalVolume = 0;
                 $lastClient = null;
                 $lastDate = null;
                 $dateField = $type === 'chargement' ? 'load_date' : 'unload_date';
             @endphp
             @foreach ($loads as $index => $load)
-                @php $totalCapacity += $load->capacity; @endphp
+                @php $totalVolume += $load->volume; @endphp
 
                 @php
                     $currentClient = $load->client_name ?? 'Sans Client';
@@ -135,7 +135,7 @@
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
                     <td>{{ $load->load_location }}</td>
                     <td>{{ $load->product }}</td>
-                    <td>{{ number_format($load->capacity, 0, ',', ' ') }}</td>
+                    <td>{{ number_format($load->volume, 0, ',', ' ') }}</td>
                     <td>{{ $load->vehicle_registration ?? '-' }}</td>
                     @if($type === 'livraison')
                         <td>{{ $load->unload_date ? $load->unload_date->format('d/m/Y') : '-' }}</td>
@@ -149,7 +149,7 @@
         <tfoot>
             <tr>
                 <th colspan="4" class="text-right">TOTAL</th>
-                <th>{{ number_format($totalCapacity, 0, ',', ' ') }}</th>
+                <th>{{ number_format($totalVolume, 0, ',', ' ') }}</th>
                 <th colspan="{{ $type === 'livraison' ? 5 : 2 }}"></th>
             </tr>
         </tfoot>
@@ -165,7 +165,7 @@
         foreach ($loads as $load) {
             $product = $load->product ?? 'Inconnu';
             $client = $load->client_name ?? 'Sans Client';
-            $capacity = (int) $load->capacity;
+            $volume = (int) $load->volume;
 
             if (!isset($countByProduct[$product])) {
                 $countByProduct[$product] = 0;
@@ -177,9 +177,9 @@
             }
 
             $countByProduct[$product]++;
-            $litresByProduct[$product] += $capacity;
+            $litresByProduct[$product] += $volume;
             $countByClient[$client]++;
-            $totalLitres += $capacity;
+            $totalLitres += $volume;
         }
     @endphp
 

@@ -32,26 +32,14 @@
                 <th>Dépôt</th>
                 <th>Produit</th>
                 <th>Stock Actuel</th>
-                <th>Capacité Totale</th>
-                <th>Utilisation (%)</th>
-                <th>État</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($compartments as $compartment)
-                @php
-                    $percentage = $compartment->capacity > 0 ? ($compartment->quantity / $compartment->capacity) * 100 : 0;
-                    $status = 'Normal';
-                    if ($percentage < 10) $status = 'Critique';
-                    elseif ($percentage < 30) $status = 'Bas';
-                @endphp
                 <tr>
                     <td>{{ $compartment->depot->name }}</td>
                     <td>{{ $compartment->product }}</td>
                     <td>{{ number_format($compartment->quantity, 2) }} L</td>
-                    <td>{{ number_format($compartment->capacity, 2) }} L</td>
-                    <td>{{ number_format($percentage, 2) }}%</td>
-                    <td class="status-badge status-{{ $status }}">{{ $status }}</td>
                 </tr>
             @endforeach
         </tbody>

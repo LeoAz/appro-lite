@@ -42,22 +42,6 @@ class ShowDepot extends Component implements HasForms, HasTable
                     ->label('Quantité en stock')
                     ->suffix(' L')
                     ->numeric(),
-                TextColumn::make('capacity')
-                    ->label('Capacité totale')
-                    ->suffix(' L')
-                    ->numeric(),
-                TextColumn::make('usage')
-                    ->label('Utilisation')
-                    ->state(function (Compartment $record): string {
-                        $percentage = $record->capacity > 0 ? ($record->quantity / $record->capacity) * 100 : 0;
-                        return number_format($percentage, 2) . '%';
-                    })
-                    ->badge()
-                    ->color(fn (string $state): string => match (true) {
-                        (float)$state > 90 => 'danger',
-                        (float)$state > 70 => 'warning',
-                        default => 'success',
-                    }),
             ])
             ->headerActions([
                 Action::make('addCompartment')

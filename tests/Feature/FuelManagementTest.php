@@ -30,7 +30,6 @@ test('on peut créer un dépôt et lui ajouter des compartiments', function () {
     Livewire::test(AddCompartment::class, ['depot_id' => $depot->id])
         ->fillForm([
             'product' => 'Essence',
-            'capacity' => 10000,
             'quantity' => 5000,
         ])
         ->call('create')
@@ -47,14 +46,12 @@ test('on ne peut pas avoir deux compartiments du même produit dans un dépôt',
     Compartment::create([
         'depot_id' => $depot->id,
         'product' => 'Essence',
-        'capacity' => 10000,
         'quantity' => 5000,
     ]);
 
     Livewire::test(AddCompartment::class, ['depot_id' => $depot->id])
         ->fillForm([
             'product' => 'Essence',
-            'capacity' => 5000,
             'quantity' => 1000,
         ])
         ->call('create')
@@ -66,7 +63,6 @@ test('un achat de carburant augmente le stock du compartiment', function () {
     $compartment = Compartment::create([
         'depot_id' => $depot->id,
         'product' => 'Gasoil',
-        'capacity' => 20000,
         'quantity' => 2000,
     ]);
 
@@ -91,7 +87,6 @@ test('un achat de carburant sans prix unitaire est possible', function () {
     $compartment = Compartment::create([
         'depot_id' => $depot->id,
         'product' => 'Gasoil',
-        'capacity' => 20000,
         'quantity' => 2000,
     ]);
 
@@ -118,7 +113,6 @@ test('un chargement diminue le stock du compartiment', function () {
     $compartment = Compartment::create([
         'depot_id' => $depot->id,
         'product' => 'Essence',
-        'capacity' => 10000,
         'quantity' => 8000,
     ]);
 
@@ -127,7 +121,7 @@ test('un chargement diminue le stock du compartiment', function () {
         ->set('compartment_id', $compartment->id)
         ->set('load_location', 'Conakry')
         ->set('vehicle_registration', 'RC-1234-A')
-        ->set('capacity', 3000)
+        ->set('volume', 3000)
         ->call('create')
         ->assertHasNoFormErrors();
 
@@ -141,7 +135,6 @@ test('un chargement échoue si le stock est insuffisant', function () {
     $compartment = Compartment::create([
         'depot_id' => $depot->id,
         'product' => 'Essence',
-        'capacity' => 10000,
         'quantity' => 1000,
     ]);
 
@@ -150,7 +143,7 @@ test('un chargement échoue si le stock est insuffisant', function () {
         ->set('compartment_id', $compartment->id)
         ->set('load_location', 'Conakry')
         ->set('vehicle_registration', 'RC-1234-A')
-        ->set('capacity', 3000)
+        ->set('volume', 3000)
         ->call('create');
 
     $compartment->refresh();
@@ -163,7 +156,6 @@ test('un chargement peut être transformé en livraison', function () {
     $compartment = Compartment::create([
         'depot_id' => $depot->id,
         'product' => 'Essence',
-        'capacity' => 10000,
         'quantity' => 8000,
     ]);
 
@@ -173,7 +165,7 @@ test('un chargement peut être transformé en livraison', function () {
         'load_date' => now(),
         'load_location' => 'Conakry',
         'product' => 'Essence',
-        'capacity' => 3000,
+        'volume' => 3000,
         'vehicle_registration' => 'RC-1234-A',
         'status' => 'CHARGÉ'
     ]);
@@ -195,7 +187,6 @@ test('les statistiques du rapport sont correctes', function () {
     $compartment = Compartment::create([
         'depot_id' => $depot->id,
         'product' => 'Essence',
-        'capacity' => 20000,
         'quantity' => 15000,
     ]);
 
@@ -208,7 +199,7 @@ test('les statistiques du rapport sont correctes', function () {
         'unload_date' => now(),
         'unload_location' => 'Conakry',
         'product' => 'Essence',
-        'capacity' => 5000,
+        'volume' => 5000,
         'vehicle_registration' => 'RC-1',
         'client_name' => 'Client A',
         'status' => 'LIVRÉ'
@@ -222,7 +213,7 @@ test('les statistiques du rapport sont correctes', function () {
         'unload_date' => now(),
         'unload_location' => 'Conakry',
         'product' => 'Essence',
-        'capacity' => 3000,
+        'volume' => 3000,
         'vehicle_registration' => 'RC-2',
         'client_name' => 'Client A',
         'status' => 'LIVRÉ'
@@ -237,7 +228,7 @@ test('les statistiques du rapport sont correctes', function () {
         'unload_date' => now(),
         'unload_location' => 'Conakry',
         'product' => 'Essence',
-        'capacity' => 4000,
+        'volume' => 4000,
         'vehicle_registration' => 'RC-3',
         'client_name' => 'Client B',
         'status' => 'LIVRÉ'

@@ -90,15 +90,15 @@
             </tr>
         </thead>
         <tbody>
-            @php $totalCapacity = 0; @endphp
+            @php $totalVolume = 0; @endphp
             @foreach ($loads as $index => $load)
-                @php $totalCapacity += $load->capacity; @endphp
+                @php $totalVolume += $load->volume; @endphp
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
                     <td>{{ $load->load_location }}</td>
                     <td>{{ $load->product }}</td>
-                    <td>{{ number_format($load->capacity, 0, ',', ' ') }}</td>
+                    <td>{{ number_format($load->volume, 0, ',', ' ') }}</td>
                     <td>{{ $load->vehicle_registration ?? '-' }}</td>
                     @if($status === 'LIVRÉ')
                         <td>{{ $load->unload_date?->format('d/m/Y') ?? '-' }}</td>
@@ -112,7 +112,7 @@
         <tfoot>
             <tr style="font-weight: bold; background-color: #f2f2f2;">
                 <td colspan="4" style="text-align: right;">TOTAL</td>
-                <td>{{ number_format($totalCapacity, 0, ',', ' ') }}</td>
+                <td>{{ number_format($totalVolume, 0, ',', ' ') }}</td>
                 <td colspan="{{ $status === 'LIVRÉ' ? 5 : 2 }}"></td>
             </tr>
         </tfoot>

@@ -39,11 +39,6 @@ class EditCompartment extends ModalComponent implements HasForms
                     ->unique('compartments', 'product', ignoreRecord: true, modifyRuleUsing: function ($rule) {
                         return $rule->where('depot_id', $this->compartment->depot_id);
                     }),
-                TextInput::make('capacity')
-                    ->label('Capacité (Litres)')
-                    ->numeric()
-                    ->required()
-                    ->minValue(1),
                 TextInput::make('quantity')
                     ->label('Quantité actuelle (Litres)')
                     ->numeric()

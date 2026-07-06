@@ -125,7 +125,7 @@ class ListReport extends Component implements HasForms, HasTable
                     ->label("Lieu Chargement"),
                 TextColumn::make("product")
                     ->label("Produit"),
-                TextColumn::make("capacity")
+                TextColumn::make("volume")
                     ->label("Litres")
                     ->numeric(decimalPlaces: 0, decimalSeparator: ',', thousandsSeparator: ' ')
                     ->summarize(\Filament\Tables\Columns\Summarizers\Sum::make()->label('Total')->numeric(decimalPlaces: 0, decimalSeparator: ',', thousandsSeparator: ' ')),
@@ -192,7 +192,7 @@ class ListReport extends Component implements HasForms, HasTable
         foreach ($loads as $load) {
             $product = $load->product ?? 'Inconnu';
             $client = $load->client_name ?? 'Sans Client';
-            $capacity = (int) $load->capacity;
+            $volume = (int) $load->volume;
 
             if (!isset($stats['count_by_product'][$product])) {
                 $stats['count_by_product'][$product] = 0;
@@ -204,9 +204,9 @@ class ListReport extends Component implements HasForms, HasTable
             }
 
             $stats['count_by_product'][$product]++;
-            $stats['litres_by_product'][$product] += $capacity;
+            $stats['litres_by_product'][$product] += $volume;
             $stats['count_by_client'][$client]++;
-            $stats['total_litres'] += $capacity;
+            $stats['total_litres'] += $volume;
         }
 
         return $stats;

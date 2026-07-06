@@ -28,7 +28,7 @@ class AddLoad extends ModalComponent implements HasForms
     public $compartment_id;
     public $load_date;
     public $load_location;
-    public $capacity;
+    public $volume;
     public $product;
     public $vehicle_registration;
 
@@ -78,7 +78,7 @@ class AddLoad extends ModalComponent implements HasForms
                     ->label("Le véhicule")
                     ->placeholder("Saisir l'immatriculation")
                     ->required(),
-                TextInput::make("capacity")
+                TextInput::make("volume")
                     ->label("Nombre de litres")
                     ->numeric()
                     ->required(),
@@ -91,18 +91,18 @@ class AddLoad extends ModalComponent implements HasForms
         $attributes = $this->form->getState();
         $compartment = Compartment::find($attributes['compartment_id']);
 
-        if ($compartment->quantity < $attributes['capacity']) {
+        if ($compartment->quantity < $attributes['volume']) {
             Notification::make()
                 ->title("Stock insuffisant")
                 ->danger()
-                ->body("La quantité chargée ({$attributes['capacity']} L) est supérieure à la quantité disponible dans le dépôt ({$compartment->quantity} L).")
+                ->body("La quantité chargée ({$attributes['volume']} L) est supérieure à la quantité disponible dans le dépôt ({$compartment->quantity} L).")
                 ->send();
             return;
         }
 
         DB::transaction(function () use ($attributes, $compartment) {
             Load::create($attributes);
-            $compartment->decrement('quantity', $attributes['capacity']);
+            $compartment->decrement('quantity', $attributes['volume']);
         });
 
         Notification::make()

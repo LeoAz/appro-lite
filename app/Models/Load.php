@@ -13,7 +13,7 @@ class Load extends Model
         "load_date",
         "load_location",
         "product",
-        "capacity",
+        "volume",
         "vehicle_registration",
         "vehicle_id",
         "depot_id",
