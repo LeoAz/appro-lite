@@ -12,6 +12,7 @@
             }
 
             @page {
+                size: landscape;
                 margin: 2cm;
             }
 

@@ -274,7 +274,7 @@ class ListLoad extends Component implements HasForms, HasTable
             "selectedProduct" => $this->selectedProduct,
             "dateFrom" => $this->dateFrom,
             "dateUntil" => $this->dateUntil,
-        ]);
+        ])->setPaper('a4', 'landscape');
 
         return response()->streamDownload(
             fn() => print $pdf->output(),

@@ -106,6 +106,7 @@
     <style>
         @media print {
             @page {
+                size: landscape;
                 margin: 2cm;
             }
             body {
