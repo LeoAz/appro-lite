@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Report;
 
+use App\Models\Load;
+use App\Models\FuelPurchase;
 use App\Models\Depot;
 use App\Models\Compartment;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -11,6 +13,8 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
 use Livewire\Component;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -19,15 +23,37 @@ class StockReport extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    public ?int $depot_id = null;
+
+    public function mount()
+    {
+        $this->depot_id = Depot::first()?->id;
+        $this->form->fill([
+            'depot_id' => $this->depot_id
+        ]);
+    }
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Select::make('depot_id')
+                    ->label('Sélectionner un dépôt')
+                    ->options(Depot::all()->pluck('name', 'id'))
+                    ->live()
+                    ->afterStateUpdated(fn () => $this->resetTable())
+                    ->placeholder('Tous les dépôts'),
+            ]);
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(Compartment::query())
+            ->query(
+                Compartment::query()
+                    ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+            )
             ->columns([
-                TextColumn::make('depot.name')
-                    ->label('Dépôt')
-                    ->sortable()
-                    ->searchable(),
                 TextColumn::make('product')
                     ->label('Produit')
                     ->sortable()
@@ -57,19 +83,33 @@ class StockReport extends Component implements HasForms, HasTable
                         default => 'success',
                     }),
             ])
-            ->filters([
-                SelectFilter::make('depot_id')
-                    ->label('Dépôt')
-                    ->options(Depot::all()->pluck('name', 'id')),
-            ])
             ->paginated(false);
+    }
+
+    public function getLoadTableQuery()
+    {
+        return Load::query()
+            ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+            ->latest();
+    }
+
+    public function getPurchaseTableQuery()
+    {
+        return FuelPurchase::query()
+            ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+            ->latest();
     }
 
     public function downloadPdf()
     {
-        $compartments = $this->getTableQuery()->get();
+        $selectedDepot = $this->depot_id ? Depot::find($this->depot_id) : null;
+        $compartments = Compartment::query()
+            ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+            ->get();
+
         $pdf = Pdf::loadView('livewire.report.print-stock', [
             'compartments' => $compartments,
+            'selectedDepot' => $selectedDepot,
             'date' => now(),
         ]);
 

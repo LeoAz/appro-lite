@@ -86,6 +86,33 @@ test('un achat de carburant augmente le stock du compartiment', function () {
     expect(FuelPurchase::count())->toBe(1);
 });
 
+test('un achat de carburant sans prix unitaire est possible', function () {
+    $depot = Depot::create(['name' => 'Dépôt Central']);
+    $compartment = Compartment::create([
+        'depot_id' => $depot->id,
+        'product' => 'Gasoil',
+        'capacity' => 20000,
+        'quantity' => 2000,
+    ]);
+
+    Livewire::test(AddFuelPurchase::class)
+        ->set('data.depot_id', $depot->id)
+        ->set('data.compartment_id', $compartment->id)
+        ->fillForm([
+            'quantity' => 3000,
+            'unit_price' => null, // Prix unitaire non obligatoire
+            'purchase_date' => now(),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $compartment->refresh();
+    expect((float)$compartment->quantity)->toBe(5000.0);
+    $purchase = FuelPurchase::latest()->first();
+    expect($purchase->unit_price)->toBeNull();
+    expect($purchase->total_price)->toBeNull();
+});
+
 test('un chargement diminue le stock du compartiment', function () {
     $depot = Depot::create(['name' => 'Dépôt Central']);
     $compartment = Compartment::create([

@@ -20,6 +20,9 @@
 <body>
     <div class="header">
         <h1>Rapport de Suivi de Stock</h1>
+        @if(isset($selectedDepot) && $selectedDepot)
+            <h2>Dépôt : {{ $selectedDepot->name }}</h2>
+        @endif
         <p>Date : {{ $date->format('d/m/Y H:i') }}</p>
     </div>
 

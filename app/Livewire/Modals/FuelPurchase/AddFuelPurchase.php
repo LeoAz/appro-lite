@@ -60,23 +60,29 @@ class AddFuelPurchase extends ModalComponent implements HasForms
                     ->live()
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $quantity = (float) $get('quantity');
-                        $unitPrice = (float) $get('unit_price');
-                        $set('total_price', $quantity * $unitPrice);
+                        $unitPrice = $get('unit_price');
+                        if ($unitPrice !== null && $unitPrice !== '') {
+                            $set('total_price', $quantity * (float) $unitPrice);
+                        } else {
+                            $set('total_price', null);
+                        }
                     }),
                 TextInput::make('unit_price')
                     ->label('Prix Unitaire')
                     ->numeric()
-                    ->required()
                     ->live()
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $quantity = (float) $get('quantity');
-                        $unitPrice = (float) $get('unit_price');
-                        $set('total_price', $quantity * $unitPrice);
+                        $unitPrice = $get('unit_price');
+                        if ($unitPrice !== null && $unitPrice !== '') {
+                            $set('total_price', $quantity * (float) $unitPrice);
+                        } else {
+                            $set('total_price', null);
+                        }
                     }),
                 TextInput::make('total_price')
                     ->label('Prix Total')
                     ->numeric()
-                    ->required()
                     ->readOnly(),
             ])
             ->statePath('data');
