@@ -108,7 +108,7 @@
                 $dateField = $type === 'chargement' ? 'load_date' : 'unload_date';
             @endphp
             @foreach ($loads as $index => $load)
-                @php $totalVolume += $load->volume; @endphp
+                @php $totalVolume += (float) ($load->volume ?? 0); @endphp
 
                 @php
                     $currentClient = $load->client_name ?? 'Sans Client';
@@ -169,7 +169,7 @@
         foreach ($loads as $load) {
             $product = $load->product ?? 'Inconnu';
             $client = $load->client_name ?? 'Sans Client';
-            $volume = (int) $load->volume;
+            $volume = (float) ($load->volume ?? 0);
 
             if (!isset($countByProduct[$product])) {
                 $countByProduct[$product] = 0;

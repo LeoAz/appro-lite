@@ -92,7 +92,7 @@
         <tbody>
             @php $totalVolume = 0; @endphp
             @foreach ($loads as $index => $load)
-                @php $totalVolume += $load->volume; @endphp
+                @php $totalVolume += (float) ($load->volume ?? 0); @endphp
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
