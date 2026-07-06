@@ -39,7 +39,7 @@
                 <tr>
                     <td>{{ $compartment->depot->name }}</td>
                     <td>{{ $compartment->product }}</td>
-                    <td>{{ number_format($compartment->quantity, 2) }} L</td>
+                    <td>{{ number_format((float) ($compartment->quantity ?? 0), 2) }} L</td>
                 </tr>
             @endforeach
         </tbody>

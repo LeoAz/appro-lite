@@ -38,9 +38,9 @@
                     <td>{{ $purchase->purchase_date->format('d/m/Y') }}</td>
                     <td>{{ $purchase->depot->name }}</td>
                     <td>{{ $purchase->product }}</td>
-                    <td>{{ number_format($purchase->quantity, 2) }} L</td>
-                    <td>{{ number_format($purchase->unit_price, 0, ',', ' ') }} F</td>
-                    <td>{{ number_format($purchase->total_price, 0, ',', ' ') }} F</td>
+                    <td>{{ number_format((float) ($purchase->quantity ?? 0), 2) }} L</td>
+                    <td>{{ number_format((float) ($purchase->unit_price ?? 0), 0, ',', ' ') }} F</td>
+                    <td>{{ number_format((float) ($purchase->total_price ?? 0), 0, ',', ' ') }} F</td>
                 </tr>
                 @php
                     $totalQty += $purchase->quantity;
@@ -51,9 +51,9 @@
         <tfoot>
             <tr class="total-row">
                 <td colspan="3" style="text-align: right;">TOTAUX</td>
-                <td>{{ number_format($totalQty, 2) }} L</td>
+                <td>{{ number_format((float) ($totalQty ?? 0), 2) }} L</td>
                 <td>-</td>
-                <td>{{ number_format($totalPrice, 0, ',', ' ') }} F</td>
+                <td>{{ number_format((float) ($totalPrice ?? 0), 0, ',', ' ') }} F</td>
             </tr>
         </tfoot>
     </table>

@@ -140,7 +140,7 @@
                     <td>{{ $load->load_date->format('d/m/Y') }}</td>
                     <td>{{ $load->load_location }}</td>
                     <td>{{ $load->product }}</td>
-                    <td>{{ number_format($load->volume, 0, ',', ' ') }}</td>
+                    <td>{{ number_format((float) ($load->volume ?? 0), 0, ',', ' ') }}</td>
                     <td>{{ $load->vehicle_registration ?? '-' }}</td>
                     @if($type === 'livraison')
                         <td>{{ $load->unload_location ?? '-' }}</td>
@@ -153,7 +153,7 @@
         <tfoot>
             <tr>
                 <th colspan="{{ $type === 'livraison' ? 5 : 4 }}" class="text-right">TOTAL</th>
-                <th>{{ number_format($totalVolume, 0, ',', ' ') }}</th>
+                <th>{{ number_format((float) ($totalVolume ?? 0), 0, ',', ' ') }}</th>
                 <th colspan="{{ $type === 'livraison' ? 4 : 2 }}"></th>
             </tr>
         </tfoot>
@@ -253,14 +253,14 @@
                     @foreach($litresByProduct as $product => $litres)
                         <tr>
                             <td style="border: none; padding: 4px;">{{ $product }}</td>
-                            <td style="border: none; padding: 4px; text-align: right;">{{ number_format($litres, 0, ',', ' ') }} L</td>
+                            <td style="border: none; padding: 4px; text-align: right;">{{ number_format((float) ($litres ?? 0), 0, ',', ' ') }} L</td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr style="font-weight: bold; border-top: 1px solid #333;">
                         <td style="border: none; padding: 4px;">TOTAL GÉNÉRAL</td>
-                        <td style="border: none; padding: 4px; text-align: right;">{{ number_format($totalLitres, 0, ',', ' ') }} L</td>
+                        <td style="border: none; padding: 4px; text-align: right;">{{ number_format((float) ($totalLitres ?? 0), 0, ',', ' ') }} L</td>
                     </tr>
                 </tfoot>
             </table>
