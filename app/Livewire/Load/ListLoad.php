@@ -45,7 +45,9 @@ class ListLoad extends Component implements HasForms, HasTable
 
     public function updated($propertyName)
     {
-        // On ne fait plus rien ici pour éviter les rafraîchissements lents
+        if (in_array($propertyName, ['selectedLocations', 'selectedProduct', 'dateFrom', 'dateUntil'])) {
+            $this->resetTable();
+        }
     }
 
     public function getFilteredQuery()

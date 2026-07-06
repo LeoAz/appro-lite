@@ -3,6 +3,7 @@
 namespace App\Livewire\Modals\Depot;
 
 use App\Models\Compartment;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -27,8 +28,13 @@ class EditCompartment extends ModalComponent implements HasForms
     {
         return $form
             ->schema([
-                TextInput::make('product')
+                Select::make('product')
                     ->label('Produit')
+                    ->options([
+                        'FUEL' => 'FUEL',
+                        'SUPER' => 'SUPER',
+                        'GASOIL' => 'GASOIL',
+                    ])
                     ->required()
                     ->unique('compartments', 'product', ignoreRecord: true, modifyRuleUsing: function ($rule) {
                         return $rule->where('depot_id', $this->compartment->depot_id);

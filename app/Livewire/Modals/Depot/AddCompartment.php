@@ -28,8 +28,13 @@ class AddCompartment extends ModalComponent implements HasForms
     {
         return $form
             ->schema([
-                TextInput::make('product')
+                Select::make('product')
                     ->label('Produit')
+                    ->options([
+                        'FUEL' => 'FUEL',
+                        'SUPER' => 'SUPER',
+                        'GASOIL' => 'GASOIL',
+                    ])
                     ->required()
                     ->unique('compartments', 'product', modifyRuleUsing: function ($rule) {
                         return $rule->where('depot_id', $this->depot_id);
