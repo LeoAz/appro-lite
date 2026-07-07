@@ -152,7 +152,6 @@
                 <td class="issuer-info">
                     <div class="issuer-name">CORRIDOR PETROLEUM</div>
                     <div>BAMAKO, MALI</div>
-                    <div>Tél : +223 20 22 00 00 / +223 70 00 00 00</div>
                 </td>
             </tr>
         </table>
@@ -170,9 +169,7 @@
                 <div class="billing-label">DE</div>
                 <div class="billing-value">CORRIDOR PETROLEUM</div>
                 <div class="billing-address">
-                    BAMAKO, MALI<br>
-                    Tél: +223 20 22 00 00<br>
-                    Email: contact@corridor-petroleum.com
+                    BAMAKO, MALI
                 </div>
             </td>
             <td>
