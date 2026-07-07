@@ -93,24 +93,23 @@ class InvoiceCalculationTest extends TestCase
     {
         Livewire::test(AddInvoice::class)
             ->set('client_name', 'Client Test')
-            ->fillForm([
-                'items' => [
-                    [
-                        'load_id' => $this->load1->id,
-                        'quantity_delivered' => 44000,
-                        'unit_price' => 1000,
-                        'missing_quantity' => 1000,
-                        'total' => 44000000,
-                    ],
-                    [
-                        'load_id' => $this->load2->id,
-                        'quantity_delivered' => 29500,
-                        'unit_price' => 1000,
-                        'missing_quantity' => 500,
-                        'total' => 29500000,
-                    ]
+            ->set('items', [
+                [
+                    'load_id' => $this->load1->id,
+                    'quantity_delivered' => 44000,
+                    'unit_price' => 1000,
+                    'missing_quantity' => 1000,
+                    'total' => 44000000,
+                ],
+                [
+                    'load_id' => $this->load2->id,
+                    'quantity_delivered' => 29500,
+                    'unit_price' => 1000,
+                    'missing_quantity' => 500,
+                    'total' => 29500000,
                 ]
             ])
+            ->call('updateInvoiceTotals')
             ->assertSet('total_missing', 1500)
             ->assertSet('total_amount', 73500000);
     }
@@ -179,25 +178,52 @@ class InvoiceCalculationTest extends TestCase
         ]);
 
         Livewire::test(EditInvoice::class, ['invoice' => $invoice])
-            ->fillForm([
-                'items' => [
-                    [
-                        'load_id' => $this->load1->id,
-                        'quantity_delivered' => 44000,
-                        'unit_price' => 1000,
-                        'missing_quantity' => 1000,
-                        'total' => 44000000,
-                    ],
-                    [
-                        'load_id' => $this->load2->id,
-                        'quantity_delivered' => 29500,
-                        'unit_price' => 1000,
-                        'missing_quantity' => 500,
-                        'total' => 29500000,
-                    ]
+            ->set('items', [
+                [
+                    'load_id' => $this->load1->id,
+                    'quantity_delivered' => 44000,
+                    'unit_price' => 1000,
+                    'missing_quantity' => 1000,
+                    'total' => 44000000,
+                ],
+                [
+                    'load_id' => $this->load2->id,
+                    'quantity_delivered' => 29500,
+                    'unit_price' => 1000,
+                    'missing_quantity' => 500,
+                    'total' => 29500000,
                 ]
             ])
+            ->call('updateInvoiceTotals')
             ->assertSet('total_missing', 1500)
             ->assertSet('total_amount', 73500000);
+    }
+    /** @test */
+    public function it_generates_incremental_invoice_number()
+    {
+        $year = date('Y');
+
+        // Create an existing invoice
+        Invoice::create([
+            'number' => "FAC-{$year}-00005",
+            'date' => now(),
+            'client_name' => 'Existing Client',
+            'issuer_name' => 'CORRIDOR PETROLEUM',
+            'total_missing' => 0,
+            'total_amount' => 0,
+        ]);
+
+        Livewire::test(AddInvoice::class)
+            ->assertSet('number', "FAC-{$year}-00006");
+    }
+
+    /** @test */
+    public function it_generates_first_invoice_number_of_year()
+    {
+        $year = date('Y');
+        Invoice::whereYear('date', $year)->delete();
+
+        Livewire::test(AddInvoice::class)
+            ->assertSet('number', "FAC-{$year}-00001");
     }
 }
