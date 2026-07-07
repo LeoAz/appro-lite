@@ -111,9 +111,7 @@
                 </td>
                 <td>
                     <div class="label">Client :</div>
-                    <strong>{{ $invoice->client->nom }}</strong><br>
-                    {{ $invoice->client->address }}<br>
-                    {{ $invoice->client->contact }}
+                    <strong>{{ $invoice->client_name }}</strong>
                 </td>
             </tr>
         </table>

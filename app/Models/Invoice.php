@@ -12,7 +12,7 @@ class Invoice extends Model
     protected $fillable = [
         'number',
         'date',
-        'client_id',
+        'client_name',
         'total_missing',
         'total_amount',
     ];
@@ -20,11 +20,6 @@ class Invoice extends Model
     protected $casts = [
         'date' => 'date',
     ];
-
-    public function client()
-    {
-        return $this->belongsTo(Client::class);
-    }
 
     public function items()
     {

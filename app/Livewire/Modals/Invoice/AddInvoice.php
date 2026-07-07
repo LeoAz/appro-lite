@@ -25,7 +25,7 @@ class AddInvoice extends ModalComponent implements HasForms
 
     public $number;
     public $date;
-    public $client_id;
+    public $client_name;
     public $items = [];
     public $total_missing = 0;
     public $total_amount = 0;
@@ -54,9 +54,19 @@ class AddInvoice extends ModalComponent implements HasForms
                     ->displayFormat('d/m/Y')
                     ->required()
                     ->default(now()),
-                Select::make('client_id')
+                Select::make('client_name')
                     ->label('Client')
-                    ->options(Client::pluck('nom', 'id'))
+                    ->options(function () {
+                        return Load::where('status', LoadStatus::Unloaded)
+                            ->whereNotNull('client_name')
+                            ->whereNotExists(function ($q) {
+                                $q->select(DB::raw(1))
+                                    ->from('invoice_items')
+                                    ->whereColumn('invoice_items.load_id', 'loads.id');
+                            })
+                            ->distinct()
+                            ->pluck('client_name', 'client_name');
+                    })
                     ->searchable()
                     ->required()
                     ->live()
@@ -70,9 +80,9 @@ class AddInvoice extends ModalComponent implements HasForms
                             ->label('Livraison')
                             ->searchable()
                             ->options(function (Get $get) {
-                                $clientId = $get('../../client_id');
-                                if (!$clientId) return [];
-                                return Load::where('client_id', $clientId)
+                                $clientName = $get('../../client_name');
+                                if (!$clientName) return [];
+                                return Load::where('client_name', $clientName)
                                     ->where('status', LoadStatus::Unloaded)
                                     ->whereNotExists(function ($query) {
                                         $query->select(DB::raw(1))
@@ -181,7 +191,7 @@ class AddInvoice extends ModalComponent implements HasForms
             $invoice = Invoice::create([
                 'number' => $data['number'],
                 'date' => $data['date'],
-                'client_id' => $data['client_id'],
+                'client_name' => $data['client_name'],
                 'total_missing' => $data['total_missing'],
                 'total_amount' => $data['total_amount'],
             ]);
