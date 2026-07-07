@@ -149,12 +149,13 @@
         <table style="width: 100%;">
             <tr>
                 <td>
-                    <img src="https://petrogo.site/assets/img/logo.png" class="logo" alt="PetroGo">
+                    <div class="issuer-name">CORRIDOR PETROLEUM</div>
+                    <div style="font-size: 10px;">IMPORT - EXPORT - TRANSPORT - HYDROCARBURES</div>
                 </td>
                 <td class="issuer-info">
-                    <div class="issuer-name">PETRO GO</div>
-                    <div>KALABAN ROUTE DE L'AEROPORT</div>
-                    <div>Tél : 00223 76 23 05 05 - Email : petrogomali@gmail.com</div>
+                    <div class="issuer-name">CORRIDOR PETROLEUM</div>
+                    <div>BAMAKO, MALI</div>
+                    <div>Tél : +223 20 22 00 00 / +223 70 00 00 00</div>
                 </td>
             </tr>
         </table>
@@ -170,11 +171,11 @@
         <tr>
             <td>
                 <div class="billing-label">DE</div>
-                <div class="billing-value">PETRO GO</div>
+                <div class="billing-value">CORRIDOR PETROLEUM</div>
                 <div class="billing-address">
-                    KALABAN ROUTE DE L'AEROPORT<br>
-                    Tél: 00223 76 23 05 05<br>
-                    Email: petrogomali@gmail.com
+                    BAMAKO, MALI<br>
+                    Tél: +223 20 22 00 00<br>
+                    Email: contact@corridor-petroleum.com
                 </div>
             </td>
             <td>
