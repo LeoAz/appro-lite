@@ -19,9 +19,6 @@
             width: 100%;
             margin-bottom: 30px;
         }
-        .logo {
-            width: 180px;
-        }
         .issuer-info {
             text-align: right;
             font-size: 10px;
