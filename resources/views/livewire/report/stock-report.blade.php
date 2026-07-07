@@ -10,20 +10,14 @@
                 {{ $this->form }}
             </div>
 
-            <div class="flex space-x-2">
-                <button wire:click="downloadPdf" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50 active:bg-gray-100 transition ease-in-out duration-150 shadow-sm">
-                    <svg class="w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    PDF
-                </button>
-                <button onclick="window.print()" class="inline-flex items-center px-4 py-2 bg-gray-900 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800 active:bg-gray-950 transition ease-in-out duration-150 shadow-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Imprimer
-                </button>
-            </div>
+            <button wire:click="downloadPdf" class="inline-flex items-center px-4 py-2 bg-gray-900 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800 active:bg-gray-950 transition ease-in-out duration-150 shadow-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Imprimer le rapport
+            </button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 print:hidden">
+    <div class="grid grid-cols-1 gap-6">
         <!-- Section Stock par Compartiment -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
@@ -121,36 +115,7 @@
         </div>
     </div>
 
-    <div class="hidden print:block">
-        @php
-            $selectedDepot = $this->depot_id ? \App\Models\Depot::find($this->depot_id) : null;
-            $compartments = \App\Models\Compartment::query()
-                ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
-                ->when($this->product, fn ($query) => $query->where('product', $this->product))
-                ->get();
-            $loads = $this->getLoadTableQuery()->limit(20)->get();
-            $purchases = $this->getPurchaseTableQuery()->limit(20)->get();
-        @endphp
-
-        @include('livewire.report.print-stock', [
-            'compartments' => $compartments,
-            'selectedDepot' => $selectedDepot,
-            'selectedProduct' => $this->product,
-            'loads' => $loads,
-            'purchases' => $purchases,
-            'date' => now()
-        ])
-    </div>
-
     <style>
         [x-cloak] { display: none !important; }
-        @media print {
-            .fi-header-actions, .fi-ta-header-actions, .fi-ta-filters, .fi-ta-header, .fi-ta-actions {
-                display: none !important;
-            }
-            body { background: white !important; padding: 0 !important; }
-            .p-6 { padding: 0 !important; }
-            .rounded-xl, .shadow-sm, .border { border: none !important; box-shadow: none !important; }
-        }
     </style>
 </div>

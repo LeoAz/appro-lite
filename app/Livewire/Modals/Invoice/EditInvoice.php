@@ -60,7 +60,7 @@ class EditInvoice extends ModalComponent implements HasForms
                 TextInput::make('number')
                     ->label('Numéro de facture')
                     ->required()
-                    ->unique('invoices', 'number', ignoreRecord: true),
+                    ->unique('invoices', 'number', ignorable: $this->invoice),
                 DatePicker::make('date')
                     ->label('Date')
                     ->native(false)
@@ -124,13 +124,13 @@ class EditInvoice extends ModalComponent implements HasForms
                             ->label('Quantité livrée')
                             ->numeric()
                             ->required()
-                            ->live()
+                            ->live(debounce: 500)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotals($get, $set)),
                         TextInput::make('unit_price')
                             ->label('Prix unitaire')
                             ->numeric()
                             ->required()
-                            ->live()
+                            ->live(debounce: 500)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotals($get, $set)),
                         TextInput::make('missing_quantity')
                             ->label('Manquant')
