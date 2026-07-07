@@ -170,7 +170,7 @@
                     <tr>
                         <td>{{ $purchase->purchase_date?->format('d/m/Y') }}</td>
                         <td>{{ $purchase->product }}</td>
-                        <td class="text-right" style="color: #1e40af;">+{{ number_format((float) ($purchase->quantity ?? 0), 0, ',', ' ') }} L</td>
+                        <td class="text-right">{{ number_format((float) ($purchase->quantity ?? 0), 0, ',', ' ') }} L</td>
                         <td class="text-right">{{ number_format((float) $purchase->unit_price, 0, ',', ' ') }}</td>
                         <td class="text-right"><strong>{{ number_format((float) $purchase->total_price, 0, ',', ' ') }}</strong></td>
                     </tr>
@@ -197,7 +197,7 @@
                         <td>{{ $load->load_date->format('d/m/Y') }}</td>
                         <td>{{ $load->vehicle_registration }}</td>
                         <td>{{ $load->product }}</td>
-                        <td class="text-right" style="color: #dc2626;">-{{ number_format((float) ($load->volume ?? 0), 0, ',', ' ') }} L</td>
+                        <td class="text-right">{{ number_format((float) ($load->volume ?? 0), 0, ',', ' ') }} L</td>
                         <td>{{ $load->status }}</td>
                     </tr>
                 @endforeach
