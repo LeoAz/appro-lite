@@ -19,6 +19,13 @@ class ViewInvoice extends ModalComponent implements HasForms
     use InteractsWithForms;
 
     public Invoice $invoice;
+    public $number;
+    public $date;
+    public $client_name;
+    public $issuer_name;
+    public $items = [];
+    public $total_missing = 0;
+    public $total_amount = 0;
 
     public function mount(Invoice $invoice): void
     {

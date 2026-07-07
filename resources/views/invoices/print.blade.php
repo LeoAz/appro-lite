@@ -4,164 +4,241 @@
     <meta charset="UTF-8">
     <title>Facture {{ $invoice->number }}</title>
     <style>
+        @page {
+            margin: 0;
+        }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 14px;
+            font-size: 11px;
             color: #333;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 40px;
         }
         .header {
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 20px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .logo {
+            width: 180px;
+        }
+        .issuer-info {
+            text-align: right;
+            font-size: 10px;
+        }
+        .issuer-name {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .divider {
+            border-bottom: 1px solid #3b82f6;
+            margin: 20px 0;
+        }
+        .invoice-title {
+            color: #1e40af;
+            font-weight: bold;
+            font-size: 14px;
             margin-bottom: 20px;
         }
-        .header table {
-            width: 100%;
+        .invoice-title span {
+            color: #333;
+            font-weight: normal;
         }
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #1e40af;
-            text-transform: uppercase;
-        }
-        .info {
+        .date-info {
             margin-bottom: 30px;
         }
-        .info table {
+        .date-info span {
+            color: #1e40af;
+            font-weight: bold;
+        }
+        .billing-info {
             width: 100%;
+            margin-bottom: 40px;
         }
-        .info td {
-            vertical-align: top;
+        .billing-info td {
             width: 50%;
+            vertical-align: top;
         }
-        .label {
+        .billing-label {
             font-weight: bold;
             color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-size: 10px;
         }
-        .items {
+        .billing-value {
+            font-weight: bold;
+            color: #1e40af;
+            font-size: 12px;
+        }
+        .billing-address {
+            font-size: 10px;
+            margin-top: 2px;
+        }
+        .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
-        .items th {
+        .items-table th {
             background-color: #f3f4f6;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #333;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .items-table td {
+            padding: 8px;
+            border: 1px solid #333;
+            vertical-align: middle;
+        }
+        .description-cell {
             text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid #d1d5db;
+            width: 55%;
         }
-        .items td {
-            padding: 10px;
-            border-bottom: 1px solid #e5e7eb;
+        .quantity-cell {
+            text-align: right;
+            width: 20%;
         }
-        .totals {
+        .price-cell {
+            text-align: center;
+            width: 10%;
+        }
+        .total-cell {
+            text-align: right;
+            width: 15%;
+        }
+        .manquant-text {
+            font-size: 9px;
+            color: #333;
+            display: block;
+            margin-top: 3px;
+        }
+        .net-text {
+            font-size: 9px;
+            color: #666;
+            display: block;
+            text-align: right;
+        }
+        .totals-section {
             width: 100%;
         }
-        .totals table {
+        .totals-table {
             float: right;
             width: 40%;
         }
-        .totals td {
-            padding: 5px 10px;
+        .totals-table td {
+            padding: 5px;
         }
-        .total-row {
+        .total-amount-label {
+            text-align: right;
             font-weight: bold;
-            font-size: 16px;
-            color: #1e40af;
-            border-top: 2px solid #3b82f6;
-        }
-        .footer {
-            margin-top: 50px;
-            text-align: center;
             font-size: 12px;
-            color: #9ca3af;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 10px;
+        }
+        .total-amount-value {
+            text-align: right;
+            font-weight: bold;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-<div class="container">
     <div class="header">
-        <table>
+        <table style="width: 100%;">
             <tr>
                 <td>
-                    <div class="title">FACTURE</div>
-                    <div class="label">N° {{ $invoice->number }}</div>
+                    <img src="https://petrogo.site/assets/img/logo.png" class="logo" alt="PetroGo">
                 </td>
-                <td style="text-align: right;">
-                    <strong>{{ $invoice->issuer_name }}</strong><br>
-                    Date de facturation : {{ $invoice->date->format('d/m/Y') }}
+                <td class="issuer-info">
+                    <div class="issuer-name">PETRO GO</div>
+                    <div>KALABAN ROUTE DE L'AEROPORT</div>
+                    <div>Tél : 00223 76 23 05 05 - Email : petrogomali@gmail.com</div>
                 </td>
             </tr>
         </table>
     </div>
 
-    <div class="info">
-        <table>
-            <tr>
-                <td>
-                    <div class="label">Émetteur :</div>
-                    <strong>{{ $invoice->issuer_name }}</strong><br>
-                    Service Facturation
-                </td>
-                <td>
-                    <div class="label">Client :</div>
-                    <strong>{{ $invoice->client_name }}</strong>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <div class="divider"></div>
 
-    <table class="items">
-        <thead>
+    <div class="invoice-title">Facture N° : <span>{{ $invoice->number }}</span></div>
+
+    <div class="date-info">Date : <span>{{ $invoice->date->format('d/m/Y') }}</span></div>
+
+    <table class="billing-info">
         <tr>
-            <th>Véhicule</th>
-            <th>N° BL</th>
-            <th>Date</th>
-            <th>Qte Livrée</th>
-            <th>Prix Unit.</th>
-            <th>Manquant</th>
-            <th style="text-align: right;">Total</th>
+            <td>
+                <div class="billing-label">DE</div>
+                <div class="billing-value">PETRO GO</div>
+                <div class="billing-address">
+                    KALABAN ROUTE DE L'AEROPORT<br>
+                    Tél: 00223 76 23 05 05<br>
+                    Email: petrogomali@gmail.com
+                </div>
+            </td>
+            <td>
+                <div class="billing-label">À</div>
+                <div class="billing-value">{{ $invoice->client_name }}</div>
+                <div class="billing-address">
+                    BAMAKO<br>
+                    @if(isset($invoice->client) && $invoice->client->contact)
+                        Contact: {{ $invoice->client->contact }}
+                    @endif
+                </div>
+            </td>
         </tr>
+    </table>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th class="description-cell">DESCRIPTION</th>
+                <th class="quantity-cell">QUANTITÉ (L)</th>
+                <th class="price-cell">PU</th>
+                <th class="total-cell">TOTAL</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach($invoice->items as $item)
-            <tr>
-                <td>{{ $item->delivery->vehicle->registration ?? $item->delivery->vehicle_registration ?? '-' }}</td>
-                <td>{{ $item->bl_number ?? '-' }}</td>
-                <td>{{ $item->delivery->unload_date->format('d/m/Y') }}</td>
-                <td>{{ number_format($item->quantity_delivered, 0, ',', ' ') }} L</td>
-                <td>{{ number_format($item->unit_price, 0, ',', ' ') }} FCFA</td>
-                <td>{{ number_format($item->missing_quantity, 0, ',', ' ') }} L</td>
-                <td style="text-align: right;">{{ number_format($item->total, 0, ',', ' ') }} FCFA</td>
-            </tr>
-        @endforeach
+            @foreach($invoice->items as $item)
+                @php
+                    $load = $item->load;
+                    $product = $load->product ?? 'GASOIL';
+                    $vehicle = $load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A';
+                    $trailer = $load->trailer_registration ?? '';
+                    $desc = $product . ' — ' . $vehicle . ($trailer ? ' / ' . $trailer : '');
+                @endphp
+                <tr>
+                    <td class="description-cell">
+                        {{ $desc }}
+                        <span class="manquant-text">(Manquant: {{ number_format($item->missing_quantity, 0, ',', ' ') }} L)</span>
+                        @if($item->bl_number)
+                            <span class="manquant-text">N° BL: {{ $item->bl_number }}</span>
+                        @endif
+                    </td>
+                    <td class="quantity-cell">
+                        <strong>{{ number_format($load->volume ?? 0, 0, ',', ' ') }}</strong>
+                        <span class="net-text">Net: {{ number_format($item->quantity_delivered, 0, ',', ' ') }}</span>
+                    </td>
+                    <td class="price-cell">
+                        {{ number_format($item->unit_price, 0, ',', ' ') }}
+                    </td>
+                    <td class="total-cell">
+                        <strong>{{ number_format($item->total, 0, ',', ' ') }}</strong>
+                    </td>
+                </tr>
+            @endforeach
         </tbody>
     </table>
 
-    <div class="totals">
-        <table>
+    <div class="totals-section">
+        <table class="totals-table">
             <tr>
-                <td>Total Manquant :</td>
-                <td style="text-align: right;"><strong>{{ number_format($invoice->total_missing, 0, ',', ' ') }} L</strong></td>
-            </tr>
-            <tr class="total-row">
-                <td>MONTANT TOTAL :</td>
-                <td style="text-align: right;">{{ number_format($invoice->total_amount, 0, ',', ' ') }} FCFA</td>
+                <td class="total-amount-label">Montant Total:</td>
+                <td class="total-amount-value">{{ number_format($invoice->total_amount, 0, ',', ' ') }}</td>
             </tr>
         </table>
         <div style="clear: both;"></div>
     </div>
-
-    <div class="footer">
-        Merci de votre confiance.<br>
-        Facture générée le {{ now()->format('d/m/Y H:i') }}
-    </div>
-</div>
 </body>
 </html>

@@ -44,6 +44,6 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
-        return redirect(route('carriers', absolute: false));
+        return redirect(route('loads', absolute: false));
     }
 }

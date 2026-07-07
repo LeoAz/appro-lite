@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Modals\Invoice;
 
+use App\Enums\LoadStatus;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Load;
@@ -77,18 +78,46 @@ class EditInvoice extends ModalComponent implements HasForms
 
                 Repeater::make('items')
                     ->label('Livraisons')
+                    ->addActionLabel('Ajouter des livraisons')
                     ->schema([
                         Select::make('load_id')
                             ->label('Livraison')
+                            ->searchable()
                             ->options(function (Get $get) {
                                 $clientName = $get('../../client_name');
                                 if (!$clientName) return [];
+
+                                // Récupérer les IDs déjà sélectionnés dans le repeater
+                                $selectedIds = collect($get('../../items'))
+                                    ->pluck('load_id')
+                                    ->filter()
+                                    ->toArray();
+
+                                // Récupérer les IDs initialement dans la facture (pour permettre de les garder)
+                                $initialIds = $this->invoice->items->pluck('load_id')->toArray();
+
                                 return Load::where('client_name', $clientName)
+                                    ->where(function ($query) use ($selectedIds, $initialIds) {
+                                        $query->where('status', LoadStatus::Unloaded)
+                                            ->whereNotExists(function ($q) {
+                                                $q->select(DB::raw(1))
+                                                    ->from('invoice_items')
+                                                    ->whereColumn('invoice_items.load_id', 'loads.id');
+                                            })
+                                            ->orWhereIn('id', $initialIds);
+                                    })
                                     ->get()
                                     ->mapWithKeys(fn ($load) => [$load->id => "Camion: " . ($load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A') . " - Date: {$load->unload_date?->format('d/m/Y')} - Vol: {$load->volume}L"]);
                             })
                             ->required()
-                            ->disabled(),
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, $state) {
+                                $load = Load::find($state);
+                                if ($load) {
+                                    $set('quantity_delivered', $load->volume);
+                                    $this->updateItemTotals($state, $set, $load->volume, 0);
+                                }
+                            }),
                         TextInput::make('bl_number')
                             ->label('N° BL')
                             ->placeholder('Facultatif'),
@@ -117,8 +146,6 @@ class EditInvoice extends ModalComponent implements HasForms
                     ])
                     ->columns(6)
                     ->reorderable(false)
-                    ->addable(false)
-                    ->deletable(false)
                     ->itemLabel(function (array $state) {
                         if (!isset($state['load_id'])) return null;
                         $load = Load::find($state['load_id']);
@@ -149,11 +176,17 @@ class EditInvoice extends ModalComponent implements HasForms
             ]);
     }
 
-    public function updateItemTotals(Get $get, Set $set)
+    public function updateItemTotals($get, Set $set, $qtyDelivered = null, $unitPrice = null)
     {
-        $loadId = $get('load_id');
-        $qtyDelivered = floatval($get('quantity_delivered') ?: 0);
-        $unitPrice = floatval($get('unit_price') ?: 0);
+        if ($get instanceof Get) {
+            $loadId = $get('load_id');
+            $qtyDelivered = floatval($get('quantity_delivered') ?: 0);
+            $unitPrice = floatval($get('unit_price') ?: 0);
+        } else {
+            $loadId = $get;
+            $qtyDelivered = floatval($qtyDelivered ?: 0);
+            $unitPrice = floatval($unitPrice ?: 0);
+        }
 
         $load = Load::find($loadId);
         $missing = 0;
@@ -192,14 +225,25 @@ class EditInvoice extends ModalComponent implements HasForms
                 'total_amount' => $data['total_amount'],
             ]);
 
+            // Restaurer le statut des livraisons actuelles de la facture avant de les mettre à jour
+            $currentLoadIds = $this->invoice->items->pluck('load_id')->toArray();
+            Load::whereIn('id', $currentLoadIds)->update(['status' => LoadStatus::Unloaded]);
+
+            // Supprimer les items actuels
+            $this->invoice->items()->delete();
+
+            // Créer les nouveaux items et mettre à jour le statut des livraisons
             foreach ($data['items'] as $itemData) {
-                $this->invoice->items()->where('load_id', $itemData['load_id'])->update([
+                $this->invoice->items()->create([
+                    'load_id' => $itemData['load_id'],
                     'bl_number' => $itemData['bl_number'] ?? null,
                     'quantity_delivered' => $itemData['quantity_delivered'],
                     'unit_price' => $itemData['unit_price'],
                     'missing_quantity' => $itemData['missing_quantity'],
                     'total' => $itemData['total'],
                 ]);
+
+                Load::where('id', $itemData['load_id'])->update(['status' => LoadStatus::Invoiced]);
             }
         });
 
