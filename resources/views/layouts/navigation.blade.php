@@ -10,25 +10,18 @@
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-dropdown align="left" width="48">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center px-1 pt-6 pb-5 border-b-2 border-transparent text-sm font-medium leading-5 text-white hover:text-blue-100 hover:border-blue-300 focus:outline-none focus:text-blue-100 focus:border-blue-300 transition duration-150 ease-in-out">
-                                <div>Opérations</div>
-                                <div class="ms-1">
-                                    <svg class="fill-current h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </button>
-                        </x-slot>
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('loads')">Chargements</x-dropdown-link>
-                            <x-dropdown-link :href="route('deliveries')">Livraisons</x-dropdown-link>
-                            <x-dropdown-link :href="route('fuel-purchases')">Achats Carburant</x-dropdown-link>
-                        </x-slot>
-                    </x-dropdown>
+                    <x-nav-link :href="route('loads')" :active="request()->routeIs('loads')" class="text-white hover:text-blue-100 active:text-white">
+                        Chargements
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('deliveries')" :active="request()->routeIs('deliveries')" class="text-white hover:text-blue-100 active:text-white">
+                        Livraisons
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('fuel-purchases')" :active="request()->routeIs('fuel-purchases')" class="text-white hover:text-blue-100 active:text-white">
+                        Achats Carburant
+                    </x-nav-link>
 
                     <x-nav-link :href="route('invoices')" :active="request()->routeIs('invoices')" class="text-white hover:text-blue-100 active:text-white">
                         Facturation
@@ -122,7 +115,6 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-blue-700">
         <!-- Navigation Links -->
         <div class="space-y-1 pt-2 pb-3">
-            <div class="px-4 py-2 text-xs font-semibold text-blue-100 uppercase tracking-wider">Opérations</div>
             <x-responsive-nav-link :href="route('loads')" :active="request()->routeIs('loads')" class="text-white">
                 Chargements
             </x-responsive-nav-link>
@@ -132,8 +124,6 @@
             <x-responsive-nav-link :href="route('fuel-purchases')" :active="request()->routeIs('fuel-purchases')" class="text-white">
                 Achats Carburant
             </x-responsive-nav-link>
-
-            <div class="pt-4 border-t border-blue-500"></div>
             <x-responsive-nav-link :href="route('invoices')" :active="request()->routeIs('invoices')" class="text-white">
                 Facturation
             </x-responsive-nav-link>
