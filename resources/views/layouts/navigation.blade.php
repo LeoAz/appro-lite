@@ -42,6 +42,7 @@
                             <x-dropdown-link :href="route('reports.loads')">Rapport Chargement</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.deliveries')">Rapport Livraison</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.stocks')">Suivi Stock</x-dropdown-link>
+                            <x-dropdown-link :href="route('reports.sales')">Rapport Vente</x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
                 </div>
@@ -138,6 +139,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('reports.stocks')" :active="request()->routeIs('reports.stocks')" class="text-white">
                     Suivi Stock
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('reports.sales')" :active="request()->routeIs('reports.sales')" class="text-white">
+                    Rapport Vente
                 </x-responsive-nav-link>
             </div>
         </div>

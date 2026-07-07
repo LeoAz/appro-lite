@@ -26,6 +26,7 @@ class AddInvoice extends ModalComponent implements HasForms
     public $number;
     public $date;
     public $client_name;
+    public $issuer_name = 'CORRIDOR PETROLEUM';
     public $items = [];
     public $total_missing = 0;
     public $total_amount = 0;
@@ -71,6 +72,11 @@ class AddInvoice extends ModalComponent implements HasForms
                     ->required()
                     ->live()
                     ->afterStateUpdated(fn (Set $set) => $set('items', [])),
+                TextInput::make('issuer_name')
+                    ->label('Émetteur')
+                    ->default('CORRIDOR PETROLEUM')
+                    ->readOnly()
+                    ->required(),
 
                 Repeater::make('items')
                     ->label('Livraisons')
@@ -90,7 +96,7 @@ class AddInvoice extends ModalComponent implements HasForms
                                             ->whereColumn('invoice_items.load_id', 'loads.id');
                                     })
                                     ->get()
-                                    ->mapWithKeys(fn ($load) => [$load->id => "Ref: {$load->id} - Date: {$load->unload_date->format('d/m/Y')} - Vol: {$load->volume}L"]);
+                                    ->mapWithKeys(fn ($load) => [$load->id => "Camion: " . ($load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A') . " - Date: {$load->unload_date->format('d/m/Y')} - Vol: {$load->volume}L"]);
                             })
                             ->required()
                             ->live()
@@ -98,8 +104,12 @@ class AddInvoice extends ModalComponent implements HasForms
                                 $load = Load::find($state);
                                 if ($load) {
                                     $set('quantity_delivered', $load->volume);
+                                    $this->updateItemTotals($state, $set, $load->volume, 0); // Trigger initial calculation
                                 }
                             }),
+                        TextInput::make('bl_number')
+                            ->label('N° BL')
+                            ->placeholder('Facultatif'),
                         TextInput::make('quantity_delivered')
                             ->label('Quantité livrée')
                             ->numeric()
@@ -123,9 +133,14 @@ class AddInvoice extends ModalComponent implements HasForms
                             ->readOnly()
                             ->dehydrated(),
                     ])
-                    ->columns(5)
+                    ->columns(6)
                     ->reorderable(false)
-                    ->itemLabel(fn (array $state): ?string => isset($state['load_id']) ? "Livraison #" . $state['load_id'] : null)
+                    ->itemLabel(function (array $state) {
+                        if (!isset($state['load_id'])) return null;
+                        $load = Load::find($state['load_id']);
+                        $vehicle = $load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A';
+                        return "Véhicule: {$vehicle}";
+                    })
                     ->live()
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $this->updateInvoiceTotals($get, $set);
@@ -152,11 +167,17 @@ class AddInvoice extends ModalComponent implements HasForms
             ]);
     }
 
-    protected function updateItemTotals(Get $get, Set $set)
+    public function updateItemTotals($get, Set $set, $qtyDelivered = null, $unitPrice = null)
     {
-        $loadId = $get('load_id');
-        $qtyDelivered = floatval($get('quantity_delivered') ?: 0);
-        $unitPrice = floatval($get('unit_price') ?: 0);
+        if ($get instanceof Get) {
+            $loadId = $get('load_id');
+            $qtyDelivered = floatval($get('quantity_delivered') ?: 0);
+            $unitPrice = floatval($get('unit_price') ?: 0);
+        } else {
+            $loadId = $get;
+            $qtyDelivered = floatval($qtyDelivered ?: 0);
+            $unitPrice = floatval($unitPrice ?: 0);
+        }
 
         $load = Load::find($loadId);
         $missing = 0;
@@ -168,15 +189,15 @@ class AddInvoice extends ModalComponent implements HasForms
         $set('total', $qtyDelivered * $unitPrice);
     }
 
-    protected function updateInvoiceTotals(Get $get, Set $set)
+    public function updateInvoiceTotals(Get $get, Set $set)
     {
         $items = $get('items') ?: [];
         $totalMissing = 0;
         $totalAmount = 0;
 
         foreach ($items as $item) {
-            $totalMissing += floatval($item['missing_quantity'] ?: 0);
-            $totalAmount += floatval($item['total'] ?: 0);
+            $totalMissing += floatval($item['missing_quantity'] ?? 0);
+            $totalAmount += floatval($item['total'] ?? 0);
         }
 
         $set('total_missing', $totalMissing);
@@ -192,6 +213,7 @@ class AddInvoice extends ModalComponent implements HasForms
                 'number' => $data['number'],
                 'date' => $data['date'],
                 'client_name' => $data['client_name'],
+                'issuer_name' => $data['issuer_name'],
                 'total_missing' => $data['total_missing'],
                 'total_amount' => $data['total_amount'],
             ]);
@@ -199,6 +221,7 @@ class AddInvoice extends ModalComponent implements HasForms
             foreach ($data['items'] as $item) {
                 $invoice->items()->create([
                     'load_id' => $item['load_id'],
+                    'bl_number' => $item['bl_number'] ?? null,
                     'quantity_delivered' => $item['quantity_delivered'],
                     'unit_price' => $item['unit_price'],
                     'missing_quantity' => $item['missing_quantity'],

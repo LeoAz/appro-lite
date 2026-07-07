@@ -38,6 +38,10 @@ class ListInvoice extends Component implements HasForms, HasTable
                     ->label('Client')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('issuer_name')
+                    ->label('Émetteur')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('total_missing')
                     ->label('Total Manquant')
                     ->formatStateUsing(fn ($state) => number_format($state, 0, '.', ' ') . ' L')

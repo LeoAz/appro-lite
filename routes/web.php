@@ -18,6 +18,7 @@ Route::middleware("auth")->group(function () {
     Route::get("/reports/loads", \App\Http\Controllers\ReportLoadController::class)->name("reports.loads");
     Route::get("/reports/deliveries", \App\Http\Controllers\ReportDeliveryController::class)->name("reports.deliveries");
     Route::get("/reports/stocks", \App\Http\Controllers\ReportStockController::class)->name("reports.stocks");
+    Route::get("/reports/sales", \App\Http\Controllers\ReportSalesController::class)->name("reports.sales");
 
     Route::get("/invoices", \App\Http\Controllers\InvoiceController::class)->name("invoices");
     Route::get("/invoices/{invoice}/print", [\App\Http\Controllers\InvoiceController::class, 'print'])->name("invoices.print");

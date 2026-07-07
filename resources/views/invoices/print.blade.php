@@ -94,7 +94,7 @@
                     <div class="label">N° {{ $invoice->number }}</div>
                 </td>
                 <td style="text-align: right;">
-                    <strong>Appro-Lite</strong><br>
+                    <strong>{{ $invoice->issuer_name }}</strong><br>
                     Date de facturation : {{ $invoice->date->format('d/m/Y') }}
                 </td>
             </tr>
@@ -106,7 +106,7 @@
             <tr>
                 <td>
                     <div class="label">Émetteur :</div>
-                    <strong>Appro-Lite</strong><br>
+                    <strong>{{ $invoice->issuer_name }}</strong><br>
                     Service Facturation
                 </td>
                 <td>
@@ -120,7 +120,8 @@
     <table class="items">
         <thead>
         <tr>
-            <th>Livraison #</th>
+            <th>Véhicule</th>
+            <th>N° BL</th>
             <th>Date</th>
             <th>Qte Livrée</th>
             <th>Prix Unit.</th>
@@ -131,7 +132,8 @@
         <tbody>
         @foreach($invoice->items as $item)
             <tr>
-                <td>{{ $item->delivery->id }}</td>
+                <td>{{ $item->delivery->vehicle->registration ?? $item->delivery->vehicle_registration ?? '-' }}</td>
+                <td>{{ $item->bl_number ?? '-' }}</td>
                 <td>{{ $item->delivery->unload_date->format('d/m/Y') }}</td>
                 <td>{{ number_format($item->quantity_delivered, 0, ',', ' ') }} L</td>
                 <td>{{ number_format($item->unit_price, 0, ',', ' ') }} FCFA</td>
