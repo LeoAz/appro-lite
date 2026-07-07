@@ -85,18 +85,22 @@ class ListLoad extends Component implements HasForms, HasTable
 
     public function table(Table $table): Table
     {
+        $defaultSortColumn = ($this->status === 'EN COURS' || $this->status === 'CHARGÉ') ? 'load_date' : 'unload_date';
+
         return $table
             ->query($this->getFilteredQuery())
-            ->defaultSort("created_at", "desc")
+            ->defaultSort($defaultSortColumn, "desc")
             ->paginated([10, 25, 50, 100])
             ->selectable()
             ->columns([
                 TextColumn::make("index")
                     ->label("N°")
                     ->rowIndex(),
-                TextColumn::make("load_date")
-                    ->label("Date Chargement")
+                TextColumn::make("unload_date")
+                    ->label("Date Livraison")
                     ->date("d-m-Y")
+                    ->toggleable()
+                    ->hidden(fn() => $this->status === "EN COURS")
                     ->searchable(),
                 TextColumn::make("load_location")
                     ->label("Lieu Chargement")
@@ -122,11 +126,9 @@ class ListLoad extends Component implements HasForms, HasTable
                             default => "gray",
                         }
                     ),
-                TextColumn::make("unload_date")
-                    ->label("Date Livraison")
+                TextColumn::make("load_date")
+                    ->label("Date Chargement")
                     ->date("d-m-Y")
-                    ->toggleable()
-                    ->hidden(fn() => $this->status === "EN COURS")
                     ->searchable(),
                 TextColumn::make("unload_location")
                     ->label("Lieu Livraison")

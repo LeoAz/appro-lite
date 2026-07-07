@@ -75,6 +75,13 @@ class ListInvoice extends Component implements HasForms, HasTable
                         ->color('danger')
                         ->requiresConfirmation()
                         ->action(function (Invoice $record) {
+                            foreach ($record->items as $item) {
+                                if ($item->delivery) {
+                                    $item->delivery->update([
+                                        'status' => \App\Enums\LoadStatus::Unloaded
+                                    ]);
+                                }
+                            }
                             $record->delete();
                             Notification::make()
                                 ->title('Facture supprimée')

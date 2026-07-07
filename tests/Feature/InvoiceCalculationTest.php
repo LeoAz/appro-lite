@@ -226,4 +226,34 @@ class InvoiceCalculationTest extends TestCase
         Livewire::test(AddInvoice::class)
             ->assertSet('number', "FAC-{$year}-00001");
     }
+
+    /** @test */
+    public function it_restores_load_status_when_invoice_is_deleted()
+    {
+        $invoice = Invoice::create([
+            'number' => 'FAC-TO-DELETE',
+            'date' => now(),
+            'client_name' => 'Client Test',
+            'issuer_name' => 'CORRIDOR PETROLEUM',
+            'total_missing' => 0,
+            'total_amount' => 0,
+        ]);
+
+        $invoice->items()->create([
+            'load_id' => $this->load1->id,
+            'quantity_delivered' => 45000,
+            'unit_price' => 1000,
+            'missing_quantity' => 0,
+            'total' => 45000000,
+        ]);
+
+        $this->load1->update(['status' => LoadStatus::Invoiced]);
+        $this->assertEquals(LoadStatus::Invoiced, $this->load1->fresh()->status);
+
+        Livewire::test(\App\Livewire\Invoice\ListInvoice::class)
+            ->callTableAction('delete', $invoice);
+
+        $this->assertDatabaseMissing('invoices', ['id' => $invoice->id]);
+        $this->assertEquals(LoadStatus::Unloaded, $this->load1->fresh()->status);
+    }
 }
