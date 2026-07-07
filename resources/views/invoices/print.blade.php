@@ -203,9 +203,9 @@
         <tbody>
             @foreach($invoice->items as $item)
                 @php
-                    $load = $item->load;
+                    $load = $item->delivery;
                     $product = $load->product ?? 'GASOIL';
-                    $vehicle = $load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A';
+                    $vehicle = $load->vehicle_registration ?? 'N/A';
                     $trailer = $load->trailer_registration ?? '';
                     $desc = $product . ' — ' . $vehicle . ($trailer ? ' / ' . $trailer : '');
                 @endphp

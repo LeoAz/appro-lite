@@ -107,7 +107,7 @@ class EditInvoice extends ModalComponent implements HasForms
                                             ->orWhereIn('id', $initialIds);
                                     })
                                     ->get()
-                                    ->mapWithKeys(fn ($load) => [$load->id => "Camion: " . ($load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A') . " - Date: {$load->unload_date?->format('d/m/Y')} - Vol: {$load->volume}L"]);
+                                    ->mapWithKeys(fn ($load) => [$load->id => "Produit: " . ($load->product ?? 'N/A') . " - Camion: " . ($load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A') . " - Date: {$load->unload_date?->format('d/m/Y')} - Vol: {$load->volume}L"]);
                             })
                             ->required()
                             ->live()
@@ -150,7 +150,8 @@ class EditInvoice extends ModalComponent implements HasForms
                         if (!isset($state['load_id'])) return null;
                         $load = Load::find($state['load_id']);
                         $vehicle = $load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A';
-                        return "Véhicule: {$vehicle}";
+                        $product = $load->product ?? 'N/A';
+                        return "Produit: {$product} - Véhicule: {$vehicle}";
                     })
                     ->live()
                     ->afterStateUpdated(function (Get $get, Set $set) {
