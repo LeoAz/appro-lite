@@ -24,12 +24,14 @@ class StockReport extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public ?int $depot_id = null;
+    public ?string $product = null;
 
     public function mount()
     {
         $this->depot_id = Depot::first()?->id;
         $this->form->fill([
-            'depot_id' => $this->depot_id
+            'depot_id' => $this->depot_id,
+            'product' => $this->product,
         ]);
     }
 
@@ -44,7 +46,21 @@ class StockReport extends Component implements HasForms, HasTable
                     ->live()
                     ->afterStateUpdated(fn () => $this->resetTable())
                     ->placeholder('Choisir un dépôt'),
-            ]);
+                Select::make('product')
+                    ->hiddenLabel()
+                    ->searchable()
+                    ->options(function() {
+                        return Compartment::query()
+                            ->when($this->depot_id, fn($q) => $q->where('depot_id', $this->depot_id))
+                            ->pluck('product', 'product')
+                            ->unique()
+                            ->toArray();
+                    })
+                    ->live()
+                    ->afterStateUpdated(fn () => $this->resetTable())
+                    ->placeholder('Tous les produits'),
+            ])
+            ->columns(2);
     }
 
     public function table(Table $table): Table
@@ -53,6 +69,7 @@ class StockReport extends Component implements HasForms, HasTable
             ->query(
                 Compartment::query()
                     ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+                    ->when($this->product, fn ($query) => $query->where('product', $this->product))
             )
             ->columns([
                 TextColumn::make('product')
@@ -72,6 +89,7 @@ class StockReport extends Component implements HasForms, HasTable
     {
         return Load::query()
             ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+            ->when($this->product, fn ($query) => $query->where('product', $this->product))
             ->latest();
     }
 
@@ -79,6 +97,7 @@ class StockReport extends Component implements HasForms, HasTable
     {
         return FuelPurchase::query()
             ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+            ->when($this->product, fn ($query) => $query->where('product', $this->product))
             ->latest();
     }
 
@@ -87,11 +106,18 @@ class StockReport extends Component implements HasForms, HasTable
         $selectedDepot = $this->depot_id ? Depot::find($this->depot_id) : null;
         $compartments = Compartment::query()
             ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+            ->when($this->product, fn ($query) => $query->where('product', $this->product))
             ->get();
+
+        $loads = $this->getLoadTableQuery()->limit(50)->get();
+        $purchases = $this->getPurchaseTableQuery()->limit(50)->get();
 
         $pdf = Pdf::loadView('livewire.report.print-stock', [
             'compartments' => $compartments,
             'selectedDepot' => $selectedDepot,
+            'selectedProduct' => $this->product,
+            'loads' => $loads,
+            'purchases' => $purchases,
             'date' => now(),
         ]);
 

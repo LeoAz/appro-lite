@@ -69,19 +69,19 @@
                         <tbody class="divide-y divide-gray-50">
                             @forelse($this->getLoadTableQuery()->get() as $load)
                                 <tr>
-                                    <td class="py-4 text-gray-600">{{ $load->load_date->format('d/m/Y H:i') }}</td>
+                                    <td class="py-4 text-gray-600">{{ $load->load_date->format('d/m/Y') }}</td>
                                     <td class="py-4 font-medium text-gray-900">{{ $load->vehicle_registration }}</td>
                                     <td class="py-4 text-gray-600">{{ $load->product }}</td>
-                                    <td class="py-4 text-right font-bold text-gray-900">{{ number_format((float) ($load->volume ?? 0), 0, ',', ' ') }} L</td>
+                                    <td class="py-4 text-right font-bold text-red-600">-{{ number_format((float) ($load->volume ?? 0), 0, ',', ' ') }} L</td>
                                     <td class="py-4">
-                                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $load->status === 'LIVRÉ' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $load->status === 'LIVRÉ' ? 'bg-green-100 text-green-700' : ($load->status === 'LIVRÉ ET FACTURÉ' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700') }}">
                                             {{ $load->status }}
                                         </span>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-8 text-center text-gray-400 italic">Aucun chargement enregistré pour ce dépôt.</td>
+                                    <td colspan="5" class="py-8 text-center text-gray-400 italic">Aucun mouvement enregistré.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -106,12 +106,12 @@
                                     <td class="py-4 text-gray-600">{{ $purchase->purchase_date?->format('d/m/Y') }}</td>
                                     <td class="py-4 font-medium text-gray-900">{{ $purchase->product }}</td>
                                     <td class="py-4 text-right font-bold text-blue-600">+{{ number_format((float) ($purchase->quantity ?? 0), 0, ',', ' ') }} L</td>
-                                    <td class="py-4 text-right text-gray-600">{{ $purchase->unit_price ? number_format((float) $purchase->unit_price, 2, ',', ' ') . ' FCFA' : '-' }}</td>
-                                    <td class="py-4 text-right font-medium text-gray-900">{{ $purchase->total_price ? number_format((float) $purchase->total_price, 2, ',', ' ') . ' FCFA' : '-' }}</td>
+                                    <td class="py-4 text-right text-gray-600">{{ $purchase->unit_price ? number_format((float) $purchase->unit_price, 0, ',', ' ') . ' FCFA' : '-' }}</td>
+                                    <td class="py-4 text-right font-medium text-gray-900">{{ $purchase->total_price ? number_format((float) $purchase->total_price, 0, ',', ' ') . ' FCFA' : '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-8 text-center text-gray-400 italic">Aucun achat enregistré pour ce dépôt.</td>
+                                    <td colspan="5" class="py-8 text-center text-gray-400 italic">Aucun mouvement enregistré.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -121,46 +121,25 @@
         </div>
     </div>
 
-    <!-- Mode Impression -->
     <div class="hidden print:block">
-        @if($this->depot_id)
-            @php $selectedDepot = \App\Models\Depot::find($this->depot_id); @endphp
-            <div class="mb-8 text-center">
-                <h1 class="text-3xl font-bold">Rapport de Stock : {{ $selectedDepot?->name }}</h1>
-                <p class="text-gray-500">Généré le {{ now()->format('d/m/Y H:i') }}</p>
-            </div>
+        @php
+            $selectedDepot = $this->depot_id ? \App\Models\Depot::find($this->depot_id) : null;
+            $compartments = \App\Models\Compartment::query()
+                ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
+                ->when($this->product, fn ($query) => $query->where('product', $this->product))
+                ->get();
+            $loads = $this->getLoadTableQuery()->limit(20)->get();
+            $purchases = $this->getPurchaseTableQuery()->limit(20)->get();
+        @endphp
 
-            <h2 class="text-xl font-bold mb-4">État des Compartiments</h2>
-            @include('livewire.report.print-stock', ['compartments' => \App\Models\Compartment::where('depot_id', $this->depot_id)->get(), 'date' => now()])
-
-            <div class="mt-8">
-                <h2 class="text-xl font-bold mb-4">Historique des 20 derniers Chargements</h2>
-                <table class="w-full border-collapse border border-gray-300 text-sm">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="border border-gray-300 p-2">Date</th>
-                            <th class="border border-gray-300 p-2">Véhicule</th>
-                            <th class="border border-gray-300 p-2">Produit</th>
-                            <th class="border border-gray-300 p-2">Quantité</th>
-                            <th class="border border-gray-300 p-2">Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($this->getLoadTableQuery()->limit(20)->get() as $load)
-                            <tr>
-                                <td class="border border-gray-300 p-2">{{ $load->load_date->format('d/m/Y') }}</td>
-                                <td class="border border-gray-300 p-2">{{ $load->vehicle_registration }}</td>
-                                <td class="border border-gray-300 p-2">{{ $load->product }}</td>
-                                <td class="border border-gray-300 p-2 text-right">{{ number_format((float) ($load->volume ?? 0), 0) }} L</td>
-                                <td class="border border-gray-300 p-2">{{ $load->status }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @else
-             @include('livewire.report.print-stock', ['compartments' => \App\Models\Compartment::all(), 'date' => now()])
-        @endif
+        @include('livewire.report.print-stock', [
+            'compartments' => $compartments,
+            'selectedDepot' => $selectedDepot,
+            'selectedProduct' => $this->product,
+            'loads' => $loads,
+            'purchases' => $purchases,
+            'date' => now()
+        ])
     </div>
 
     <style>

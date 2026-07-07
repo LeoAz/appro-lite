@@ -60,7 +60,6 @@ class EditInvoice extends ModalComponent implements HasForms
                 TextInput::make('number')
                     ->label('Numéro de facture')
                     ->required()
-                    ->readOnly()
                     ->unique('invoices', 'number', ignoreRecord: true),
                 DatePicker::make('date')
                     ->label('Date')
