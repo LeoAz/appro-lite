@@ -56,6 +56,14 @@ class ListInvoice extends Component implements HasForms, HasTable
             ])
             ->actions([
                 ActionGroup::make([
+                    Action::make('view')
+                        ->label('Voir')
+                        ->icon('heroicon-m-eye')
+                        ->action(fn (Invoice $record) => $this->dispatch('openModal', component: 'modals.invoice.view-invoice', arguments: ['invoice' => $record->id])),
+                    Action::make('edit')
+                        ->label('Modifier')
+                        ->icon('heroicon-m-pencil-square')
+                        ->action(fn (Invoice $record) => $this->dispatch('openModal', component: 'modals.invoice.edit-invoice', arguments: ['invoice' => $record->id])),
                     Action::make('print')
                         ->label('Imprimer')
                         ->icon('heroicon-m-printer')
