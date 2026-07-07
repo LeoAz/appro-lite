@@ -116,8 +116,9 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->badge()
                     ->color(
                         fn(?string $state): string => match ($state) {
-                            "EN COURS" => "success",
-                            "LIVRÉ" => "gray",
+                            "EN COURS" => "warning",
+                            "LIVRÉ" => "success",
+                            "LIVRÉ ET FACTURÉ" => "info",
                             default => "gray",
                         }
                     ),
@@ -144,6 +145,7 @@ class ListLoad extends Component implements HasForms, HasTable
                 ActionGroup::make([
                     Action::make("edit")
                         ->label("Modifier")
+                        ->hidden(fn (Load $record) => $record->status === 'LIVRÉ ET FACTURÉ')
                         ->icon("heroicon-m-eye")
                         ->action(
                             fn(Load $record, $livewire) => $livewire->dispatch(
@@ -154,7 +156,7 @@ class ListLoad extends Component implements HasForms, HasTable
                         ),
                     Action::make("unload")
                         ->label("Livré")
-                        ->hidden(fn () => $this->status === 'LIVRÉ')
+                        ->hidden(fn (Load $record) => $record->status !== 'EN COURS')
                         ->icon("heroicon-m-arrow-down-on-square")
                         ->action(
                             fn(Load $record, $livewire) => $livewire->dispatch(

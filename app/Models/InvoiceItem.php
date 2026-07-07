@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class InvoiceItem extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'invoice_id',
+        'load_id',
+        'quantity_delivered',
+        'unit_price',
+        'missing_quantity',
+        'total',
+    ];
+
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
+
+    public function delivery()
+    {
+        return $this->belongsTo(Load::class, 'load_id');
+    }
+}

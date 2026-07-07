@@ -19,6 +19,9 @@ Route::middleware("auth")->group(function () {
     Route::get("/reports/deliveries", \App\Http\Controllers\ReportDeliveryController::class)->name("reports.deliveries");
     Route::get("/reports/stocks", \App\Http\Controllers\ReportStockController::class)->name("reports.stocks");
 
+    Route::get("/invoices", \App\Http\Controllers\InvoiceController::class)->name("invoices");
+    Route::get("/invoices/{invoice}/print", [\App\Http\Controllers\InvoiceController::class, 'print'])->name("invoices.print");
+
     Route::get("/profile", [ProfileController::class, "edit"])->name(
         "profile.edit"
     );
