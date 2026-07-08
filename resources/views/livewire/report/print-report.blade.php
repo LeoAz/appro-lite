@@ -111,7 +111,7 @@
                 @php $totalVolume += (float) ($load->volume ?? 0); @endphp
 
                 @php
-                    $currentClient = $load->client_name ?? 'Sans Client';
+                    $currentClient = $load->client?->nom ?? $load->client_name ?? 'Sans Client';
                     $currentDate = $load->$dateField ? $load->$dateField->format('d/m/Y') : 'Sans Date';
                 @endphp
 
@@ -144,7 +144,7 @@
                     <td>{{ $load->vehicle_registration ?? '-' }}</td>
                     @if($type === 'livraison')
                         <td>{{ $load->unload_location ?? '-' }}</td>
-                        <td>{{ $load->client_name ?? '-' }}</td>
+                        <td>{{ $load->client?->nom ?? $load->client_name ?? '-' }}</td>
                     @endif
                     <td>{{ $load->status }}</td>
                 </tr>
@@ -168,7 +168,7 @@
 
         foreach ($loads as $load) {
             $product = $load->product ?? 'Inconnu';
-            $client = $load->client_name ?? 'Sans Client';
+            $client = $load->client?->nom ?? $load->client_name ?? 'Sans Client';
             $volume = (float) ($load->volume ?? 0);
 
             if (!isset($countByProduct[$product])) {

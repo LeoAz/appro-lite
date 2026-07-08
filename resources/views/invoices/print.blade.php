@@ -174,7 +174,7 @@
             </td>
             <td>
                 <div class="billing-label">À</div>
-                <div class="billing-value">{{ $invoice->client_name }}</div>
+                <div class="billing-value">{{ $invoice->client?->nom ?? $invoice->client_name }}</div>
                 <div class="billing-address">
                     BAMAKO<br>
                     @if(isset($invoice->client) && $invoice->client->contact)

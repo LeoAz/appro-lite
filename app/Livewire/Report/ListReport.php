@@ -80,7 +80,7 @@ class ListReport extends Component implements HasForms, HasTable
         }
 
         return $query->orderBy($dateField, 'asc')
-            ->orderBy('client_name', 'asc');
+            ->orderBy('client_id', 'asc');
     }
 
     public function table(Table $table): Table
@@ -95,7 +95,7 @@ class ListReport extends Component implements HasForms, HasTable
                     ->label('Date')
                     ->date()
                     ->collapsible(),
-                \Filament\Tables\Grouping\Group::make('client_name')
+                \Filament\Tables\Grouping\Group::make('client.nom')
                     ->label('Client')
                     ->collapsible(),
             ])
@@ -151,7 +151,7 @@ class ListReport extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->hidden(fn() => $this->type === 'chargement')
                     ->searchable(),
-                TextColumn::make("client_name")
+                TextColumn::make("client.nom")
                     ->label("Client")
                     ->toggleable()
                     ->hidden(fn() => $this->type === 'chargement')
@@ -192,7 +192,7 @@ class ListReport extends Component implements HasForms, HasTable
 
         foreach ($loads as $load) {
             $product = $load->product ?? 'Inconnu';
-            $client = $load->client_name ?? 'Sans Client';
+            $client = $load->client?->nom ?? $load->client_name ?? 'Sans Client';
             $volume = (int) $load->volume;
 
             if (!isset($stats['count_by_product'][$product])) {

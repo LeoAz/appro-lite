@@ -34,7 +34,7 @@ class ListInvoice extends Component implements HasForms, HasTable
                     ->label('Date')
                     ->date('d/m/Y')
                     ->sortable(),
-                TextColumn::make('client_name')
+                TextColumn::make('client.nom')
                     ->label('Client')
                     ->searchable()
                     ->sortable(),

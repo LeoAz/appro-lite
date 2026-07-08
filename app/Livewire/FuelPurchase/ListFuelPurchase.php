@@ -71,7 +71,13 @@ class ListFuelPurchase extends Component implements HasForms, HasTable
                     ->label('Modifier')
                     ->action(fn (FuelPurchase $record) => $this->dispatch('openModal', 'modals.fuel-purchase.edit-fuel-purchase', ['fuelPurchase' => $record])),
                 DeleteAction::make()
-                    ->label('Supprimer'),
+                    ->label('Supprimer')
+                    ->before(function (FuelPurchase $record) {
+                        $compartment = $record->compartment;
+                        if ($compartment) {
+                            $compartment->decrement('quantity', $record->quantity);
+                        }
+                    }),
             ]);
     }
 

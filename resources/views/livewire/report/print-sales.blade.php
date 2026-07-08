@@ -35,8 +35,8 @@
         @else
             Toute la période
         @endif
-        @if($client_name)
-            | Client : {{ $client_name }}
+        @if($client_id)
+            | Client : {{ \App\Models\Client::find($client_id)?->nom }}
         @endif
     </div>
 
@@ -57,17 +57,17 @@
                 $currentGroup = null;
             @endphp
             @foreach($invoices as $invoice)
-                @if($group_by_client && $currentGroup !== $invoice->client_name)
+                @if($group_by_client && $currentGroup !== ($invoice->client?->nom ?? $invoice->client_name))
                     <tr class="group-header">
-                        <td colspan="4">{{ $invoice->client_name }}</td>
+                        <td colspan="4">{{ $invoice->client?->nom ?? $invoice->client_name }}</td>
                     </tr>
-                    @php $currentGroup = $invoice->client_name; @endphp
+                    @php $currentGroup = ($invoice->client?->nom ?? $invoice->client_name); @endphp
                 @endif
                 <tr>
                     <td>{{ $invoice->date->format('d/m/Y') }}</td>
                     <td>{{ $invoice->number }}</td>
                     @if(!$group_by_client)
-                        <td>{{ $invoice->client_name }}</td>
+                        <td>{{ $invoice->client?->nom ?? $invoice->client_name }}</td>
                     @endif
                     <td class="text-right">{{ number_format($invoice->total_missing, 0, ',', ' ') }} L</td>
                     <td class="text-right">{{ number_format($invoice->total_amount, 0, ',', ' ') }} FCFA</td>

@@ -135,7 +135,7 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->hidden(fn() => $this->status === "EN COURS")
                     ->searchable(),
-                TextColumn::make("client_name")
+                TextColumn::make("client.nom")
                     ->label("Client")
                     ->toggleable()
                     ->hidden(fn() => $this->status === "EN COURS")

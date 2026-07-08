@@ -25,7 +25,7 @@ class SalesReport extends Component implements HasForms, HasTable
 
     public $date_from;
     public $date_to;
-    public $client_name;
+    public $client_id;
     public $group_by_client = false;
 
     public function mount()
@@ -49,9 +49,9 @@ class SalesReport extends Component implements HasForms, HasTable
                     ->displayFormat('d/m/Y')
                     ->live()
                     ->afterStateUpdated(fn () => $this->resetTable()),
-                Select::make('client_name')
+                Select::make('client_id')
                     ->label('Client')
-                    ->options(Invoice::distinct()->pluck('client_name', 'client_name'))
+                    ->options(\App\Models\Client::pluck('nom', 'id'))
                     ->searchable()
                     ->live()
                     ->afterStateUpdated(fn () => $this->resetTable())
@@ -73,10 +73,10 @@ class SalesReport extends Component implements HasForms, HasTable
         $query = Invoice::query()
             ->when($this->date_from, fn ($q) => $q->whereDate('date', '>=', $this->date_from))
             ->when($this->date_to, fn ($q) => $q->whereDate('date', '<=', $this->date_to))
-            ->when($this->client_name, fn ($q) => $q->where('client_name', $this->client_name));
+            ->when($this->client_id, fn ($q) => $q->where('client_id', $this->client_id));
 
         if ($this->group_by_client) {
-            $query->orderBy('client_name');
+            $query->orderBy('client_id');
         }
 
         return $table
@@ -90,7 +90,7 @@ class SalesReport extends Component implements HasForms, HasTable
                     ->label('Date')
                     ->date('d/m/Y')
                     ->sortable(),
-                TextColumn::make('client_name')
+                TextColumn::make('client.nom')
                     ->label('Client')
                     ->searchable()
                     ->sortable()
@@ -106,7 +106,7 @@ class SalesReport extends Component implements HasForms, HasTable
                     ->numeric()
                     ->summarize(\Filament\Tables\Columns\Summarizers\Sum::make()->label('Total')),
             ])
-            ->groups($this->group_by_client ? ['client_name'] : [])
+            ->groups($this->group_by_client ? ['client_id'] : [])
             ->defaultSort('date', 'desc');
     }
 
@@ -115,8 +115,8 @@ class SalesReport extends Component implements HasForms, HasTable
         $query = Invoice::query()
             ->when($this->date_from, fn ($q) => $q->whereDate('date', '>=', $this->date_from))
             ->when($this->date_to, fn ($q) => $q->whereDate('date', '<=', $this->date_to))
-            ->when($this->client_name, fn ($q) => $q->where('client_name', $this->client_name))
-            ->orderBy($this->group_by_client ? 'client_name' : 'date', $this->group_by_client ? 'asc' : 'desc');
+            ->when($this->client_id, fn ($q) => $q->where('client_id', $this->client_id))
+            ->orderBy($this->group_by_client ? 'client_id' : 'date', $this->group_by_client ? 'asc' : 'desc');
 
         $invoices = $query->get();
         $total_missing = $invoices->sum('total_missing');
@@ -126,7 +126,7 @@ class SalesReport extends Component implements HasForms, HasTable
             'invoices' => $invoices,
             'date_from' => $this->date_from,
             'date_to' => $this->date_to,
-            'client_name' => $this->client_name,
+            'client_id' => $this->client_id,
             'group_by_client' => $this->group_by_client,
             'total_missing' => $total_missing,
             'total_amount' => $total_amount,
