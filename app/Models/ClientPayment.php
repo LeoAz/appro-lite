@@ -5,18 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Invoice extends Model
+class ClientPayment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'number',
-        'date',
         'client_id',
-        'client_name',
-        'issuer_name',
-        'total_missing',
-        'total_amount',
+        'amount',
+        'date',
+        'reference',
+        'note',
     ];
 
     protected $casts = [
@@ -26,10 +24,5 @@ class Invoice extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
-    }
-
-    public function items()
-    {
-        return $this->hasMany(InvoiceItem::class);
     }
 }

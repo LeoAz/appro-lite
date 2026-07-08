@@ -30,6 +30,7 @@ class EditLoad extends ModalComponent implements HasForms
     public $load_location;
     public $unload_date;
     public $unload_location;
+    public $client_id;
     public $client_name;
     public $volume;
     public $product;
@@ -41,6 +42,8 @@ class EditLoad extends ModalComponent implements HasForms
     {
         $this->load = $load;
         $this->form->fill($load->toArray());
+        $this->client_id = $load->client_id;
+        $this->client_name = $load->client_name;
     }
 
     public function form(Form $form): Form
@@ -66,10 +69,24 @@ class EditLoad extends ModalComponent implements HasForms
                         ->options(City::pluck("name", "name"))
                         ->searchable()
                         ->required(),
-                TextInput::make("client_name")
+                Select::make("client_id")
                     ->label("Client")
+                    ->options(Client::pluck("nom", "id"))
+                    ->searchable()
+                    ->createOptionForm([
+                        TextInput::make('nom')
+                            ->label('Nom du client')
+                            ->required(),
+                    ])
+                    ->createOptionUsing(function (array $data) {
+                        return Client::create(['nom' => $data['nom']])->id;
+                    })
+                    ->getOptionLabelUsing(fn ($value): ?string => Client::find($value)?->nom)
                     ->hidden(!$isLivre)
-                    ->required($isLivre),
+                    ->required($isLivre)
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set, $state) => $set('client_name', Client::find($state)?->nom)),
+                \Filament\Forms\Components\Hidden::make('client_name'),
 
                 Select::make("depot_id")
                     ->label("Dépôt")

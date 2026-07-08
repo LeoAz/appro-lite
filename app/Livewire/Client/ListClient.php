@@ -36,7 +36,12 @@ class ListClient extends Component implements HasForms, HasTable
                     ->weight(FontWeight::SemiBold)
                     ->searchable(),
                 TextColumn::make("contact")->label("Contact")->searchable(),
-                TextColumn::make("address")->label("addresse")->searchable(),
+                TextColumn::make("address")->label("Adresse")->searchable(),
+                TextColumn::make("balance")
+                    ->label("Solde")
+                    ->money('XOF')
+                    ->color(fn ($state) => $state < 0 ? 'danger' : 'success')
+                    ->weight(FontWeight::Bold),
             ])
             ->emptyStateHeading('Aucun transporteur n\'est disponible')
             ->filters([
@@ -44,6 +49,26 @@ class ListClient extends Component implements HasForms, HasTable
             ])
             ->actions([
                 ActionGroup::make([
+                    Action::make("view_account")
+                        ->label("Compte Client")
+                        ->icon("heroicon-m-banknotes")
+                        ->action(
+                            fn(Client $record, $livewire) => $livewire->dispatch(
+                                "openModal",
+                                "modals.client.view-client-account",
+                                ["client" => $record]
+                            )
+                        ),
+                    Action::make("add_payment")
+                        ->label("Ajouter une avance")
+                        ->icon("heroicon-m-plus")
+                        ->action(
+                            fn(Client $record, $livewire) => $livewire->dispatch(
+                                "openModal",
+                                "modals.client.add-client-payment",
+                                ["client" => $record]
+                            )
+                        ),
                     Action::make("edit")
                         ->label("Modifier")
                         ->icon("heroicon-m-eye")

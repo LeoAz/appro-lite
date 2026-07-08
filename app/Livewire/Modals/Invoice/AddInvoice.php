@@ -65,23 +65,29 @@ class AddInvoice extends ModalComponent implements HasForms
                     ->displayFormat('d/m/Y')
                     ->required()
                     ->default(now()),
-                Select::make('client_name')
+                Select::make('client_id')
                     ->label('Client')
-                    ->options(function () {
-                        return Load::where('status', LoadStatus::Unloaded)
-                            ->whereNotNull('client_name')
-                            ->whereNotExists(function ($q) {
-                                $q->select(DB::raw(1))
-                                    ->from('invoice_items')
-                                    ->whereColumn('invoice_items.load_id', 'loads.id');
-                            })
-                            ->distinct()
-                            ->pluck('client_name', 'client_name');
-                    })
+                    ->options(Client::pluck('nom', 'id'))
                     ->searchable()
+                    ->createOptionForm([
+                        TextInput::make('nom')
+                            ->label('Nom du client')
+                            ->required(),
+                    ])
+                    ->createOptionUsing(function (array $data) {
+                        return Client::create(['nom' => $data['nom']])->id;
+                    })
+                    ->getOptionLabelUsing(fn ($value): ?string => Client::find($value)?->nom)
                     ->required()
                     ->live()
-                    ->afterStateUpdated(fn (Set $set) => $set('items', [])),
+                    ->afterStateUpdated(function (Set $set, $state) {
+                        $set('items', []);
+                        $client = Client::find($state);
+                        if ($client) {
+                            $set('client_name', $client->nom);
+                        }
+                    }),
+                \Filament\Forms\Components\Hidden::make('client_name'),
                 TextInput::make('issuer_name')
                     ->label('Émetteur')
                     ->default('CORRIDOR PETROLEUM')
@@ -96,9 +102,9 @@ class AddInvoice extends ModalComponent implements HasForms
                             ->label('Livraison')
                             ->searchable()
                             ->options(function (Get $get) {
-                                $clientName = $get('../../client_name');
-                                if (!$clientName) return [];
-                                return Load::where('client_name', $clientName)
+                                $clientId = $get('../../client_id');
+                                if (!$clientId) return [];
+                                return Load::where('client_id', $clientId)
                                     ->where('status', LoadStatus::Unloaded)
                                     ->whereNotExists(function ($query) {
                                         $query->select(DB::raw(1))
@@ -238,6 +244,7 @@ class AddInvoice extends ModalComponent implements HasForms
             $invoice = Invoice::create([
                 'number' => $data['number'],
                 'date' => $data['date'],
+                'client_id' => $data['client_id'],
                 'client_name' => $data['client_name'],
                 'issuer_name' => $data['issuer_name'],
                 'total_missing' => $data['total_missing'],

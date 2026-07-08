@@ -1,35 +1,37 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Livewire\Modals\Client;
 
 use App\Models\Client;
-use Illuminate\Http\Request;
+use LivewireUI\Modal\ModalComponent;
 
-class ClientController extends Controller
+class ViewClientAccount extends ModalComponent
 {
-    public function __invoke()
+    public Client $client;
+
+    public function mount(Client $client): void
     {
-        return view("app.client");
+        $this->client = $client;
     }
 
-    public function printAccount(Client $client)
+    public function getHistoryProperty()
     {
         $history = collect();
 
         // Initial Balance
-        if ($client->initial_balance != 0) {
+        if ($this->client->initial_balance != 0) {
             $history->push([
-                'date' => $client->created_at,
+                'date' => $this->client->created_at,
                 'type' => 'Solde Initial',
                 'reference' => '-',
-                'debit' => $client->initial_balance > 0 ? $client->initial_balance : 0,
-                'credit' => $client->initial_balance < 0 ? abs($client->initial_balance) : 0,
+                'debit' => $this->client->initial_balance > 0 ? $this->client->initial_balance : 0,
+                'credit' => $this->client->initial_balance < 0 ? abs($this->client->initial_balance) : 0,
                 'description' => 'Solde à l\'ouverture du compte',
             ]);
         }
 
         // Invoices (Debit)
-        foreach ($client->invoices as $invoice) {
+        foreach ($this->client->invoices as $invoice) {
             $history->push([
                 'date' => $invoice->date,
                 'type' => 'Facture',
@@ -41,7 +43,7 @@ class ClientController extends Controller
         }
 
         // Payments (Credit)
-        foreach ($client->payments as $payment) {
+        foreach ($this->client->payments as $payment) {
             $history->push([
                 'date' => $payment->date,
                 'type' => 'Avance / Paiement',
@@ -52,9 +54,18 @@ class ClientController extends Controller
             ]);
         }
 
-        $history = $history->sortBy('date');
+        return $history->sortBy('date');
+    }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('clients.account-pdf', compact('client', 'history'));
-        return $pdf->stream('Compte_' . $client->nom . '.pdf');
+    public static function modalMaxWidth(): string
+    {
+        return '6xl';
+    }
+
+    public function render()
+    {
+        return view('livewire.modals.client.view-client-account', [
+            'history' => $this->history,
+        ]);
     }
 }

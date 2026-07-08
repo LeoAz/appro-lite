@@ -31,12 +31,15 @@ class AddLoad extends ModalComponent implements HasForms
     public $volume;
     public $product;
     public $vehicle_registration;
+    public $client_id;
+    public $client_name;
 
     public function mount(?Load $load = null): void
     {
         $this->load = $load ?? new Load();
         $this->form->fill([
             'load_date' => now(),
+            'volume' => 45000,
         ]);
     }
 
@@ -81,7 +84,24 @@ class AddLoad extends ModalComponent implements HasForms
                 TextInput::make("volume")
                     ->label("Nombre de litres")
                     ->numeric()
+                    ->default(45000)
                     ->required(),
+                \Filament\Forms\Components\Select::make("client_id")
+                    ->label("Le client (Optionnel au chargement)")
+                    ->options(\App\Models\Client::pluck("nom", "id"))
+                    ->searchable()
+                    ->createOptionForm([
+                        TextInput::make('nom')
+                            ->label('Nom du client')
+                            ->required(),
+                    ])
+                    ->createOptionUsing(function (array $data) {
+                        return \App\Models\Client::create(['nom' => $data['nom']])->id;
+                    })
+                    ->getOptionLabelUsing(fn ($value): ?string => \App\Models\Client::find($value)?->nom)
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set, $state) => $set('client_name', \App\Models\Client::find($state)?->nom)),
+                \Filament\Forms\Components\Hidden::make('client_name'),
             ])
             ->model($this->load);
     }

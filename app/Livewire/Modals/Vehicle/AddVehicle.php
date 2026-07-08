@@ -29,7 +29,9 @@ class AddVehicle extends ModalComponent implements HasForms
     public function mount(?Vehicle $vehicle = null): void
     {
         $this->vehicle = $vehicle ?? new Vehicle();
-        $this->form->fill();
+        $this->form->fill([
+            'capacity' => 45000,
+        ]);
     }
 
     public function form(Form $form): Form

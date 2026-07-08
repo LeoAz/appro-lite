@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware("auth")->group(function () {
     Route::get("/", CarrierController::class)->name("carriers");
     Route::get("/clients", ClientController::class)->name("clients");
+    Route::get("/clients/{client}/account/pdf", [ClientController::class, 'printAccount'])->name("client.account.pdf");
     Route::get("/depots", DepotController::class)->name("depots");
     Route::get("/depots/{depot}", [DepotController::class, 'show'])->name("depots.show");
     Route::get("/loads", LoadController::class)->name("loads");

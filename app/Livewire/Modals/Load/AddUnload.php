@@ -10,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use LivewireUI\Modal\ModalComponent;
 
@@ -21,6 +22,7 @@ class AddUnload extends ModalComponent implements HasForms
 
     public $unload_date;
     public $unload_location;
+    public $client_id;
     public $client_name;
     public $status;
     public $is_unload;
@@ -35,6 +37,7 @@ class AddUnload extends ModalComponent implements HasForms
         }
 
         $this->form->fill($data);
+        $this->client_id = $this->load->client_id;
     }
 
     public function form(Form $form): Form
@@ -52,9 +55,23 @@ class AddUnload extends ModalComponent implements HasForms
                 TextInput::make("unload_location")
                     ->label("Lieu livraison")
                     ->required(),
-                TextInput::make("client_name")
+                \Filament\Forms\Components\Select::make("client_id")
                     ->label("Le client")
-                    ->required(),
+                    ->options(Client::pluck("nom", "id"))
+                    ->searchable()
+                    ->createOptionForm([
+                        TextInput::make('nom')
+                            ->label('Nom du client')
+                            ->required(),
+                    ])
+                    ->createOptionUsing(function (array $data) {
+                        return Client::create(['nom' => $data['nom']])->id;
+                    })
+                    ->getOptionLabelUsing(fn ($value): ?string => Client::find($value)?->nom)
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set, $state) => $set('client_name', Client::find($state)?->nom)),
+                \Filament\Forms\Components\Hidden::make('client_name'),
             ])
             //->statePath("data");
             ->model($this->load);

@@ -32,9 +32,13 @@ class EditClient extends ModalComponent implements HasForms
             ->columns(2)
             ->schema([
                 TextInput::make("nom")->name("Nom")->required(),
-                TextInput::make("contact")->label("Contact")->required(),
+                TextInput::make("contact")->label("Contact"),
+                TextInput::make("initial_balance")
+                    ->label("Solde Initial")
+                    ->numeric()
+                    ->default(0)
+                    ->helperText("Solde positif si le client doit, négatif si l'entreprise doit au client."),
                 Textarea::make("address")->label("Adresse")->columnSpan(2),
-                // ...
             ])
             ->statePath("data");
     }

@@ -38,6 +38,7 @@ class EditInvoice extends ModalComponent implements HasForms
         $this->form->fill([
             'number' => $invoice->number,
             'date' => $invoice->date,
+            'client_id' => $invoice->client_id,
             'client_name' => $invoice->client_name,
             'issuer_name' => $invoice->issuer_name,
             'items' => $invoice->items->map(fn ($item) => [
@@ -70,6 +71,7 @@ class EditInvoice extends ModalComponent implements HasForms
                     ->label('Client')
                     ->readOnly()
                     ->required(),
+                \Filament\Forms\Components\Hidden::make('client_id'),
                 TextInput::make('issuer_name')
                     ->label('Émetteur')
                     ->readOnly()
@@ -236,6 +238,8 @@ class EditInvoice extends ModalComponent implements HasForms
             $this->invoice->update([
                 'number' => $data['number'],
                 'date' => $data['date'],
+                'client_id' => $data['client_id'],
+                'client_name' => $data['client_name'],
                 'total_missing' => $data['total_missing'],
                 'total_amount' => $data['total_amount'],
             ]);
