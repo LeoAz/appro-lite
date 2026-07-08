@@ -123,6 +123,12 @@ class EditLoad extends ModalComponent implements HasForms
     public function update()
     {
         $data = $this->form->getState();
+
+        // Nettoyage du volume
+        if (isset($data['volume'])) {
+            $data['volume'] = (int) str_replace([' ', ','], '', $data['volume']);
+        }
+
         $oldVolume = $this->load->volume;
         $oldCompartmentId = $this->load->compartment_id;
         $newVolume = $data['volume'];

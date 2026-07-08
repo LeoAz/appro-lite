@@ -41,6 +41,7 @@ class AddLoad extends ModalComponent implements HasForms
             'load_date' => now(),
             'volume' => 45000,
         ]);
+        $this->volume = 45000;
     }
 
     public function form(Form $form): Form
@@ -109,6 +110,12 @@ class AddLoad extends ModalComponent implements HasForms
     public function create()
     {
         $attributes = $this->form->getState();
+
+        // Nettoyage du volume (enlève les espaces et force en entier)
+        if (isset($attributes['volume'])) {
+            $attributes['volume'] = (int) str_replace([' ', ','], '', $attributes['volume']);
+        }
+
         $compartment = Compartment::find($attributes['compartment_id']);
 
         if ($compartment->quantity < $attributes['volume']) {

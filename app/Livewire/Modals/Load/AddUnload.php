@@ -80,6 +80,12 @@ class AddUnload extends ModalComponent implements HasForms
     public function unload()
     {
         $attributes = $this->form->getState();
+
+        // Nettoyage du volume au cas où il serait modifié/affiché (bien qu'il soit sur l'objet load ici)
+        if (isset($attributes['volume'])) {
+            $attributes['volume'] = (int) str_replace([' ', ','], '', $attributes['volume']);
+        }
+
         $attributes = [
             ...$attributes,
             "status" => LoadStatus::Unloaded,

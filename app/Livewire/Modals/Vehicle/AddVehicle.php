@@ -42,7 +42,11 @@ class AddVehicle extends ModalComponent implements HasForms
                 TextInput::make("registration")
                     ->name("N° de plaque")
                     ->required(),
-                TextInput::make("capacity")->name("La capacité")->required(),
+                TextInput::make("capacity")
+                    ->label("La capacité")
+                    ->numeric()
+                    ->default(45000)
+                    ->required(),
 
                 Select::make("carrier_id")
                     ->label("Le transporteur")
@@ -68,6 +72,12 @@ class AddVehicle extends ModalComponent implements HasForms
     public function create()
     {
         $attributes = $this->form->getState();
+
+        // Ensure numeric capacity
+        if (isset($attributes['capacity'])) {
+            $attributes['capacity'] = (int) str_replace([' ', ','], '', $attributes['capacity']);
+        }
+
         $attributes = [...$attributes, "status" => VehicleStatus::Available];
         //dd($attributes);
         Vehicle::create($attributes);
