@@ -2,14 +2,14 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Compte Client - {{ $client->nom }}</title>
+    <title>Relevé de Compte - {{ $client->nom }}</title>
     <style>
         @page {
             margin: 0;
         }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 10px;
+            font-size: 11px;
             color: #333;
             line-height: 1.4;
             margin: 0;
@@ -32,19 +32,68 @@
             border-bottom: 1px solid #3b82f6;
             margin: 20px 0;
         }
-        .title {
+        .report-title {
             color: #1e40af;
             font-weight: bold;
             font-size: 14px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             text-transform: uppercase;
         }
-        .client-info {
+        .date-info {
             margin-bottom: 30px;
         }
-        .client-info span {
+        .date-info span {
+            color: #1e40af;
+            font-weight: bold;
+        }
+        .billing-info {
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        .billing-info td {
+            width: 50%;
+            vertical-align: top;
+        }
+        .billing-label {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+        .billing-value {
             font-weight: bold;
             color: #1e40af;
+            font-size: 12px;
+        }
+        .billing-address {
+            font-size: 10px;
+            margin-top: 2px;
+        }
+        .summary-box {
+            background-color: #f3f4f6;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            border: 1px solid #e5e7eb;
+        }
+        .summary-box table {
+            width: 100%;
+        }
+        .summary-label {
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .summary-value {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: right;
+        }
+        .text-red {
+            color: #dc2626;
+        }
+        .text-green {
+            color: #16a34a;
         }
         .items-table {
             width: 100%;
@@ -53,7 +102,7 @@
         }
         .items-table th {
             background-color: #f3f4f6;
-            text-align: center;
+            text-align: left;
             padding: 8px;
             border: 1px solid #333;
             font-weight: bold;
@@ -61,40 +110,23 @@
             font-size: 9px;
         }
         .items-table td {
-            padding: 6px 8px;
+            padding: 8px;
             border: 1px solid #333;
             vertical-align: middle;
         }
         .text-right {
             text-align: right;
         }
-        .text-center {
-            text-align: center;
-        }
         .font-bold {
             font-weight: bold;
         }
-        .totals-section {
-            width: 100%;
-            margin-top: 20px;
-        }
-        .totals-table {
-            float: right;
-            width: 40%;
-            border-collapse: collapse;
-        }
-        .totals-table td {
-            padding: 5px;
-            border: 1px solid #333;
-        }
-        .balance-row {
-            background-color: #f3f4f6;
-        }
-        .negative {
-            color: #dc2626;
-        }
-        .positive {
-            color: #16a34a;
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 9px;
+            color: #666;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
         }
     </style>
 </head>
@@ -102,13 +134,15 @@
     <div class="header">
         <table style="width: 100%;">
             <tr>
-                <td>
-                    <div class="issuer-name">CORRIDOR PETROLEUM</div>
-                    <div style="font-size: 10px;">IMPORT - EXPORT - TRANSPORT - HYDROCARBURES</div>
+                <td style="width: 50%;">
+                    <div class="report-title">RELEVÉ DE COMPTE CLIENT</div>
+                    <div class="date-info">Édité le : <span>{{ now()->format('d/m/Y H:i') }}</span></div>
                 </td>
-                <td class="issuer-info">
-                    <div class="issuer-name">CORRIDOR PETROLEUM</div>
-                    <div>BAMAKO, MALI</div>
+                <td style="width: 50%;" class="issuer-info">
+                    <div class="issuer-name">SOCIETE DE TRANSPORT</div>
+                    <div>Adresse de la société</div>
+                    <div>Contact: +225 00 00 00 00 00</div>
+                    <div>Email: contact@societe.com</div>
                 </td>
             </tr>
         </table>
@@ -116,69 +150,75 @@
 
     <div class="divider"></div>
 
-    <div class="title">RELEVÉ DE COMPTE CLIENT</div>
-
-    <div class="client-info">
-        <div>Client : <span>{{ $client->nom }}</span></div>
-        <div>Contact : {{ $client->contact }}</div>
-        <div>Adresse : {{ $client->address }}</div>
-        <div>Date d'édition : {{ date('d/m/Y H:i') }}</div>
-    </div>
+    <table class="billing-info">
+        <tr>
+            <td>
+                <div class="billing-label">Client</div>
+                <div class="billing-value">{{ $client->nom }}</div>
+                <div class="billing-address">
+                    {{ $client->contact }}<br>
+                    {{ $client->address }}
+                </div>
+            </td>
+            <td>
+                <div class="summary-box">
+                    <table>
+                        <tr>
+                            <td class="summary-label">SOLDE ACTUEL</td>
+                            <td class="summary-value {{ $client->balance < 0 ? 'text-red' : 'text-green' }}">
+                                {{ number_format($client->balance, 0, '.', ' ') }} FCFA
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width: 12%;">DATE</th>
-                <th style="width: 15%;">TYPE</th>
-                <th style="width: 15%;">RÉFÉRENCE</th>
-                <th style="width: 28%;">DESCRIPTION</th>
-                <th style="width: 10%;">DÉBIT (+)</th>
-                <th style="width: 10%;">CRÉDIT (-)</th>
-                <th style="width: 10%;">SOLDE</th>
+                <th>Date</th>
+                <th>Opération</th>
+                <th>Référence</th>
+                <th>Description</th>
+                <th class="text-right">Débit (+)</th>
+                <th class="text-right">Crédit (-)</th>
+                <th class="text-right">Solde</th>
             </tr>
         </thead>
         <tbody>
             @php $runningBalance = 0; @endphp
             @foreach($history as $item)
-                @php $runningBalance += ($item['debit'] - $item['credit']); @endphp
+                @php $runningBalance += ($item->debit - $item->credit); @endphp
                 <tr>
-                    <td class="text-center">{{ \Carbon\Carbon::parse($item['date'])->format('d/m/Y') }}</td>
-                    <td class="text-center">{{ $item['type'] }}</td>
-                    <td class="text-center">{{ $item['reference'] }}</td>
-                    <td>{{ $item['description'] }}</td>
-                    <td class="text-right">{{ $item['debit'] > 0 ? number_format($item['debit'], 0, ',', ' ') : '-' }}</td>
-                    <td class="text-right">{{ $item['credit'] > 0 ? number_format($item['credit'], 0, ',', ' ') : '-' }}</td>
-                    <td class="text-right font-bold {{ $runningBalance < 0 ? 'negative' : 'positive' }}">
-                        {{ number_format($runningBalance, 0, ',', ' ') }}
+                    <td>{{ \Carbon\Carbon::parse($item->date)->format('d/m/Y') }}</td>
+                    <td>{{ $item->type }}</td>
+                    <td>{{ $item->reference }}</td>
+                    <td>{{ $item->description }}</td>
+                    <td class="text-right">{{ $item->debit > 0 ? number_format($item->debit, 0, '.', ' ') : '-' }}</td>
+                    <td class="text-right">{{ $item->credit > 0 ? number_format($item->credit, 0, '.', ' ') : '-' }}</td>
+                    <td class="text-right font-bold {{ $runningBalance < 0 ? 'text-red' : 'text-green' }}">
+                        {{ number_format($runningBalance, 0, '.', ' ') }}
                     </td>
                 </tr>
             @endforeach
         </tbody>
-    </table>
-
-    <div class="totals-section">
-        <table class="totals-table">
-            <tr>
-                <td class="font-bold">Total Débit :</td>
-                <td class="text-right">{{ number_format($history->sum('debit'), 0, ',', ' ') }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">Total Crédit :</td>
-                <td class="text-right">{{ number_format($history->sum('credit'), 0, ',', ' ') }}</td>
-            </tr>
-            <tr class="balance-row">
-                <td class="font-bold">SOLDE FINAL :</td>
-                <td class="text-right font-bold {{ $client->balance < 0 ? 'negative' : 'positive' }}">
-                    {{ number_format($client->balance, 0, ',', ' ') }} FCFA
+        <tfoot>
+            <tr style="background-color: #f3f4f6;">
+                <td colspan="4" class="text-right font-bold">TOTAL</td>
+                <td class="text-right font-bold">{{ number_format($history->sum('debit'), 0, '.', ' ') }}</td>
+                <td class="text-right font-bold">{{ number_format($history->sum('credit'), 0, '.', ' ') }}</td>
+                <td class="text-right font-bold {{ $client->balance < 0 ? 'text-red' : 'text-green' }}">
+                    {{ number_format($client->balance, 0, '.', ' ') }}
                 </td>
             </tr>
-        </table>
-        <div style="clear: both;"></div>
-    </div>
+        </tfoot>
+    </table>
 
-    <div style="margin-top: 50px; font-style: italic; font-size: 8px;">
-        * Un solde négatif (rouge) signifie que l'entreprise doit au client.<br>
-        * Un solde positif (vert) signifie que le client doit à l'entreprise.
+    <div class="footer">
+        Document généré par l'application de gestion de transport.<br>
+        Merci de votre confiance.
     </div>
 </body>
 </html>

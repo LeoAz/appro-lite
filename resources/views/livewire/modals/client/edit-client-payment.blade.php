@@ -5,14 +5,14 @@
 >
     <x-slot name="title">
         <div class="flex flex-col">
-            <span class="text-lg font-bold">Nouveau règlement</span>
-            <span class="text-sm font-normal text-gray-500">Saisissez les informations du paiement</span>
+            <span class="text-lg font-bold">Modifier le règlement</span>
+            <span class="text-sm font-normal text-gray-500">Mettez à jour les informations du paiement</span>
         </div>
     </x-slot>
 
     <x-slot name="content">
         <div class="py-4">
-            <form wire:submit="create">
+            <form wire:submit="save">
                 {{ $this->form }}
             </form>
         </div>
@@ -28,10 +28,10 @@
             </button>
             <button type="button"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-800 border border-transparent rounded-md shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
-                    wire:click="create"
+                    wire:click="save"
             >
                 <div wire:loading.remove>
-                    ENREGISTRER
+                    ENREGISTRER LES MODIFICATIONS
                 </div>
                 <div wire:loading>
                     <x-filament::loading-indicator class="h-5 w-5" />

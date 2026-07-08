@@ -5,35 +5,26 @@ namespace App\Livewire\Modals\Client;
 use App\Models\Client;
 use App\Models\ClientPayment;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Filament\Forms\Components\Select;
 use LivewireUI\Modal\ModalComponent;
 
-class AddClientPayment extends ModalComponent implements HasForms
+class EditClientPayment extends ModalComponent implements HasForms
 {
     use InteractsWithForms;
 
-    public ?Client $client = null;
+    public ClientPayment $payment;
     public ?array $data = [];
 
-    public function mount(?Client $client = null): void
+    public function mount(ClientPayment $payment): void
     {
-        if ($client) {
-            $this->client = $client;
-            $this->form->fill([
-                'client_id' => $client->id,
-                'date' => now(),
-            ]);
-        } else {
-            $this->form->fill([
-                'date' => now(),
-            ]);
-        }
+        $this->payment = $payment;
+        $this->form->fill($payment->toArray());
     }
 
     public function form(Form $form): Form
@@ -45,17 +36,16 @@ class AddClientPayment extends ModalComponent implements HasForms
                     ->options(Client::all()->pluck('nom', 'id'))
                     ->searchable()
                     ->required()
+                    ->disabled() // Usually we don't change the client on edit
                     ->placeholder('Choisir un client'),
                 TextInput::make('amount')
                     ->label('Montant du règlement')
                     ->numeric()
                     ->required()
-                    ->prefix('FCFA')
-                    ->default(0),
+                    ->prefix('FCFA'),
                 DatePicker::make('date')
                     ->label('Date du règlement')
-                    ->required()
-                    ->default(now()),
+                    ->required(),
                 Select::make('payment_method')
                     ->label('Méthode de paiement')
                     ->options([
@@ -64,8 +54,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                         'Virement' => 'Virement',
                         'Autre' => 'Autre',
                     ])
-                    ->required()
-                    ->placeholder('Choisir une méthode'),
+                    ->required(),
                 TextInput::make('reference')
                     ->label('Référence / N° de transaction')
                     ->placeholder('Ex: CHQ 123456'),
@@ -76,14 +65,14 @@ class AddClientPayment extends ModalComponent implements HasForms
             ->statePath('data');
     }
 
-    public function create()
+    public function save()
     {
         $data = $this->form->getState();
 
-        ClientPayment::create($data);
+        $this->payment->update($data);
 
         Notification::make()
-            ->title('Règlement enregistré')
+            ->title('Règlement mis à jour')
             ->success()
             ->send();
 
@@ -93,6 +82,6 @@ class AddClientPayment extends ModalComponent implements HasForms
 
     public function render()
     {
-        return view('livewire.modals.client.add-client-payment');
+        return view('livewire.modals.client.edit-client-payment');
     }
 }

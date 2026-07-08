@@ -18,7 +18,7 @@ class ClientController extends Controller
 
         // Initial Balance
         if ($client->initial_balance != 0) {
-            $history->push([
+            $history->push((object)[
                 'date' => $client->created_at,
                 'type' => 'Solde Initial',
                 'reference' => '-',
@@ -30,7 +30,7 @@ class ClientController extends Controller
 
         // Invoices (Debit)
         foreach ($client->invoices as $invoice) {
-            $history->push([
+            $history->push((object)[
                 'date' => $invoice->date,
                 'type' => 'Facture',
                 'reference' => $invoice->number,
@@ -42,19 +42,19 @@ class ClientController extends Controller
 
         // Payments (Credit)
         foreach ($client->payments as $payment) {
-            $history->push([
+            $history->push((object)[
                 'date' => $payment->date,
                 'type' => 'Avance / Paiement',
                 'reference' => $payment->reference ?: '-',
                 'debit' => 0,
                 'credit' => $payment->amount,
-                'description' => $payment->note ?: 'Avance client',
+                'description' => ($payment->payment_method ? '['.$payment->payment_method.'] ' : '') . ($payment->note ?: 'Avance client'),
             ]);
         }
 
         $history = $history->sortBy('date');
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('clients.account-pdf', compact('client', 'history'));
-        return $pdf->stream('Compte_' . $client->nom . '.pdf');
+        return $pdf->stream('Relevé_' . str_replace(' ', '_', $client->nom) . '_' . now()->format('dmY') . '.pdf');
     }
 }
