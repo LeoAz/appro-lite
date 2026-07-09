@@ -235,5 +235,14 @@
         </table>
         <div style="clear: both;"></div>
     </div>
+
+    <div style="margin-top: 40px;">
+        @php
+            $numberToWords = new NumberToWords\NumberToWords();
+            $numberTransformer = $numberToWords->getNumberTransformer('fr');
+            $amountInWords = $numberTransformer->toWords($invoice->total_amount);
+        @endphp
+        <p>Arrêté la présente facture à la somme de : <strong style="text-transform: uppercase;">{{ $amountInWords }} FRANCS CFA</strong></p>
+    </div>
 </body>
 </html>

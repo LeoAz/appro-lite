@@ -253,7 +253,12 @@
     </div>
 
     <div style="margin-top: 40px;">
-        <p>Arrêté la présente facture à la somme de : <strong style="text-transform: uppercase;">{{ NumberToWords\NumberToWords::transformNumber('fr', $invoice->total_amount) }} FRANCS CFA</strong></p>
+        @php
+            $numberToWords = new NumberToWords\NumberToWords();
+            $numberTransformer = $numberToWords->getNumberTransformer('fr');
+            $amountInWords = $numberTransformer->toWords($invoice->total_amount);
+        @endphp
+        <p>Arrêté la présente facture à la somme de : <strong style="text-transform: uppercase;">{{ $amountInWords }} FRANCS CFA</strong></p>
     </div>
 
     <div class="signature-section clearfix">
