@@ -69,7 +69,11 @@ class InvoiceCalculationTest extends TestCase
     /** @test */
     public function it_calculates_item_missing_quantity_and_total_correctly_in_add_form()
     {
+        $client = \App\Models\Client::create(['nom' => 'Client Test']);
+        $this->load1->update(['client_id' => $client->id]);
+
         Livewire::test(AddInvoice::class)
+            ->set('client_id', $client->id)
             ->set('client_name', 'Client Test')
             ->set('items', [
                 [
@@ -91,7 +95,9 @@ class InvoiceCalculationTest extends TestCase
     /** @test */
     public function it_calculates_invoice_totals_correctly_in_add_form()
     {
+        $client = \App\Models\Client::create(['nom' => 'Client Test']);
         Livewire::test(AddInvoice::class)
+            ->set('client_id', $client->id)
             ->set('client_name', 'Client Test')
             ->set('items', [
                 [
@@ -117,9 +123,13 @@ class InvoiceCalculationTest extends TestCase
     /** @test */
     public function it_calculates_item_missing_quantity_and_total_correctly_in_edit_form()
     {
+        $client = \App\Models\Client::create(['nom' => 'Client Test']);
+        $this->load1->update(['client_id' => $client->id]);
+
         $invoice = Invoice::create([
             'number' => 'FAC-TEST',
             'date' => now(),
+            'client_id' => $client->id,
             'client_name' => 'Client Test',
             'issuer_name' => 'CORRIDOR PETROLEUM',
             'total_missing' => 0,
@@ -153,9 +163,14 @@ class InvoiceCalculationTest extends TestCase
     /** @test */
     public function it_calculates_invoice_totals_correctly_in_edit_form()
     {
+        $client = \App\Models\Client::create(['nom' => 'Client Test']);
+        $this->load1->update(['client_id' => $client->id]);
+        $this->load2->update(['client_id' => $client->id]);
+
         $invoice = Invoice::create([
             'number' => 'FAC-TEST',
             'date' => now(),
+            'client_id' => $client->id,
             'client_name' => 'Client Test',
             'issuer_name' => 'CORRIDOR PETROLEUM',
             'total_missing' => 0,
@@ -230,9 +245,11 @@ class InvoiceCalculationTest extends TestCase
     /** @test */
     public function it_restores_load_status_when_invoice_is_deleted()
     {
+        $client = \App\Models\Client::create(['nom' => 'Client Test']);
         $invoice = Invoice::create([
             'number' => 'FAC-TO-DELETE',
             'date' => now(),
+            'client_id' => $client->id,
             'client_name' => 'Client Test',
             'issuer_name' => 'CORRIDOR PETROLEUM',
             'total_missing' => 0,

@@ -68,11 +68,20 @@ class EditInvoice extends ModalComponent implements HasForms
                     ->native(false)
                     ->displayFormat('d/m/Y')
                     ->required(),
-                TextInput::make('client_name')
+                Select::make('client_id')
                     ->label('Client')
-                    ->readOnly()
-                    ->required(),
-                \Filament\Forms\Components\Hidden::make('client_id'),
+                    ->options(Client::pluck('nom', 'id'))
+                    ->searchable()
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, $state) {
+                        $client = Client::find($state);
+                        if ($client) {
+                            $set('client_name', $client->nom);
+                        }
+                        $set('items', []);
+                    }),
+                \Filament\Forms\Components\Hidden::make('client_name'),
                 TextInput::make('issuer_name')
                     ->label('Émetteur')
                     ->readOnly()
@@ -86,8 +95,8 @@ class EditInvoice extends ModalComponent implements HasForms
                             ->label('Livraison')
                             ->searchable()
                             ->options(function (Get $get) {
-                                $clientName = $get('../../client_name');
-                                if (!$clientName) return [];
+                                $clientId = $get('../../client_id');
+                                if (!$clientId) return [];
 
                                 // Récupérer les IDs déjà sélectionnés dans le repeater
                                 $selectedIds = collect($get('../../items'))
@@ -98,7 +107,7 @@ class EditInvoice extends ModalComponent implements HasForms
                                 // Récupérer les IDs initialement dans la facture (pour permettre de les garder)
                                 $initialIds = $this->invoice->items->pluck('load_id')->toArray();
 
-                                return Load::where('client_name', $clientName)
+                                return Load::where('client_id', $clientId)
                                     ->where(function ($query) use ($selectedIds, $initialIds) {
                                         $query->where('status', LoadStatus::Unloaded)
                                             ->whereNotExists(function ($q) {
