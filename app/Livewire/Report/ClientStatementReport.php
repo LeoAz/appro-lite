@@ -104,8 +104,9 @@ class ClientStatementReport extends Component implements HasForms
             $totalLitres = $invoice->items->sum('quantity_delivered');
 
             $transactions->push([
+                'id' => $invoice->id,
                 'date' => $invoice->date->format('Y-m-d'),
-                'operation' => "Facture #{$invoice->number} / ({$loadNames}) / " . number_format($totalLitres, 0, '.', ' ') . " Litres",
+                'operation' => "Facture #{$invoice->number}",
                 'type' => 'invoice',
                 'debit' => $invoice->total_amount,
                 'credit' => 0,

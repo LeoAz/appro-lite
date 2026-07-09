@@ -25,6 +25,7 @@ class AddInvoice extends ModalComponent implements HasForms
 
     public $number;
     public $date;
+    public $client_id;
     public $client_name;
     public $issuer_name = 'CORRIDOR PETROLEUM';
     public $items = [];

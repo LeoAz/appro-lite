@@ -47,7 +47,13 @@
                                         {{ \Carbon\Carbon::parse($transaction['date'])->format('d/m/Y') }}
                                     </td>
                                     <td class="py-4 px-2 {{ $transaction['type'] == 'report' ? 'font-bold text-gray-800' : 'text-gray-500' }}">
-                                        {{ $transaction['operation'] }}
+                                        @if($transaction['type'] == 'invoice')
+                                            <a href="{{ route('invoices.print', $transaction['id']) }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                {{ $transaction['operation'] }}
+                                            </a>
+                                        @else
+                                            {{ $transaction['operation'] }}
+                                        @endif
                                     </td>
                                     <td class="py-4 px-2 text-right text-gray-700 font-semibold">
                                         {{ $transaction['debit'] > 0 ? number_format($transaction['debit'], 0, '.', ' ') : '-' }}

@@ -256,4 +256,32 @@ class InvoiceCalculationTest extends TestCase
         $this->assertDatabaseMissing('invoices', ['id' => $invoice->id]);
         $this->assertEquals(LoadStatus::Unloaded, $this->load1->fresh()->status);
     }
+
+    /** @test */
+    public function it_saves_invoice_with_client_id_successfully()
+    {
+        $client = \App\Models\Client::create(['nom' => 'Client Test']);
+
+        Livewire::test(AddInvoice::class)
+            ->set('client_id', $client->id)
+            ->set('client_name', $client->nom)
+            ->set('date', now())
+            ->set('number', 'FAC-NEW-123')
+            ->set('items', [
+                [
+                    'load_id' => $this->load1->id,
+                    'quantity_delivered' => 45000,
+                    'unit_price' => 1000,
+                    'missing_quantity' => 0,
+                    'total' => 45000000,
+                ]
+            ])
+            ->call('create')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('invoices', [
+            'number' => 'FAC-NEW-123',
+            'client_id' => $client->id
+        ]);
+    }
 }

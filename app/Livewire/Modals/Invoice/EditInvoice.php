@@ -26,6 +26,7 @@ class EditInvoice extends ModalComponent implements HasForms
     public Invoice $invoice;
     public $number;
     public $date;
+    public $client_id;
     public $client_name;
     public $issuer_name;
     public $items = [];
