@@ -181,13 +181,9 @@
             <tr>
                 <td style="vertical-align: top;">
                     <div style="font-weight: bold; font-size: 18px; color: #1e40af;">CORRIDOR PETROLEUM</div>
-                    <div style="font-size: 10px; color: #666;">Solutions de gestion de carburant</div>
                 </td>
                 <td class="issuer-info">
                     <div class="issuer-name">{{ $invoice->issuer_name }}</div>
-                    <div>RCCM: RB/COT/15 B 14120 - IFU: 3201510255106</div>
-                    <div>Tél: (+229) 97 00 00 00 / 95 00 00 00</div>
-                    <div>Email: contact@corridor-petroleum.com</div>
                 </td>
             </tr>
         </table>
