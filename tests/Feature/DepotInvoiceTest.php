@@ -43,7 +43,6 @@ class DepotInvoiceTest extends TestCase
             ->set('date', now())
             ->set('client_id', $this->client->id)
             ->set('depot_id', $this->depot->id)
-            ->set('product', 'GASOIL')
             ->set('items', [
                 [
                     'compartment_id' => $this->compartment->id,
@@ -73,7 +72,6 @@ class DepotInvoiceTest extends TestCase
             'date' => now(),
             'client_id' => $this->client->id,
             'depot_id' => $this->depot->id,
-            'product' => 'GASOIL',
             'total_amount' => 2000000,
         ]);
 

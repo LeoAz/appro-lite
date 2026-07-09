@@ -44,9 +44,6 @@ class ListDepotInvoice extends Component implements HasForms, HasTable
                     ->label('Dépôt')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('product')
-                    ->label('Produit')
-                    ->searchable(),
                 TextColumn::make('total_amount')
                     ->label('Montant Total')
                     ->formatStateUsing(fn ($state) => number_format($state, 0, '.', ' ') . ' FCFA')

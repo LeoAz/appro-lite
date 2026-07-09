@@ -81,12 +81,10 @@ class AddDepotInvoice extends ModalComponent implements HasForms
                 Select::make('depot_id')
                     ->label('Dépôt')
                     ->options(Depot::pluck('name', 'id'))
+                    ->searchable()
                     ->required()
                     ->live()
                     ->afterStateUpdated(fn (Set $set) => $set('items', [])),
-                TextInput::make('product')
-                    ->label('Produit')
-                    ->required(),
                 TextInput::make('issuer_name')
                     ->label('Émetteur')
                     ->default('CORRIDOR PETROLEUM')
@@ -114,7 +112,7 @@ class AddDepotInvoice extends ModalComponent implements HasForms
                             ->label('Quantité')
                             ->numeric()
                             ->required()
-                            ->live(onBlur: true)
+                            ->live(debounce: 500)
                             ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                 $comp = Compartment::find($get('compartment_id'));
                                 if ($comp && $state > $comp->quantity) {
@@ -131,7 +129,7 @@ class AddDepotInvoice extends ModalComponent implements HasForms
                             ->label('Prix Unitaire')
                             ->numeric()
                             ->required()
-                            ->live(onBlur: true)
+                            ->live(debounce: 500)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotal($get, $set)),
                         TextInput::make('total')
                             ->label('Total')
@@ -177,7 +175,6 @@ class AddDepotInvoice extends ModalComponent implements HasForms
                 'date' => $data['date'],
                 'client_id' => $data['client_id'],
                 'depot_id' => $data['depot_id'],
-                'product' => $data['product'],
                 'issuer_name' => $data['issuer_name'],
                 'total_amount' => $data['total_amount'],
             ]);

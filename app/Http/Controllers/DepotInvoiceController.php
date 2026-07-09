@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\DepotInvoice;
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class DepotInvoiceController extends Controller
 {
