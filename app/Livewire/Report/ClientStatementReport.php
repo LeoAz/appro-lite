@@ -151,6 +151,7 @@ class ClientStatementReport extends Component implements HasForms
             }
 
             $transactions->push([
+                'id' => $payment->id,
                 'date' => $payment->date->format('Y-m-d'),
                 'operation' => $operation,
                 'type' => 'payment',
@@ -195,6 +196,8 @@ class ClientStatementReport extends Component implements HasForms
             "Situation_Client_" . str_replace(' ', '_', $client->nom) . "_" . now()->format('d_m_Y') . ".pdf"
         );
     }
+
+    protected $listeners = ['update-client' => '$refresh'];
 
     public function render()
     {

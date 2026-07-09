@@ -5,14 +5,22 @@
                 <h1 class="text-2xl font-bold text-gray-800">Rapport de Situation Client</h1>
                 <p class="text-gray-600">Relevé de compte détaillé (Factures, Avances, Règlements)</p>
             </div>
-            @if($client_id)
-            <button wire:click="downloadPdf" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-md flex items-center gap-2 uppercase text-sm font-semibold transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                </svg>
-                Imprimer le rapport
-            </button>
-            @endif
+            <div class="flex gap-2">
+                <button onclick="Livewire.dispatch('openModal', { component: 'modals.client.add-client-payment' })" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2 uppercase text-sm font-semibold transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Saisir un règlement
+                </button>
+                @if($client_id)
+                <button wire:click="downloadPdf" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-md flex items-center gap-2 uppercase text-sm font-semibold transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    Imprimer le rapport
+                </button>
+                @endif
+            </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -55,6 +63,13 @@
                                             <a href="{{ route('depot-invoices.print', $transaction['id']) }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
                                                 {{ $transaction['operation'] }}
                                             </a>
+                                        @elseif($transaction['type'] == 'payment')
+                                            <div class="flex items-center justify-between group">
+                                                <span>{{ $transaction['operation'] }}</span>
+                                                <button onclick="Livewire.dispatch('openModal', { component: 'modals.client.edit-client-payment', arguments: { payment: {{ $transaction['id'] }} } })" class="opacity-0 group-hover:opacity-100 text-blue-600 hover:text-blue-800 ml-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                </button>
+                                            </div>
                                         @else
                                             {{ $transaction['operation'] }}
                                         @endif

@@ -19,24 +19,33 @@
     </x-slot>
 
     <x-slot name="buttons">
-        <div class="flex justify-end gap-x-3 w-full">
+        <div class="flex justify-between items-center w-full">
             <button type="button"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                    wire:click="$dispatch('closeModal')"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-md shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    wire:confirm="Êtes-vous sûr de vouloir supprimer ce règlement ?"
+                    wire:click="delete"
             >
-                ANNULER
+                SUPPRIMER
             </button>
-            <button type="button"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-800 border border-transparent rounded-md shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
-                    wire:click="save"
-            >
-                <div wire:loading.remove>
-                    ENREGISTRER LES MODIFICATIONS
-                </div>
-                <div wire:loading>
-                    <x-filament::loading-indicator class="h-5 w-5" />
-                </div>
-            </button>
+            <div class="flex gap-x-3">
+                <button type="button"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        wire:click="$dispatch('closeModal')"
+                >
+                    ANNULER
+                </button>
+                <button type="button"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-800 border border-transparent rounded-md shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
+                        wire:click="save"
+                >
+                    <div wire:loading.remove>
+                        ENREGISTRER LES MODIFICATIONS
+                    </div>
+                    <div wire:loading>
+                        <x-filament::loading-indicator class="h-5 w-5" />
+                    </div>
+                </button>
+            </div>
         </div>
     </x-slot>
 </x-app.modal>

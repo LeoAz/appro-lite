@@ -80,6 +80,19 @@ class EditClientPayment extends ModalComponent implements HasForms
         $this->closeModal();
     }
 
+    public function delete()
+    {
+        $this->payment->delete();
+
+        Notification::make()
+            ->title('Règlement supprimé')
+            ->warning()
+            ->send();
+
+        $this->dispatch('update-client');
+        $this->closeModal();
+    }
+
     public function render()
     {
         return view('livewire.modals.client.edit-client-payment');
