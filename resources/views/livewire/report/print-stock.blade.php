@@ -205,6 +205,32 @@
         </table>
     @endif
 
+    @if(isset($depotSales) && count($depotSales) > 0)
+        <div class="section-title">Historique des Ventes sur Dépôt (Mouvements Sortants)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Facture</th>
+                    <th>Client</th>
+                    <th>Produit</th>
+                    <th class="text-right">Quantité</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($depotSales as $sale)
+                    <tr>
+                        <td>{{ $sale->depotInvoice->date->format('d/m/Y') }}</td>
+                        <td>{{ $sale->depotInvoice->number }}</td>
+                        <td>{{ $sale->depotInvoice->client->nom }}</td>
+                        <td>{{ $sale->compartment->product }}</td>
+                        <td class="text-right">{{ number_format((float) $sale->quantity, 0, ',', ' ') }} L</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+
     <div class="footer">
         CORRIDOR PETROLEUM - Rapport généré le {{ now()->format('d/m/Y H:i') }}
     </div>

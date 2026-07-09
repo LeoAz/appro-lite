@@ -122,6 +122,7 @@ class StockReport extends Component implements HasForms, HasTable
 
         $loads = $this->getLoadTableQuery()->limit(50)->get();
         $purchases = $this->getPurchaseTableQuery()->limit(50)->get();
+        $depotSales = $this->getDepotSaleTableQuery()->limit(50)->get();
 
         $pdf = Pdf::loadView('livewire.report.print-stock', [
             'compartments' => $compartments,
@@ -129,6 +130,7 @@ class StockReport extends Component implements HasForms, HasTable
             'selectedProduct' => $this->product,
             'loads' => $loads,
             'purchases' => $purchases,
+            'depotSales' => $depotSales,
             'date' => now(),
         ]);
 

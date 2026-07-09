@@ -48,6 +48,12 @@ class ListDepotInvoice extends Component implements HasForms, HasTable
                     ->label('Montant Total')
                     ->formatStateUsing(fn ($state) => number_format($state, 0, '.', ' ') . ' FCFA')
                     ->sortable(),
+                TextColumn::make('items_sum_quantity')
+                    ->label('Quantité Totale')
+                    ->sum('items', 'quantity')
+                    ->suffix(' L')
+                    ->numeric()
+                    ->sortable(),
             ])
             ->filters([
                 //
