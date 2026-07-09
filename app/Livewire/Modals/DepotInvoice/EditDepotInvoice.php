@@ -108,7 +108,7 @@ class EditDepotInvoice extends ModalComponent implements HasForms
                             ->label('Quantité')
                             ->numeric()
                             ->required()
-                            ->live(debounce: 500)
+                            ->live(debounce: 2000)
                             ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                 // Attention ici, pour le stock, on doit prendre en compte l'ancienne quantité si c'est une modification
                                 $itemId = $get('id');
@@ -132,7 +132,7 @@ class EditDepotInvoice extends ModalComponent implements HasForms
                             ->label('Prix Unitaire')
                             ->numeric()
                             ->required()
-                            ->live(debounce: 500)
+                            ->live(debounce: 2000)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotal($get, $set)),
                         TextInput::make('total')
                             ->label('Total')
