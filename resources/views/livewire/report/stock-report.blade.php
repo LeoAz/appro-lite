@@ -45,6 +45,13 @@
                 >
                     Historique des Achats
                 </button>
+                <button
+                    @click="tab = 'depot_sales'"
+                    :class="tab === 'depot_sales' ? 'border-primary-600 text-primary-600 bg-primary-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 transition-all duration-200"
+                >
+                    Historique des Ventes sur Dépôt
+                </button>
             </div>
 
             <div class="p-6">
@@ -106,6 +113,36 @@
                             @empty
                                 <tr>
                                     <td colspan="5" class="py-8 text-center text-gray-400 italic">Aucun mouvement enregistré.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Ventes sur Dépôt -->
+                <div x-show="tab === 'depot_sales'" x-cloak>
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="text-gray-400 border-b border-gray-100">
+                                <th class="pb-3 font-medium">Date</th>
+                                <th class="pb-3 font-medium">Facture</th>
+                                <th class="pb-3 font-medium">Client</th>
+                                <th class="pb-3 font-medium">Produit</th>
+                                <th class="pb-3 font-medium text-right">Quantité</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @forelse($this->getDepotSaleTableQuery()->get() as $item)
+                                <tr>
+                                    <td class="py-4 text-gray-600">{{ $item->depotInvoice->date->format('d/m/Y') }}</td>
+                                    <td class="py-4 font-medium text-gray-900">{{ $item->depotInvoice->number }}</td>
+                                    <td class="py-4 text-gray-600">{{ $item->depotInvoice->client->nom }}</td>
+                                    <td class="py-4 text-gray-600">{{ $item->compartment->product }}</td>
+                                    <td class="py-4 text-right font-bold text-gray-900">{{ number_format((float) $item->quantity, 0, ',', ' ') }} L</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-gray-400 italic">Aucune vente enregistrée.</td>
                                 </tr>
                             @endforelse
                         </tbody>

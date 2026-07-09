@@ -51,6 +51,10 @@
                                             <a href="{{ route('invoices.print', $transaction['id']) }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
                                                 {{ $transaction['operation'] }}
                                             </a>
+                                        @elseif($transaction['type'] == 'depot_invoice')
+                                            <a href="{{ route('depot-invoices.print', $transaction['id']) }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                {{ $transaction['operation'] }}
+                                            </a>
                                         @else
                                             {{ $transaction['operation'] }}
                                         @endif

@@ -6,6 +6,7 @@ use App\Models\Load;
 use App\Models\FuelPurchase;
 use App\Models\Depot;
 use App\Models\Compartment;
+use App\Models\DepotInvoiceItem;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
@@ -98,6 +99,16 @@ class StockReport extends Component implements HasForms, HasTable
         return FuelPurchase::query()
             ->when($this->depot_id, fn ($query) => $query->where('depot_id', $this->depot_id))
             ->when($this->product, fn ($query) => $query->where('product', $this->product))
+            ->latest();
+    }
+
+    public function getDepotSaleTableQuery()
+    {
+        return DepotInvoiceItem::query()
+            ->whereHas('depotInvoice', function ($query) {
+                $query->when($this->depot_id, fn ($q) => $q->where('depot_id', $this->depot_id))
+                    ->when($this->product, fn ($q) => $q->where('product', $this->product));
+            })
             ->latest();
     }
 

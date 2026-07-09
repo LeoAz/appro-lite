@@ -5,6 +5,7 @@ namespace App\Livewire\Report;
 use App\Models\Client;
 use App\Models\ClientPayment;
 use App\Models\Invoice;
+use App\Models\DepotInvoice;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -75,11 +76,15 @@ class ClientStatementReport extends Component implements HasForms
             ->where('date', '<', $this->date_from)
             ->sum('total_amount');
 
+        $previousDepotInvoices = DepotInvoice::where('client_id', $this->client_id)
+            ->where('date', '<', $this->date_from)
+            ->sum('total_amount');
+
         $previousPayments = ClientPayment::where('client_id', $this->client_id)
             ->where('date', '<', $this->date_from)
             ->sum('amount');
 
-        $openingBalance = $initialBalance + $previousInvoices - $previousPayments;
+        $openingBalance = $initialBalance + $previousInvoices + $previousDepotInvoices - $previousPayments;
 
         $transactions->push([
             'date' => $this->date_from,
@@ -108,6 +113,23 @@ class ClientStatementReport extends Component implements HasForms
                 'date' => $invoice->date->format('Y-m-d'),
                 'operation' => "Facture #{$invoice->number}",
                 'type' => 'invoice',
+                'debit' => $invoice->total_amount,
+                'credit' => 0,
+                'sort_date' => $invoice->date->format('Y-m-d') . '_1',
+            ]);
+        }
+
+        // 2.b Depot Invoices
+        $depotInvoices = DepotInvoice::where('client_id', $this->client_id)
+            ->whereBetween('date', [$this->date_from, $this->date_to])
+            ->get();
+
+        foreach ($depotInvoices as $invoice) {
+            $transactions->push([
+                'id' => $invoice->id,
+                'date' => $invoice->date->format('Y-m-d'),
+                'operation' => "Facture Dépôt #{$invoice->number}",
+                'type' => 'depot_invoice',
                 'debit' => $invoice->total_amount,
                 'credit' => 0,
                 'sort_date' => $invoice->date->format('Y-m-d') . '_1',

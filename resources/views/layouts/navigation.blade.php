@@ -23,9 +23,22 @@
                         Achats Carburant
                     </x-nav-link>
 
-                    <x-nav-link :href="route('invoices')" :active="request()->routeIs('invoices')" class="text-white hover:text-blue-100 active:text-white">
-                        Facturation
-                    </x-nav-link>
+                    <x-dropdown align="left" width="48">
+                        <x-slot name="trigger">
+                            <button class="inline-flex items-center px-1 pt-6 pb-5 border-b-2 border-transparent text-sm font-medium leading-5 text-white hover:text-blue-100 hover:border-blue-300 focus:outline-none focus:text-blue-100 focus:border-blue-300 transition duration-150 ease-in-out">
+                                <div>Facturation</div>
+                                <div class="ms-1">
+                                    <svg class="fill-current h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </x-slot>
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('invoices')">Facturation de chargement</x-dropdown-link>
+                            <x-dropdown-link :href="route('depot-invoices')">Facturation sur dépot</x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
 
                     <x-nav-link :href="route('reports.client-statement')" :active="request()->routeIs('reports.client-statement')" class="text-white hover:text-blue-100 active:text-white">
                         Suivi Client
@@ -47,6 +60,7 @@
                             <x-dropdown-link :href="route('reports.deliveries')">Rapport Livraison</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.stocks')">Suivi Stock</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.sales')">Rapport Vente</x-dropdown-link>
+                            <x-dropdown-link :href="route('reports.depot-sales')">Rapport Vente Dépot</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.client-statement')">Suivi Client</x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
@@ -130,12 +144,15 @@
             <x-responsive-nav-link :href="route('fuel-purchases')" :active="request()->routeIs('fuel-purchases')" class="text-white">
                 Achats Carburant
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('invoices')" :active="request()->routeIs('invoices')" class="text-white">
-                Facturation
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('reports.client-statement')" :active="request()->routeIs('reports.client-statement')" class="text-white">
-                Suivi Client
-            </x-responsive-nav-link>
+            <div class="pt-4 border-t border-blue-500">
+                <div class="px-4 py-2 text-xs font-semibold text-blue-100 uppercase tracking-wider">Facturation</div>
+                <x-responsive-nav-link :href="route('invoices')" :active="request()->routeIs('invoices')" class="text-white">
+                    Facturation de chargement
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('depot-invoices')" :active="request()->routeIs('depot-invoices')" class="text-white">
+                    Facturation sur dépot
+                </x-responsive-nav-link>
+            </div>
 
             <div class="pt-4 border-t border-blue-500">
                 <div class="px-4 py-2 text-xs font-semibold text-blue-100 uppercase tracking-wider">Rapports</div>
@@ -150,6 +167,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('reports.sales')" :active="request()->routeIs('reports.sales')" class="text-white">
                     Rapport Vente
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('reports.depot-sales')" :active="request()->routeIs('reports.depot-sales')" class="text-white">
+                    Rapport Vente Dépot
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('reports.client-statement')" :active="request()->routeIs('reports.client-statement')" class="text-white">
                     Suivi Client
