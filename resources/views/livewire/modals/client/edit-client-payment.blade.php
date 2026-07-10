@@ -1,17 +1,17 @@
 <x-app.modal
     headerClasses="p-4 sm:px-6 sm:py-4 border-b border-secondary-100"
-    contentClasses="relative p-4 sm:px-6 sm:px-5"
-    footerClasses="mt-4 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border border-t border-secondary-100"
+    contentClasses="relative p-6"
+    footerClasses="mt-4 px-6 py-4 sm:flex sm:flex-row-reverse border-t border-secondary-100 bg-gray-50/50 rounded-b-lg"
 >
     <x-slot name="title">
         <div class="flex flex-col">
-            <span class="text-lg font-bold">Modifier le règlement</span>
-            <span class="text-sm font-normal text-gray-500">Mettez à jour les informations du paiement</span>
+            <span class="text-xl font-bold text-slate-900">Détails du règlement</span>
+            <span class="text-sm font-normal text-slate-500 mt-1">Consultez ou modifiez les informations de ce paiement</span>
         </div>
     </x-slot>
 
     <x-slot name="content">
-        <div class="py-4">
+        <div class="py-2">
             <form wire:submit="save">
                 {{ $this->form }}
             </form>
@@ -21,25 +21,26 @@
     <x-slot name="buttons">
         <div class="flex justify-between items-center w-full">
             <button type="button"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-md shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    class="inline-flex items-center px-4 py-2 text-sm font-semibold text-red-600 bg-white border border-red-200 rounded-lg shadow-sm hover:bg-red-50 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all"
                     wire:confirm="Êtes-vous sûr de vouloir supprimer ce règlement ?"
                     wire:click="delete"
             >
-                SUPPRIMER
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Supprimer
             </button>
             <div class="flex gap-x-3">
                 <button type="button"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        class="inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-all"
                         wire:click="$dispatch('closeModal')"
                 >
-                    ANNULER
+                    Fermer
                 </button>
                 <button type="button"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-800 border border-transparent rounded-md shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
+                        class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-slate-900 border border-transparent rounded-lg shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all"
                         wire:click="save"
                 >
                     <div wire:loading.remove>
-                        ENREGISTRER LES MODIFICATIONS
+                        Enregistrer
                     </div>
                     <div wire:loading>
                         <x-filament::loading-indicator class="h-5 w-5" />

@@ -61,6 +61,7 @@
                             <x-dropdown-link :href="route('reports.stocks')">Suivi Stock</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.sales')">Rapport Vente</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.depot-sales')">Rapport Vente Dépot</x-dropdown-link>
+                            <x-dropdown-link :href="route('reports.receivables')">État des Créances</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.client-statement')">Suivi Client</x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
@@ -170,6 +171,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('reports.depot-sales')" :active="request()->routeIs('reports.depot-sales')" class="text-white">
                     Rapport Vente Dépot
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('reports.receivables')" :active="request()->routeIs('reports.receivables')" class="text-white">
+                    État des Créances
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('reports.client-statement')" :active="request()->routeIs('reports.client-statement')" class="text-white">
                     Suivi Client

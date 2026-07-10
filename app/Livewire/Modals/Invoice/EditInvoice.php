@@ -144,18 +144,13 @@ class EditInvoice extends ModalComponent implements HasForms
                             ->required()
                             ->live(debounce: 500)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotals($get, $set)),
-                        TextInput::make('missing_quantity')
-                            ->label('Manquant')
-                            ->numeric()
-                            ->readOnly()
-                            ->dehydrated(),
                         TextInput::make('total')
                             ->label('Total')
                             ->numeric()
                             ->readOnly()
                             ->dehydrated(),
                     ])
-                    ->columns(6)
+                    ->columns(5)
                     ->reorderable(false)
                     ->itemLabel(function (array $state) {
                         if (!isset($state['load_id'])) return null;
@@ -174,19 +169,14 @@ class EditInvoice extends ModalComponent implements HasForms
 
                 \Filament\Forms\Components\Section::make()
                     ->schema([
-                        \Filament\Forms\Components\Placeholder::make('total_missing_placeholder')
-                            ->label('Total Manquant')
-                            ->content(fn (Get $get) => number_format($get('total_missing') ?: 0, 0, '.', ' ') . ' L')
-                            ->extraAttributes(['class' => 'text-right font-bold text-xl']),
                         \Filament\Forms\Components\Placeholder::make('total_amount_placeholder')
                             ->label('Montant Total')
                             ->content(fn (Get $get) => number_format($get('total_amount') ?: 0, 0, '.', ' ') . ' FCFA')
                             ->extraAttributes(['class' => 'text-right font-bold text-xl']),
                     ])
-                    ->columns(2)
+                    ->columns(1)
                     ->compact(),
 
-                \Filament\Forms\Components\Hidden::make('total_missing'),
                 \Filament\Forms\Components\Hidden::make('total_amount'),
             ]);
     }
@@ -194,22 +184,13 @@ class EditInvoice extends ModalComponent implements HasForms
     public function updateItemTotals($get, Set $set, $qtyDelivered = null, $unitPrice = null)
     {
         if ($get instanceof Get) {
-            $loadId = $get('load_id');
             $qtyDelivered = floatval($get('quantity_delivered') ?: 0);
             $unitPrice = floatval($get('unit_price') ?: 0);
         } else {
-            $loadId = $get;
             $qtyDelivered = floatval($qtyDelivered ?: 0);
             $unitPrice = floatval($unitPrice ?: 0);
         }
 
-        $load = Load::find($loadId);
-        $missing = 0;
-        if ($load) {
-            $missing = floatval($load->volume) - $qtyDelivered;
-        }
-
-        $set('missing_quantity', $missing);
         $set('total', $qtyDelivered * $unitPrice);
 
         // Update invoice totals whenever an item is updated
@@ -219,20 +200,16 @@ class EditInvoice extends ModalComponent implements HasForms
     public function updateInvoiceTotals(Set $set = null)
     {
         $items = $this->items ?: [];
-        $totalMissing = 0;
         $totalAmount = 0;
 
         foreach ($items as $item) {
-            $totalMissing += floatval($item['missing_quantity'] ?? 0);
             $totalAmount += floatval($item['total'] ?? 0);
         }
 
-        $this->total_missing = $totalMissing;
         $this->total_amount = $totalAmount;
 
         if ($set instanceof Set) {
             try {
-                $set('total_missing', $totalMissing);
                 $set('total_amount', $totalAmount);
             } catch (\Error $e) {
                 // Ignore container initialization error in tests
@@ -250,7 +227,7 @@ class EditInvoice extends ModalComponent implements HasForms
                 'date' => $data['date'],
                 'client_id' => $data['client_id'],
                 'client_name' => $data['client_name'],
-                'total_missing' => $data['total_missing'],
+                'total_missing' => 0,
                 'total_amount' => $data['total_amount'],
             ]);
 
@@ -268,7 +245,7 @@ class EditInvoice extends ModalComponent implements HasForms
                     'bl_number' => $itemData['bl_number'] ?? null,
                     'quantity_delivered' => $itemData['quantity_delivered'],
                     'unit_price' => $itemData['unit_price'],
-                    'missing_quantity' => $itemData['missing_quantity'],
+                    'missing_quantity' => 0,
                     'total' => $itemData['total'],
                 ]);
 

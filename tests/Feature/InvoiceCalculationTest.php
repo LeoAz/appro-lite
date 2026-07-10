@@ -67,7 +67,7 @@ class InvoiceCalculationTest extends TestCase
     }
 
     /** @test */
-    public function it_calculates_item_missing_quantity_and_total_correctly_in_add_form()
+    public function it_calculates_item_total_correctly_in_add_form()
     {
         $client = \App\Models\Client::create(['nom' => 'Client Test']);
         $this->load1->update(['client_id' => $client->id]);
@@ -80,7 +80,6 @@ class InvoiceCalculationTest extends TestCase
                     'load_id' => $this->load1->id,
                     'quantity_delivered' => 44000,
                     'unit_price' => 1000,
-                    'missing_quantity' => 0,
                     'total' => 0,
                 ]
             ])
@@ -88,7 +87,6 @@ class InvoiceCalculationTest extends TestCase
                 'items.0.quantity_delivered' => 44000,
                 'items.0.unit_price' => 1000,
             ])
-            ->assertSet('items.0.missing_quantity', 1000) // 45000 - 44000
             ->assertSet('items.0.total', 44000000); // 44000 * 1000
     }
 
@@ -104,24 +102,21 @@ class InvoiceCalculationTest extends TestCase
                     'load_id' => $this->load1->id,
                     'quantity_delivered' => 44000,
                     'unit_price' => 1000,
-                    'missing_quantity' => 1000,
                     'total' => 44000000,
                 ],
                 [
                     'load_id' => $this->load2->id,
                     'quantity_delivered' => 29500,
                     'unit_price' => 1000,
-                    'missing_quantity' => 500,
                     'total' => 29500000,
                 ]
             ])
             ->call('updateInvoiceTotals')
-            ->assertSet('total_missing', 1500)
             ->assertSet('total_amount', 73500000);
     }
 
     /** @test */
-    public function it_calculates_item_missing_quantity_and_total_correctly_in_edit_form()
+    public function it_calculates_item_total_correctly_in_edit_form()
     {
         $client = \App\Models\Client::create(['nom' => 'Client Test']);
         $this->load1->update(['client_id' => $client->id]);
@@ -151,12 +146,10 @@ class InvoiceCalculationTest extends TestCase
                         'load_id' => $this->load1->id,
                         'quantity_delivered' => 44000,
                         'unit_price' => 1000,
-                        'missing_quantity' => 1000,
                         'total' => 44000000,
                     ]
                 ]
             ])
-            ->assertSet('items.0.missing_quantity', 1000)
             ->assertSet('items.0.total', 44000000);
     }
 
@@ -198,19 +191,16 @@ class InvoiceCalculationTest extends TestCase
                     'load_id' => $this->load1->id,
                     'quantity_delivered' => 44000,
                     'unit_price' => 1000,
-                    'missing_quantity' => 1000,
                     'total' => 44000000,
                 ],
                 [
                     'load_id' => $this->load2->id,
                     'quantity_delivered' => 29500,
                     'unit_price' => 1000,
-                    'missing_quantity' => 500,
                     'total' => 29500000,
                 ]
             ])
             ->call('updateInvoiceTotals')
-            ->assertSet('total_missing', 1500)
             ->assertSet('total_amount', 73500000);
     }
     /** @test */

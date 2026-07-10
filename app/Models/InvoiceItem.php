@@ -17,6 +17,7 @@ class InvoiceItem extends Model
         'unit_price',
         'missing_quantity',
         'total',
+        'is_paid',
     ];
 
     public function invoice()

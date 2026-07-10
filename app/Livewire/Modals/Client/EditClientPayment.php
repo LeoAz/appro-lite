@@ -27,6 +27,11 @@ class EditClientPayment extends ModalComponent implements HasForms
         $this->form->fill($payment->toArray());
     }
 
+    public static function modalMaxWidth(): string
+    {
+        return 'xl';
+    }
+
     public function form(Form $form): Form
     {
         return $form
