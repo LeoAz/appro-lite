@@ -22,9 +22,11 @@ class ClientStatementReport extends Component implements HasForms
     public $client_id;
     public $date_from;
     public $date_to;
+    public $showActions = true;
 
-    public function mount()
+    public function mount($showActions = true)
     {
+        $this->showActions = $showActions;
         $this->form->fill([
             'date_from' => now()->startOfMonth()->format('Y-m-d'),
             'date_to' => now()->format('Y-m-d'),

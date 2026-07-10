@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CarrierController;
+use App\Http\Controllers\ClientAccountController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DepotController;
 use App\Http\Controllers\LoadController;
@@ -23,6 +24,7 @@ Route::middleware("auth")->group(function () {
     Route::get("/reports/depot-sales", \App\Http\Controllers\ReportDepotSalesController::class)->name("reports.depot-sales");
     Route::get("/reports/client-statement", \App\Http\Controllers\ReportClientStatementController::class)->name("reports.client-statement");
     Route::get("/reports/receivables", \App\Http\Controllers\ReportReceivablesController::class)->name("reports.receivables");
+    Route::get("/client-account", ClientAccountController::class)->name("client-account");
 
     Route::get("/invoices", \App\Http\Controllers\InvoiceController::class)->name("invoices");
     Route::get("/invoices/{invoice}/print", [\App\Http\Controllers\InvoiceController::class, 'print'])->name("invoices.print");
