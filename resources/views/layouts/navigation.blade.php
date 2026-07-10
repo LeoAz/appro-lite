@@ -53,8 +53,7 @@
                         </x-slot>
                         <x-slot name="content">
                             <x-dropdown-link :href="route('clients')">Liste des clients</x-dropdown-link>
-                            <x-dropdown-link :href="route('reports.client-statement')">Suivi Client (Rapport)</x-dropdown-link>
-                            <x-dropdown-link :href="route('reports.receivables')">Etat des créances</x-dropdown-link>
+                            <x-dropdown-link :href="route('reports.client-statement')">Suivi Client & Créances</x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
 
@@ -173,10 +172,7 @@
                     Liste des clients
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('reports.client-statement')" :active="request()->routeIs('reports.client-statement')" class="text-white">
-                    Suivi Client (Rapport)
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('reports.receivables')" :active="request()->routeIs('reports.receivables')" class="text-white">
-                    Etat des créances
+                    Suivi Client & Créances
                 </x-responsive-nav-link>
             </div>
 

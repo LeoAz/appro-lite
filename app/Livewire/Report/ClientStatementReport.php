@@ -14,15 +14,26 @@ use Filament\Forms\Form;
 use Livewire\Component;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Collection;
+use Filament\Tables\Columns\Summarizers\Sum;
 
-class ClientStatementReport extends Component implements HasForms
+use App\Models\InvoiceItem;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Filament\Forms\Components\Tabs;
+
+class ClientStatementReport extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
+    use InteractsWithTable;
 
     public $client_id;
     public $date_from;
     public $date_to;
     public $showActions = true;
+    public $activeTab = 'statement';
 
     public function mount($showActions = true)
     {
@@ -43,19 +54,69 @@ class ClientStatementReport extends Component implements HasForms
                     ->searchable()
                     ->live()
                     ->required()
-                    ->placeholder('Sélectionner un client'),
+                    ->placeholder('Sélectionner un client')
+                    ->afterStateUpdated(fn () => $this->resetTable()),
                 DatePicker::make('date_from')
                     ->label('Période du')
                     ->native(false)
                     ->displayFormat('d/m/Y')
-                    ->live(),
+                    ->live()
+                    ->hidden(fn () => $this->activeTab === 'receivables'),
                 DatePicker::make('date_to')
                     ->label('au')
                     ->native(false)
                     ->displayFormat('d/m/Y')
-                    ->live(),
+                    ->live()
+                    ->hidden(fn () => $this->activeTab === 'receivables'),
             ])
             ->columns(3);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->query(
+                InvoiceItem::query()
+                    ->where('is_paid', false)
+                    ->whereHas('invoice', function ($query) {
+                        if ($this->client_id) {
+                            $query->where('client_id', $this->client_id);
+                        }
+                    })
+                    ->with(['invoice.client', 'delivery'])
+            )
+            ->columns([
+                TextColumn::make('invoice.number')
+                    ->label('N° Facture')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('invoice.date')
+                    ->label('Date Facture')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                TextColumn::make('invoice.client.nom')
+                    ->label('Client')
+                    ->sortable()
+                    ->searchable()
+                    ->hidden(fn () => !empty($this->client_id)),
+                TextColumn::make('delivery.vehicle_registration')
+                    ->label('Véhicule')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('delivery.product')
+                    ->label('Produit'),
+                TextColumn::make('quantity_delivered')
+                    ->label('Qté Facturée')
+                    ->numeric()
+                    ->suffix(' L'),
+                TextColumn::make('total')
+                    ->label('Montant Dû')
+                    ->numeric()
+                    ->suffix(' FCFA')
+                    ->summarize(Sum::make()->label('Total')),
+            ])
+            ->defaultSort('invoice.date', 'asc')
+            ->emptyStateHeading('Aucune créance pour ce client');
     }
 
     public function getStatementDataProperty(): Collection
@@ -198,6 +259,20 @@ class ClientStatementReport extends Component implements HasForms
 
         $finalBalance = $openingBalance + $totalDebit - $totalCredit;
 
+        // Récupérer les créances si on est sur l'onglet créances
+        $receivables = null;
+        $total_receivable = 0;
+        if ($this->activeTab === 'receivables') {
+            $receivables = InvoiceItem::query()
+                ->where('is_paid', false)
+                ->whereHas('invoice', function ($query) {
+                    $query->where('client_id', $this->client_id);
+                })
+                ->with(['invoice.client', 'delivery'])
+                ->get();
+            $total_receivable = $receivables->sum('total');
+        }
+
         $pdf = Pdf::loadView('livewire.report.print-client-statement', [
             'client' => $client,
             'transactions' => $transactions,
@@ -207,6 +282,9 @@ class ClientStatementReport extends Component implements HasForms
             'totalCredit' => $totalCredit,
             'openingBalance' => $openingBalance,
             'finalBalance' => $finalBalance,
+            'receivables' => $receivables,
+            'total_receivable' => $total_receivable,
+            'activeTab' => $this->activeTab,
             'date' => now(),
         ]);
 

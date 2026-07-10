@@ -24,7 +24,6 @@ Route::middleware("auth")->group(function () {
     Route::get("/reports/sales", \App\Http\Controllers\ReportSalesController::class)->name("reports.sales");
     Route::get("/reports/depot-sales", \App\Http\Controllers\ReportDepotSalesController::class)->name("reports.depot-sales");
     Route::get("/reports/client-statement", \App\Http\Controllers\ReportClientStatementController::class)->name("reports.client-statement");
-    Route::get("/reports/receivables", \App\Http\Controllers\ReportReceivablesController::class)->name("reports.receivables");
     Route::get("/client-account/{client?}", ViewClientAccount::class)
         ->name("client-account")
         ->defaults('isModal', false);
