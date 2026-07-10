@@ -30,7 +30,7 @@ class AddClientPayment extends ModalComponent implements HasForms
     use InteractsWithForms;
 
     public ?Client $client = null;
-    public ?string $type = 'load'; // 'load' or 'depot'
+    public ?string $type = 'load'; // 'load', 'depot', or 'advance'
     public ?array $data = [];
 
     public function mount(?Client $client = null, string $type = 'load'): void
@@ -67,17 +67,52 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 ->searchable()
                                 ->required()
                                 ->live()
-                                ->afterStateUpdated(fn (Set $set) => $set('items', []))
+                                ->afterStateUpdated(function (Set $set) {
+                                    $set('items', []);
+                                    $set('parent_id', null);
+                                })
                                 ->placeholder('Choisir un client'),
+                            Select::make('parent_id')
+                                ->label('Utiliser une avance existante')
+                                ->placeholder('Sélectionner une avance')
+                                ->options(function (Get $get) {
+                                    $clientId = $get('client_id');
+                                    if (!$clientId) return [];
+                                    return ClientPayment::where('client_id', $clientId)
+                                        ->where('is_advance', true)
+                                        ->where(function($q) {
+                                            $q->whereNotExists(function($query) {
+                                                $query->select(DB::raw(1))
+                                                    ->from('client_payments as children')
+                                                    ->whereColumn('children.parent_id', 'client_payments.id');
+                                            })->orWhereRaw('(select sum(amount) from client_payments as children where children.parent_id = client_payments.id) < client_payments.amount');
+                                        })
+                                        ->get()
+                                        ->mapWithKeys(function ($payment) {
+                                            $used = $payment->children()->sum('amount');
+                                            $remaining = $payment->amount - $used;
+                                            return [$payment->id => "Avance du {$payment->date->format('d/m/Y')} - Restant: " . number_format($remaining, 0, '.', ' ') . " FCFA"];
+                                        });
+                                })
+                                ->hidden(fn() => $this->type === 'advance')
+                                ->live()
+                                ->afterStateUpdated(function (Set $set, $state) {
+                                    if ($state) {
+                                        $payment = ClientPayment::find($state);
+                                        $used = $payment->children()->sum('amount');
+                                        $set('amount', $payment->amount - $used);
+                                    }
+                                })
+                                ->columnSpanFull(),
                             TextInput::make('amount')
-                                ->label('Montant du règlement')
+                                ->label(fn() => $this->type === 'advance' ? 'Montant de l\'avance' : 'Montant du règlement')
                                 ->numeric()
                                 ->required()
                                 ->prefix('FCFA')
                                 ->default(0)
                                 ->live(debounce: 1000),
                             DatePicker::make('date')
-                                ->label('Date du règlement')
+                                ->label(fn() => $this->type === 'advance' ? 'Date de l\'avance' : 'Date du règlement')
                                 ->required()
                                 ->default(now()),
                             Select::make('payment_method')
@@ -98,7 +133,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 ->columnSpanFull(),
                         ])->columns(2),
                     Step::make('Véhicules concernés')
-                        ->hidden(fn () => $this->type === 'depot')
+                        ->hidden(fn () => $this->type === 'depot' || $this->type === 'advance')
                         ->schema([
                             Repeater::make('selected_items')
                                 ->label('Sélectionner les chargements')
@@ -198,12 +233,14 @@ class AddClientPayment extends ModalComponent implements HasForms
             // 1. Créer le paiement
             $payment = ClientPayment::create([
                 'client_id' => $data['client_id'],
-                'payment_type' => $this->type, // 'load' or 'depot'
+                'parent_id' => $data['parent_id'] ?? null,
+                'payment_type' => $this->type === 'advance' ? null : $this->type,
+                'is_advance' => $this->type === 'advance',
                 'amount' => $data['amount'],
                 'date' => $data['date'],
-                'payment_method' => $data['payment_method'],
+                'payment_method' => $data['payment_method'] ?? 'Avance',
                 'reference' => $data['reference'] ?? null,
-                'note' => $data['note'] ?? null,
+                'note' => $data['note'] ?? ($data['parent_id'] ? 'Règlement effectué via une avance' : null),
             ]);
 
             // 2. Mettre à jour les chargements (invoice_items) et les factures (invoices)

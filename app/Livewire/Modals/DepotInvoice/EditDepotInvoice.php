@@ -209,6 +209,7 @@ class EditDepotInvoice extends ModalComponent implements HasForms
 
         $this->closeModal();
         $this->dispatch('depot-invoice-updated');
+        $this->dispatch('update-client');
 
         Notification::make()
             ->title('Facture dépôt mise à jour')

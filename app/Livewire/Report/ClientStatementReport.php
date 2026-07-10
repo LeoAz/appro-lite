@@ -159,6 +159,7 @@ class ClientStatementReport extends Component implements HasForms, HasTable
 
         $previousPayments = ClientPayment::where('client_id', $this->client_id)
             ->where('date', '<', $this->date_from)
+            ->whereNull('parent_id') // Exclure les règlements via avance pour éviter double compte
             ->sum('amount');
 
         $openingBalance = $initialBalance + $previousInvoices + $previousDepotInvoices - $previousPayments;
@@ -213,17 +214,36 @@ class ClientStatementReport extends Component implements HasForms, HasTable
             ]);
         }
 
-        // 3. Payments
+        // 3. Payments and Advances
         $payments = ClientPayment::where('client_id', $this->client_id)
             ->whereBetween('date', [$this->date_from, $this->date_to])
             ->get();
 
         foreach ($payments as $payment) {
-            $typeName = $payment->payment_type === 'depot' ? 'Règlement Dépôt' : 'Règlement Chargement';
-            $operation = "{$typeName} #{$payment->reference}";
+            // Ne pas afficher les règlements qui utilisent une avance (pour éviter double compte crédit)
+            // OU BIEN afficher l'utilisation de l'avance mais avec un montant débit/crédit neutre dans le calcul global?
+            // En fait, le montant de l'avance est déjà compté en crédit.
+            // Si on utilise l'avance pour payer une facture, le solde change ?
+            // Facture 1000 (Débit 1000)
+            // Avance 1000 (Crédit 1000) -> Solde 0
+            // Règlement via avance 1000 -> Si on remet Crédit 1000, Solde -1000 (Faux)
+            // Donc le règlement par avance ne doit pas rajouter de crédit, mais il "consomme" l'avance.
+
+            if ($payment->is_advance) {
+                $operation = "AVANCE CLIENT #{$payment->reference}";
+                $type = 'advance';
+            } elseif ($payment->parent_id) {
+                $typeName = $payment->payment_type === 'depot' ? 'Règlement Dépôt via Avance' : 'Règlement Chargement via Avance';
+                $operation = "{$typeName} #{$payment->reference} (Utilisation Avance)";
+                $type = 'payment_via_advance';
+            } else {
+                $typeName = $payment->payment_type === 'depot' ? 'Règlement Dépôt' : 'Règlement Chargement';
+                $operation = "{$typeName} #{$payment->reference}";
+                $type = 'payment';
+            }
 
             // Si c'est un règlement sur chargement, mentionner les véhicules concernés
-            if ($payment->payment_type === 'load') {
+            if (!$payment->is_advance && $payment->payment_type === 'load') {
                 $vehicles = $payment->invoiceItems()
                     ->with('delivery')
                     ->get()
@@ -248,9 +268,9 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                 'id' => $payment->id,
                 'date' => $payment->date->format('Y-m-d'),
                 'operation' => $operation,
-                'type' => 'payment',
+                'type' => $type,
                 'debit' => 0,
-                'credit' => $payment->amount,
+                'credit' => $payment->parent_id ? 0 : $payment->amount,
                 'sort_date' => $payment->date->format('Y-m-d') . '_2',
             ]);
         }

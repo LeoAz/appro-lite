@@ -29,6 +29,28 @@
                 Supprimer
             </button>
             <div class="flex gap-x-3">
+                @if($payment->is_advance)
+                    <x-filament::dropdown>
+                        <x-slot name="trigger">
+                            <button type="button"
+                                    class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition-all"
+                            >
+                                Convertir en règlement
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </x-slot>
+
+                        <x-filament::dropdown.list>
+                            <x-filament::dropdown.list.item wire:click="convertToPayment('load')">
+                                Sur chargement
+                            </x-filament::dropdown.list.item>
+                            <x-filament::dropdown.list.item wire:click="convertToPayment('depot')">
+                                Sur dépôt
+                            </x-filament::dropdown.list.item>
+                        </x-filament::dropdown.list>
+                    </x-filament::dropdown>
+                @endif
+
                 <button type="button"
                         class="inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-all"
                         wire:click="$dispatch('closeModal')"

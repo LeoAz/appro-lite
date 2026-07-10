@@ -259,6 +259,7 @@ class EditInvoice extends ModalComponent implements HasForms
             ->send();
 
         $this->dispatch('invoice-updated');
+        $this->dispatch('update-client');
         $this->closeModal();
     }
 

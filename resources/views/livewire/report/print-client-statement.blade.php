@@ -194,7 +194,7 @@
             @foreach($transactions as $transaction)
                 <tr>
                     <td class="text-gray">{{ \Carbon\Carbon::parse($transaction['date'])->format('d/m/Y') }}</td>
-                    <td class="{{ $transaction['type'] == 'report' ? 'font-bold' : 'text-gray' }}">
+                <td class="{{ $transaction['type'] == 'report' || $transaction['type'] == 'advance' || $transaction['type'] == 'payment_via_advance' ? 'font-bold' : 'text-gray' }}" style="{{ $transaction['type'] == 'advance' ? 'color: #2563eb; font-style: italic;' : ($transaction['type'] == 'payment_via_advance' ? 'color: #0d9488; font-style: italic;' : '') }}">
                         {{ $transaction['operation'] }}
                     </td>
                     <td class="text-right font-bold">

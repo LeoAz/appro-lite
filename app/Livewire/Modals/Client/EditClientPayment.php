@@ -39,11 +39,18 @@ class EditClientPayment extends ModalComponent implements HasForms
         return $form
             ->schema([
                 Select::make('payment_type')
-                    ->label('Type de règlement')
+                    ->label('Type de opération')
                     ->options([
                         'load' => 'Règlement sur chargement',
                         'depot' => 'Règlement sur dépôt',
+                        'advance' => 'Avance client',
+                        'payment_via_advance' => 'Règlement via avance',
                     ])
+                    ->formatStateUsing(function() {
+                        if ($this->payment->is_advance) return 'advance';
+                        if ($this->payment->parent_id) return 'payment_via_advance';
+                        return $this->payment->payment_type;
+                    })
                     ->disabled()
                     ->dehydrated(false),
                 Select::make('client_id')
@@ -54,12 +61,12 @@ class EditClientPayment extends ModalComponent implements HasForms
                     ->disabled()
                     ->placeholder('Choisir un client'),
                 TextInput::make('amount')
-                    ->label('Montant du règlement')
+                    ->label(fn() => $this->payment->is_advance ? 'Montant de l\'avance' : 'Montant du règlement')
                     ->numeric()
                     ->required()
                     ->prefix('FCFA'),
                 DatePicker::make('date')
-                    ->label('Date du règlement')
+                    ->label(fn() => $this->payment->is_advance ? 'Date de l\'avance' : 'Date du règlement')
                     ->required(),
                 Select::make('payment_method')
                     ->label('Méthode de paiement')
@@ -77,6 +84,11 @@ class EditClientPayment extends ModalComponent implements HasForms
                     ->label('Notes / Observations')
                     ->columnSpanFull(),
 
+                Placeholder::make('parent_info')
+                    ->label('Avance utilisée')
+                    ->visible(fn() => (bool) $this->payment->parent_id)
+                    ->content(fn() => "Utilise l'avance du " . $this->payment->parent?->date->format('d/m/Y') . " (#" . ($this->payment->parent?->reference ?? $this->payment->parent?->id) . ")")
+                    ->columnSpanFull(),
                 Placeholder::make('items_summary')
                     ->label('Chargements liés')
                     ->visible(fn() => $this->payment->payment_type === 'load' && $this->payment->invoiceItems()->count() > 0)
@@ -146,5 +158,31 @@ class EditClientPayment extends ModalComponent implements HasForms
     public function render()
     {
         return view('livewire.modals.client.edit-client-payment');
+    }
+
+    public function convertToPayment(string $type)
+    {
+        if (!$this->payment->is_advance) {
+            return;
+        }
+
+        $this->payment->update([
+            'is_advance' => false,
+            'payment_type' => $type,
+        ]);
+
+        Notification::make()
+            ->title('Avance convertie en règlement')
+            ->success()
+            ->send();
+
+        if ($type === 'load') {
+            // Si conversion en chargement, on pourrait rediriger vers un formulaire de sélection des chargements
+            // Mais pour simplifier ici, on change juste le type.
+            // L'utilisateur pourra ensuite l'éditer si nécessaire ou on laisse ainsi.
+        }
+
+        $this->dispatch('update-client');
+        $this->closeModal();
     }
 }

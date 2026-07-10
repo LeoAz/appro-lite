@@ -11,7 +11,9 @@ class ClientPayment extends Model
 
     protected $fillable = [
         'client_id',
+        'parent_id',
         'payment_type',
+        'is_advance',
         'amount',
         'payment_method',
         'date',
@@ -21,11 +23,22 @@ class ClientPayment extends Model
 
     protected $casts = [
         'date' => 'date',
+        'is_advance' => 'boolean',
     ];
 
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(ClientPayment::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(ClientPayment::class, 'parent_id');
     }
 
     public function invoiceItems()
