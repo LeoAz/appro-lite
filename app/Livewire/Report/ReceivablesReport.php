@@ -5,6 +5,7 @@ namespace App\Livewire\Report;
 use App\Models\InvoiceItem;
 use App\Models\Client;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -21,25 +22,38 @@ class ReceivablesReport extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public $client_id;
+    public $status = 'unpaid';
 
     public function mount()
     {
-        $this->form->fill();
+        $this->form->fill([
+            'status' => 'unpaid',
+        ]);
     }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Select::make('client_id')
-                    ->label('Filtrer par Client')
-                    ->options(Client::pluck('nom', 'id'))
-                    ->searchable()
-                    ->live()
-                    ->afterStateUpdated(fn () => $this->resetTable())
-                    ->placeholder('Tous les clients'),
-            ])
-            ->columns(1);
+                Grid::make(2)
+                    ->schema([
+                        Select::make('client_id')
+                            ->options(Client::pluck('nom', 'id'))
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(fn () => $this->resetTable())
+                            ->placeholder('Tous les clients'),
+                        Select::make('status')
+                            ->label('Statut du paiement')
+                            ->options([
+                                'all' => 'Tous',
+                                'paid' => 'Payés',
+                                'unpaid' => 'Non payés',
+                            ])
+                            ->live()
+                            ->afterStateUpdated(fn () => $this->resetTable()),
+                    ])
+            ]);
     }
 
     public function table(Table $table): Table
@@ -47,7 +61,9 @@ class ReceivablesReport extends Component implements HasForms, HasTable
         return $table
             ->query(
                 InvoiceItem::query()
-                    ->where('is_paid', false)
+                    ->when($this->status !== 'all', function ($query) {
+                        return $query->where('is_paid', $this->status === 'paid');
+                    })
                     ->whereHas('invoice', function ($query) {
                         if ($this->client_id) {
                             $query->where('client_id', $this->client_id);
@@ -83,6 +99,10 @@ class ReceivablesReport extends Component implements HasForms, HasTable
                     ->numeric()
                     ->suffix(' FCFA')
                     ->summarize(\Filament\Tables\Columns\Summarizers\Sum::make()->label('Total')),
+                \Filament\Tables\Columns\IconColumn::make('is_paid')
+                    ->label('Payé')
+                    ->boolean()
+                    ->sortable(),
             ])
             ->defaultSort('invoice.date', 'asc');
     }
@@ -90,7 +110,9 @@ class ReceivablesReport extends Component implements HasForms, HasTable
     public function downloadPdf()
     {
         $items = InvoiceItem::query()
-            ->where('is_paid', false)
+            ->when($this->status !== 'all', function ($query) {
+                return $query->where('is_paid', $this->status === 'paid');
+            })
             ->whereHas('invoice', function ($query) {
                 if ($this->client_id) {
                     $query->where('client_id', $this->client_id);
@@ -104,6 +126,7 @@ class ReceivablesReport extends Component implements HasForms, HasTable
         $pdf = Pdf::loadView('livewire.report.print-receivables', [
             'items' => $items,
             'client' => $this->client_id ? Client::find($this->client_id) : null,
+            'status' => $this->status,
             'total_receivable' => $total_receivable,
             'date' => now(),
         ]);

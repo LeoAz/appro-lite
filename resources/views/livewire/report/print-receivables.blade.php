@@ -24,7 +24,12 @@
 
     <div class="info">
         Date d'édition : {{ $date->format('d/m/Y H:i') }}<br>
-        Client : {{ $client->nom ?? 'Tous les clients' }}
+        Client : {{ $client->nom ?? 'Tous les clients' }}<br>
+        Statut :
+        @if($status == 'all') Tous les chargements
+        @elseif($status == 'paid') Chargements payés
+        @else Chargements non payés
+        @endif
     </div>
 
     <table>
@@ -39,6 +44,7 @@
                 <th>Produit</th>
                 <th class="text-right">Qté Facturée</th>
                 <th class="text-right">Montant Dû</th>
+                <th>Statut</th>
             </tr>
         </thead>
         <tbody>
@@ -53,12 +59,13 @@
                     <td>{{ $item->delivery->product ?? 'N/A' }}</td>
                     <td class="text-right">{{ number_format($item->quantity_delivered, 0, ',', ' ') }} L</td>
                     <td class="text-right">{{ number_format($item->total, 0, ',', ' ') }} FCFA</td>
+                    <td>{{ $item->is_paid ? 'Payé' : 'Non payé' }}</td>
                 </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr class="font-bold" style="background-color: #f3f4f6;">
-                <td colspan="{{ $client ? 5 : 6 }}" class="text-right">TOTAL GÉNÉRAL DES CRÉANCES</td>
+                <td colspan="{{ $client ? 6 : 7 }}" class="text-right">TOTAL GÉNÉRAL</td>
                 <td class="text-right">{{ number_format($total_receivable, 0, ',', ' ') }} FCFA</td>
             </tr>
         </tfoot>
