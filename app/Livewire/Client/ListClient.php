@@ -56,13 +56,7 @@ class ListClient extends Component implements HasForms, HasTable
                     Action::make("view_account")
                         ->label("Compte Client")
                         ->icon("heroicon-m-banknotes")
-                        ->action(
-                            fn(Client $record, $livewire) => $livewire->dispatch(
-                                "openModal",
-                                "modals.client.view-client-account",
-                                ["client" => $record]
-                            )
-                        ),
+                        ->url(fn (Client $record) => route('client-account', $record)),
                     Action::make("add_payment")
                         ->label("Nouveau règlement")
                         ->icon("heroicon-m-plus-circle")

@@ -7,16 +7,24 @@ use App\Models\ClientPayment;
 use App\Models\Invoice;
 use Filament\Notifications\Notification;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Layout;
 use LivewireUI\Modal\ModalComponent;
 
 class ViewClientAccount extends ModalComponent
 {
     public Client $client;
     public string $activeTab = 'history';
+    public bool $isModal = true;
 
-    public function mount(Client $client): void
+    public function mount(Client $client = null, bool $isModal = true): void
     {
-        $this->client = $client;
+        if ($client && $client->exists) {
+            $this->client = $client;
+        } else {
+            // Handle cases where client might be null in full page mode
+            $this->client = new Client();
+        }
+        $this->isModal = $isModal;
     }
 
     public function setActiveTab(string $tab): void
@@ -42,16 +50,19 @@ class ViewClientAccount extends ModalComponent
 
     public function getInvoicesProperty()
     {
+        if (!$this->client->exists) return collect();
         return $this->client->invoices()->orderBy('date', 'desc')->get();
     }
 
     public function getPaymentsProperty()
     {
+        if (!$this->client->exists) return collect();
         return $this->client->payments()->orderBy('date', 'desc')->get();
     }
 
     public function getHistoryProperty()
     {
+        if (!$this->client->exists) return collect();
         $history = collect();
 
         // Initial Balance
@@ -104,12 +115,38 @@ class ViewClientAccount extends ModalComponent
         return '6xl';
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
-        return view('livewire.modals.client.view-client-account', [
+        if (!isset($this->client) || !$this->client->exists) {
+            return <<<'HTML'
+                <x-slot name="header">
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                        {{ __('Compte Client') }}
+                    </h2>
+                </x-slot>
+                <div class="py-12">
+                    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6 text-center">
+                            <p class="text-gray-500">Aucun client sélectionné.</p>
+                        </div>
+                    </div>
+                </div>
+            HTML;
+        }
+
+        $view = view('livewire.modals.client.view-client-account', [
             'history' => $this->history,
             'invoices' => $this->invoices,
             'payments' => $this->payments,
         ]);
+
+        if (!$this->isModal) {
+            return $view->layout('layouts.app', [
+                'header' => 'Compte Client : ' . $this->client->nom
+            ]);
+        }
+
+        return $view;
     }
 }

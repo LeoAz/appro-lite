@@ -222,6 +222,7 @@ class ClientStatementReport extends Component implements HasForms
     {
         return view('livewire.report.client-statement-report', [
             'transactions' => $this->statementData,
+            'client' => $this->client_id ? Client::find($this->client_id) : null,
         ])->layout('layouts.app');
     }
 }

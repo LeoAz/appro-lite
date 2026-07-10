@@ -52,8 +52,8 @@
                             </button>
                         </x-slot>
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('client-account')">Compte client</x-dropdown-link>
-                            <x-dropdown-link :href="route('reports.client-statement')">Suivi Client</x-dropdown-link>
+                            <x-dropdown-link :href="route('clients')">Liste des clients</x-dropdown-link>
+                            <x-dropdown-link :href="route('reports.client-statement')">Suivi Client (Rapport)</x-dropdown-link>
                             <x-dropdown-link :href="route('reports.receivables')">Etat des créances</x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
@@ -169,11 +169,11 @@
 
             <div class="pt-4 border-t border-blue-500">
                 <div class="px-4 py-2 text-xs font-semibold text-blue-100 uppercase tracking-wider">Clients</div>
-                <x-responsive-nav-link :href="route('client-account')" :active="request()->routeIs('client-account')" class="text-white">
-                    Compte client
+                <x-responsive-nav-link :href="route('clients')" :active="request()->routeIs('clients')" class="text-white">
+                    Liste des clients
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('reports.client-statement')" :active="request()->routeIs('reports.client-statement')" class="text-white">
-                    Suivi Client
+                    Suivi Client (Rapport)
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('reports.receivables')" :active="request()->routeIs('reports.receivables')" class="text-white">
                     Etat des créances
