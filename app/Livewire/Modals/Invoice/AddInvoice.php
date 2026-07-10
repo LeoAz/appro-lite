@@ -105,12 +105,22 @@ class AddInvoice extends ModalComponent implements HasForms
                             ->options(function (Get $get) {
                                 $clientId = $get('../../client_id');
                                 if (!$clientId) return [];
+
+                                // Récupérer les IDs déjà sélectionnés dans le repeater pour les exclure
+                                $selectedIds = collect($get('../../items'))
+                                    ->pluck('load_id')
+                                    ->filter()
+                                    ->toArray();
+
                                 return Load::where('client_id', $clientId)
                                     ->where('status', LoadStatus::Unloaded)
                                     ->whereNotExists(function ($query) {
                                         $query->select(DB::raw(1))
                                             ->from('invoice_items')
                                             ->whereColumn('invoice_items.load_id', 'loads.id');
+                                    })
+                                    ->when($selectedIds, function ($query) use ($selectedIds) {
+                                        $query->whereNotIn('id', $selectedIds);
                                     })
                                     ->get()
                                     ->mapWithKeys(fn ($load) => [$load->id => "Produit: " . ($load->product ?? 'N/A') . " - Camion: " . ($load->vehicle->registration ?? $load->vehicle_registration ?? 'N/A') . " - Date: {$load->unload_date->format('d/m/Y')} - Vol: {$load->volume}L"]);
@@ -131,13 +141,13 @@ class AddInvoice extends ModalComponent implements HasForms
                             ->label('Quantité livrée')
                             ->numeric()
                             ->required()
-                            ->live(debounce: 500)
+                            ->live(debounce: 2000)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotals($get, $set)),
                         TextInput::make('unit_price')
                             ->label('Prix unitaire')
                             ->numeric()
                             ->required()
-                            ->live(debounce: 500)
+                            ->live(debounce: 2000)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotals($get, $set)),
                         TextInput::make('total')
                             ->label('Total')

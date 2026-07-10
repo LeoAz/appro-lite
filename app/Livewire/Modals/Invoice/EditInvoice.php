@@ -136,13 +136,13 @@ class EditInvoice extends ModalComponent implements HasForms
                             ->label('Quantité livrée')
                             ->numeric()
                             ->required()
-                            ->live(debounce: 500)
+                            ->live(debounce: 3000)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotals($get, $set)),
                         TextInput::make('unit_price')
                             ->label('Prix unitaire')
                             ->numeric()
                             ->required()
-                            ->live(debounce: 500)
+                            ->live(debounce: 3000)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotals($get, $set)),
                         TextInput::make('total')
                             ->label('Total')
