@@ -237,6 +237,7 @@
     <table class="items-table">
         <thead>
             <tr>
+                <th width="5%">N°</th>
                 <th>N° Facture</th>
                 <th>Date</th>
                 <th>Véhicule</th>
@@ -247,8 +248,9 @@
         </thead>
         <tbody>
             @php $currentReceivable = 0; @endphp
-            @foreach($receivables as $item)
+            @foreach($receivables as $index => $item)
                 <tr>
+                    <td class="text-gray">{{ $index + 1 }}</td>
                     <td class="font-bold text-gray">{{ $item->invoice->number }}</td>
                     <td class="text-gray">{{ $item->invoice->date->format('d/m/Y') }}</td>
                     <td class="text-gray">{{ $item->delivery?->vehicle_registration }}</td>
