@@ -144,6 +144,22 @@ class ClientStatementReport extends Component implements HasForms
         foreach ($payments as $payment) {
             $typeName = $payment->payment_type === 'depot' ? 'Règlement Dépôt' : 'Règlement Chargement';
             $operation = "{$typeName} #{$payment->reference}";
+
+            // Si c'est un règlement sur chargement, mentionner les véhicules concernés
+            if ($payment->payment_type === 'load') {
+                $vehicles = $payment->invoiceItems()
+                    ->with('delivery')
+                    ->get()
+                    ->map(fn($item) => $item->delivery?->vehicle_registration)
+                    ->filter()
+                    ->unique()
+                    ->implode(', ');
+
+                if ($vehicles) {
+                    $operation .= " [Vhc: {$vehicles}]";
+                }
+            }
+
             if ($payment->payment_method) {
                 $operation .= " ({$payment->payment_method})";
             }
