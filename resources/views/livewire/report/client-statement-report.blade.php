@@ -27,6 +27,7 @@
                             </button>
                         </div>
                     </div>
+                    @endif
                     @if($client_id)
                     <button wire:click="downloadPdf" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-md flex items-center gap-2 uppercase text-sm font-semibold transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
