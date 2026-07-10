@@ -123,6 +123,21 @@
         .text-green {
             color: #16a34a;
         }
+        .status-badge {
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-paid {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-unpaid {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
         .footer {
             clear: both;
             margin-top: 50px;
@@ -135,13 +150,12 @@
     </style>
 </head>
 <body>
-    @if($activeTab === 'statement')
     <div class="header">
         <table style="width: 100%;">
             <tr>
                 <td style="width: 60%;">
                     <div class="report-title">Rapport de Situation Client</div>
-                    <div class="report-subtitle">Relevé de compte détaillé (Factures, Avances, Règlements)</div>
+                    <div class="report-subtitle">Relevé de compte et État des créances</div>
                 </td>
                 <td style="width: 40%;" class="issuer-info">
                     <div class="issuer-name">SOCIETE DE TRANSPORT</div>
@@ -160,12 +174,13 @@
                 <div class="text-gray">{{ $client->contact }}</div>
             </td>
             <td class="text-right">
-                <div class="billing-label">Période</div>
+                <div class="billing-label">Période du relevé</div>
                 <div class="font-bold">Du {{ \Carbon\Carbon::parse($date_from)->format('d/m/Y') }} Au {{ \Carbon\Carbon::parse($date_to)->format('d/m/Y') }}</div>
             </td>
         </tr>
     </table>
 
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">I. Relevé de compte détaillé</div>
     <table class="items-table">
         <thead>
             <tr>
@@ -213,44 +228,12 @@
                     {{ number_format($finalBalance, 0, '.', ' ') }} FCFA
                 </td>
             </tr>
-            <tr>
-                <td colspan="2" class="text-right text-gray" style="font-size: 8px; font-style: italic;">
-                    * Solde réel à ce jour. Un solde positif indique une dette du client.
-                </td>
-            </tr>
-        </table>
-    </div>
-    @else
-    <div class="header">
-        <table style="width: 100%;">
-            <tr>
-                <td style="width: 60%;">
-                    <div class="report-title">État des Créances Client</div>
-                    <div class="report-subtitle">Liste des chargements facturés non payés</div>
-                </td>
-                <td style="width: 40%;" class="issuer-info">
-                    <div class="issuer-name">SOCIETE DE TRANSPORT</div>
-                    <div>Contact: +225 00 00 00 00 00</div>
-                    <div>Email: contact@societe.com</div>
-                </td>
-            </tr>
         </table>
     </div>
 
-    <table class="billing-info">
-        <tr>
-            <td>
-                <div class="billing-label">Client</div>
-                <div class="billing-value">{{ $client->nom }}</div>
-                <div class="text-gray">{{ $client->contact }}</div>
-            </td>
-            <td class="text-right">
-                <div class="billing-label">Date du rapport</div>
-                <div class="font-bold">{{ $date->format('d/m/Y') }}</div>
-            </td>
-        </tr>
-    </table>
+    <div style="clear: both; margin-bottom: 40px;"></div>
 
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">II. État des Créances (Chargements)</div>
     <table class="items-table">
         <thead>
             <tr>
@@ -258,20 +241,28 @@
                 <th>Date</th>
                 <th>Véhicule</th>
                 <th>Produit</th>
-                <th class="text-right">Quantité</th>
-                <th class="text-right">Montant Dû</th>
+                <th class="text-right">Montant</th>
+                <th class="text-right">Statut</th>
             </tr>
         </thead>
         <tbody>
+            @php $currentReceivable = 0; @endphp
             @foreach($receivables as $item)
                 <tr>
                     <td class="font-bold text-gray">{{ $item->invoice->number }}</td>
                     <td class="text-gray">{{ $item->invoice->date->format('d/m/Y') }}</td>
                     <td class="text-gray">{{ $item->delivery?->vehicle_registration }}</td>
                     <td class="text-gray">{{ $item->delivery?->product }}</td>
-                    <td class="text-right text-gray">{{ number_format($item->quantity_delivered, 0, '.', ' ') }} L</td>
                     <td class="text-right font-bold">{{ number_format($item->total, 0, '.', ' ') }} FCFA</td>
+                    <td class="text-right">
+                        @if($item->is_paid)
+                            <span class="status-badge status-paid">Payé</span>
+                        @else
+                            <span class="status-badge status-unpaid">Non Payé</span>
+                        @endif
+                    </td>
                 </tr>
+                @php if(!$item->is_paid) $currentReceivable += $item->total; @endphp
             @endforeach
         </tbody>
     </table>
@@ -279,14 +270,13 @@
     <div class="totals-section">
         <table class="totals-table">
             <tr class="balance-row">
-                <td class="balance-label">Total Créances:</td>
+                <td class="balance-label">Total Restant Dû:</td>
                 <td class="balance-value text-red">
-                    {{ number_format($total_receivable, 0, '.', ' ') }} FCFA
+                    {{ number_format($currentReceivable, 0, '.', ' ') }} FCFA
                 </td>
             </tr>
         </table>
     </div>
-    @endif
 
     <div class="footer">
         Document généré le {{ $date->format('d/m/Y H:i') }}<br>
