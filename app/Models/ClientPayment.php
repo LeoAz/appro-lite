@@ -11,6 +11,7 @@ class ClientPayment extends Model
 
     protected $fillable = [
         'client_id',
+        'payment_type',
         'amount',
         'payment_method',
         'date',
@@ -25,5 +26,10 @@ class ClientPayment extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function invoiceItems()
+    {
+        return $this->hasMany(InvoiceItem::class);
     }
 }

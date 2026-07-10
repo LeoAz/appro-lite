@@ -13,11 +13,16 @@ class InvoiceItem extends Model
         'invoice_id',
         'bl_number',
         'load_id',
+        'client_payment_id',
         'quantity_delivered',
         'unit_price',
         'missing_quantity',
         'total',
         'is_paid',
+    ];
+
+    protected $casts = [
+        'is_paid' => 'boolean',
     ];
 
     public function invoice()
@@ -28,5 +33,10 @@ class InvoiceItem extends Model
     public function delivery()
     {
         return $this->belongsTo(Load::class, 'load_id');
+    }
+
+    public function payment()
+    {
+        return $this->belongsTo(ClientPayment::class, 'client_payment_id');
     }
 }

@@ -40,11 +40,12 @@ class ReceivablesReport extends Component implements HasForms, HasTable
                         Select::make('client_id')
                             ->options(Client::pluck('nom', 'id'))
                             ->searchable()
+                            ->hiddenLabel()
                             ->live()
                             ->afterStateUpdated(fn () => $this->resetTable())
                             ->placeholder('Tous les clients'),
                         Select::make('status')
-                            ->label('Statut du paiement')
+                            ->hiddenLabel()
                             ->options([
                                 'all' => 'Tous',
                                 'paid' => 'Payés',

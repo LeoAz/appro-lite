@@ -23,16 +23,19 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Illuminate\Support\Facades\DB;
 
 class AddClientPayment extends ModalComponent implements HasForms
 {
     use InteractsWithForms;
 
     public ?Client $client = null;
+    public ?string $type = 'load'; // 'load' or 'depot'
     public ?array $data = [];
 
-    public function mount(?Client $client = null): void
+    public function mount(?Client $client = null, string $type = 'load'): void
     {
+        $this->type = $type;
         if ($client) {
             $this->client = $client;
             $this->form->fill([
@@ -71,7 +74,8 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 ->numeric()
                                 ->required()
                                 ->prefix('FCFA')
-                                ->default(0),
+                                ->default(0)
+                                ->live(debounce: 1000),
                             DatePicker::make('date')
                                 ->label('Date du règlement')
                                 ->required()
@@ -94,6 +98,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 ->columnSpanFull(),
                         ])->columns(2),
                     Step::make('Véhicules concernés')
+                        ->hidden(fn () => $this->type === 'depot')
                         ->schema([
                             Repeater::make('selected_items')
                                 ->label('Sélectionner les chargements')
@@ -159,6 +164,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 }),
                         ]),
                     Step::make('Récapitulatif')
+                        ->hidden(fn () => $this->type === 'depot')
                         ->schema([
                             Placeholder::make('recap_amount')
                                 ->label('Montant du règlement')
@@ -190,8 +196,9 @@ class AddClientPayment extends ModalComponent implements HasForms
 
         DB::transaction(function () use ($data) {
             // 1. Créer le paiement
-            ClientPayment::create([
+            $payment = ClientPayment::create([
                 'client_id' => $data['client_id'],
+                'payment_type' => $this->type, // 'load' or 'depot'
                 'amount' => $data['amount'],
                 'date' => $data['date'],
                 'payment_method' => $data['payment_method'],
@@ -212,6 +219,7 @@ class AddClientPayment extends ModalComponent implements HasForms
 
                         // Mettre à jour l'item
                         $item->update([
+                            'client_payment_id' => $payment->id,
                             'missing_quantity' => $missing,
                             'total' => $newTotal,
                             'is_paid' => true,

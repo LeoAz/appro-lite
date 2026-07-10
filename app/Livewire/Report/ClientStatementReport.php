@@ -142,7 +142,8 @@ class ClientStatementReport extends Component implements HasForms
             ->get();
 
         foreach ($payments as $payment) {
-            $operation = "Paiement #{$payment->reference}";
+            $typeName = $payment->payment_type === 'depot' ? 'Règlement Dépôt' : 'Règlement Chargement';
+            $operation = "{$typeName} #{$payment->reference}";
             if ($payment->payment_method) {
                 $operation .= " ({$payment->payment_method})";
             }
