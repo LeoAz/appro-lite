@@ -98,20 +98,23 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                         \DB::raw("(select date from invoices where invoices.id = invoice_items.invoice_id limit 1) as item_date")
                     )
                     ->where(function ($query) {
-                        if ($this->client_id) {
-                            $query->where(function($q) {
-                                $q->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoices.id', 'invoice_items.invoice_id')->where('invoices.client_id', $this->client_id))
-                                  ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('loads.id', 'invoice_items.load_id')->where('loads.client_id', $this->client_id));
+                        $clientId = $this->client_id;
+                        if ($clientId) {
+                            $query->where(function($q) use ($clientId) {
+                                $q->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoices.id', 'invoice_items.invoice_id')->where('invoices.client_id', $clientId))
+                                  ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('loads.id', 'invoice_items.load_id')->where('loads.client_id', $clientId));
                             });
                         }
 
                         if ($this->activeTab === 'receivables') {
                             $query->where('invoice_items.is_paid', false)
-                                ->whereExists(function($sq) {
-                                    $sq->select(\DB::raw(1))
-                                        ->from('loads')
-                                        ->whereColumn('loads.id', 'invoice_items.load_id')
-                                        ->where('loads.status', \App\Enums\LoadStatus::Unloaded);
+                                ->where(function($sq) {
+                                    $sq->whereExists(function($q) {
+                                        $q->select(\DB::raw(1))
+                                            ->from('loads')
+                                            ->whereColumn('loads.id', 'invoice_items.load_id')
+                                            ->where('loads.status', \App\Enums\LoadStatus::Unloaded);
+                                    })->orWhereNull('invoice_items.load_id');
                                 });
                         } elseif ($this->activeTab === 'payment_history') {
                             $query->where('invoice_items.is_paid', true);
@@ -133,8 +136,9 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                                 \DB::raw("(select date from depot_invoices where depot_invoices.id = depot_invoice_items.depot_invoice_id limit 1) as item_date")
                             )
                             ->where(function ($query) {
-                                if ($this->client_id) {
-                                    $query->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('depot_invoices')->whereColumn('depot_invoices.id', 'depot_invoice_items.depot_invoice_id')->where('depot_invoices.client_id', $this->client_id));
+                                $clientId = $this->client_id;
+                                if ($clientId) {
+                                    $query->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('depot_invoices')->whereColumn('depot_invoices.id', 'depot_invoice_items.depot_invoice_id')->where('depot_invoices.client_id', $clientId));
                                 }
 
                                 if ($this->activeTab === 'receivables') {
@@ -182,12 +186,13 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                 TextColumn::make('quantity')
                     ->label('Qté Facturée')
                     ->numeric()
-                    ->suffix(' L'),
+                    ->suffix(' L')
+                    ->summarize(Sum::make()->label('Total Qty')),
                 TextColumn::make('total')
                     ->label(fn() => $this->activeTab === 'receivables' ? 'Montant Dû' : 'Montant Payé')
                     ->numeric()
                     ->suffix(' FCFA')
-                    ->summarize(Sum::make()->label('Total')),
+                    ->summarize(Sum::make()->label('Total')->money('XOF')),
                 TextColumn::make('payment.date')
                     ->label('Date Paiement')
                     ->date('d/m/Y')
@@ -401,30 +406,54 @@ class ClientStatementReport extends Component implements HasForms, HasTable
         $finalBalance = $openingBalance + $totalDebit - $totalCredit;
 
         $receivables = InvoiceItem::query()
-            ->select('invoice_items.*')
-            ->where(function ($query) {
-                if ($this->client_id) {
-                    $query->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoices.id', 'invoice_items.invoice_id')->where('invoices.client_id', $this->client_id))
-                          ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('loads.id', 'invoice_items.load_id')->where('loads.client_id', $this->client_id));
-                }
+            ->select(
+                'invoice_items.id',
+                'invoice_items.invoice_id',
+                'invoice_items.load_id',
+                'invoice_items.total',
+                'invoice_items.is_paid',
+                'invoice_items.client_payment_id',
+                \DB::raw('NULL as depot_invoice_id'),
+                \DB::raw('NULL as compartment_id'),
+                \DB::raw('invoice_items.quantity_delivered as quantity'),
+                \DB::raw("'load' as item_type"),
+                \DB::raw("(select date from invoices where invoices.id = invoice_items.invoice_id limit 1) as item_date")
+            )
+            ->where(function ($query) use ($client) {
+                $clientId = $client->id;
+                $query->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoices.id', 'invoice_items.invoice_id')->where('invoices.client_id', $clientId))
+                      ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('loads.id', 'invoice_items.load_id')->where('loads.client_id', $clientId));
             })
             ->where('invoice_items.is_paid', false)
-            ->whereExists(function($sq) {
-                $sq->select(\DB::raw(1))
-                    ->from('loads')
-                    ->whereColumn('loads.id', 'invoice_items.load_id')
-                    ->where('loads.status', \App\Enums\LoadStatus::Unloaded);
+            ->where(function($sq) {
+                $sq->whereExists(function($q) {
+                    $q->select(\DB::raw(1))
+                        ->from('loads')
+                        ->whereColumn('loads.id', 'invoice_items.load_id')
+                        ->where('loads.status', \App\Enums\LoadStatus::Unloaded);
+                })->orWhereNull('invoice_items.load_id');
             })
-            ->with(['invoice.client', 'delivery', 'payment'])
+            ->union(
+                DepotInvoiceItem::query()
+                    ->select(
+                        'depot_invoice_items.id',
+                        \DB::raw('NULL as invoice_id'),
+                        \DB::raw('NULL as load_id'),
+                        'depot_invoice_items.total',
+                        'depot_invoice_items.is_paid',
+                        'depot_invoice_items.client_payment_id',
+                        'depot_invoice_items.depot_invoice_id',
+                        'depot_invoice_items.compartment_id',
+                        'depot_invoice_items.quantity',
+                        \DB::raw("'depot' as item_type"),
+                        \DB::raw("(select date from depot_invoices where depot_invoices.id = depot_invoice_items.depot_invoice_id limit 1) as item_date")
+                    )
+                    ->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('depot_invoices')->whereColumn('depot_invoices.id', 'depot_invoice_items.depot_invoice_id')->where('depot_invoices.client_id', $client->id))
+                    ->where('depot_invoice_items.is_paid', false)
+            )
+            ->with(['invoice.client', 'delivery', 'payment', 'depotInvoice.client', 'compartment', 'depotInvoice.depot'])
             ->get();
         $total_receivable = $receivables->sum('total');
-
-        $depotReceivables = DepotInvoiceItem::query()
-            ->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('depot_invoices')->whereColumn('depot_invoices.id', 'depot_invoice_items.depot_invoice_id')->where('depot_invoices.client_id', $this->client_id))
-            ->where('is_paid', false)
-            ->sum('total');
-
-        $total_receivable += $depotReceivables;
 
         $pdf = Pdf::loadView('livewire.report.print-client-statement', [
             'client' => $client,

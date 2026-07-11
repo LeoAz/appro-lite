@@ -324,31 +324,28 @@
 
     @php
         $allReceivables = $receivables->where('is_paid', false)->map(function($item) {
+            $date = $item->item_date ? \Carbon\Carbon::parse($item->item_date) : null;
+
+            if ($item->item_type === 'depot') {
+                return [
+                    'number' => $item->depotInvoice->number ?? '-',
+                    'date' => $date,
+                    'reference' => $item->depotInvoice->depot->name ?? '-',
+                    'product' => $item->compartment->product ?? '-',
+                    'total' => $item->total,
+                    'type' => 'depot'
+                ];
+            }
+
             return [
                 'number' => $item->invoice->number ?? '-',
-                'date' => $item->invoice->date,
+                'date' => $date,
                 'reference' => $item->delivery?->vehicle_registration ?? '-',
                 'product' => $item->delivery?->product ?? '-',
                 'total' => $item->total,
                 'type' => 'load'
             ];
-        });
-
-        $depotReceivablesItems = \App\Models\DepotInvoiceItem::whereHas('depotInvoice', function($q) use ($client) {
-            $q->where('client_id', $client->id);
-        })->where('is_paid', false)->with(['depotInvoice', 'compartment'])->get();
-
-        foreach($depotReceivablesItems as $depotItem) {
-            $allReceivables->push([
-                'number' => $depotItem->depotInvoice->number ?? '-',
-                'date' => $depotItem->depotInvoice->date,
-                'reference' => $depotItem->depotInvoice->depot->name ?? '-',
-                'product' => $depotItem->compartment->product ?? '-',
-                'total' => $depotItem->total,
-                'type' => 'depot'
-            ]);
-        }
-        $allReceivables = $allReceivables->sortBy('date');
+        })->sortBy('date');
     @endphp
 
     <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">III. État des Créances (Chargements et Dépôts non payés)</div>
@@ -400,33 +397,30 @@
 
     @php
         $allPaidItems = $receivables->where('is_paid', true)->map(function($item) {
+            $date = $item->item_date ? \Carbon\Carbon::parse($item->item_date) : null;
+
+            if ($item->item_type === 'depot') {
+                return [
+                    'number' => $item->depotInvoice->number ?? '-',
+                    'date' => $date,
+                    'reference' => $item->depotInvoice->depot->name ?? '-',
+                    'total' => $item->total,
+                    'payment_date' => $item->payment?->date,
+                    'payment_ref' => $item->payment?->reference,
+                    'type' => 'depot'
+                ];
+            }
+
             return [
                 'number' => $item->invoice->number ?? '-',
-                'date' => $item->invoice->date,
+                'date' => $date,
                 'reference' => $item->delivery?->vehicle_registration ?? '-',
                 'total' => $item->total,
                 'payment_date' => $item->payment?->date,
                 'payment_ref' => $item->payment?->reference,
                 'type' => 'load'
             ];
-        });
-
-        $depotPaidItems = \App\Models\DepotInvoiceItem::whereHas('depotInvoice', function($q) use ($client) {
-            $q->where('client_id', $client->id);
-        })->where('is_paid', true)->with(['depotInvoice', 'payment'])->get();
-
-        foreach($depotPaidItems as $paidItem) {
-            $allPaidItems->push([
-                'number' => $paidItem->depotInvoice->number ?? '-',
-                'date' => $paidItem->depotInvoice->date,
-                'reference' => $paidItem->depotInvoice->depot->name ?? '-',
-                'total' => $paidItem->total,
-                'payment_date' => $paidItem->payment?->date,
-                'payment_ref' => $paidItem->payment?->reference,
-                'type' => 'depot'
-            ]);
-        }
-        $allPaidItems = $allPaidItems->sortByDesc('payment_date');
+        })->sortByDesc('payment_date');
     @endphp
 
     <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">IV. Historique des Paiements (Chargements et Dépôts payés)</div>
