@@ -5,6 +5,8 @@ namespace App\Livewire\Depot;
 use App\Models\Depot;
 use App\Models\Compartment;
 use App\Models\Load;
+use App\Models\InvoiceItem;
+use App\Models\DepotInvoiceItem;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
