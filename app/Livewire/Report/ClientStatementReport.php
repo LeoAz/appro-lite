@@ -89,7 +89,10 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                         }
                     })
                     ->when($this->activeTab === 'receivables', fn($query) => $query->where('is_paid', false))
-                    ->when($this->activeTab === 'payment_history', fn($query) => $query->where('is_paid', true))
+                    ->when($this->activeTab === 'payment_history', function($query) {
+                        $query->where('is_paid', true)
+                              ->whereNotNull('client_payment_id');
+                    })
                     ->with(['invoice.client', 'delivery', 'payment'])
             )
             ->columns([
@@ -320,7 +323,7 @@ class ClientStatementReport extends Component implements HasForms, HasTable
             ->whereHas('invoice', function ($query) {
                 $query->where('client_id', $this->client_id);
             })
-            ->with(['invoice.client', 'delivery'])
+            ->with(['invoice.client', 'delivery', 'payment'])
             ->get();
         $total_receivable = $receivables->where('is_paid', false)->sum('total');
 
