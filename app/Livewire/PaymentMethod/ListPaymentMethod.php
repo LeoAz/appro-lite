@@ -51,8 +51,8 @@ class ListPaymentMethod extends Component implements HasForms, HasTable
                                 $livewire
                             ) => $livewire->dispatch(
                                 "openModal",
-                                "modals.payment-method.add-payment-method",
-                                ["paymentMethod" => $record]
+                                component: "modals.payment-method.add-payment-method",
+                                arguments: ["paymentMethod" => $record->id]
                             )
                         ),
                     Action::make("delete")
@@ -73,14 +73,17 @@ class ListPaymentMethod extends Component implements HasForms, HasTable
                 Action::make('add')
                     ->label('Ajouter une méthode')
                     ->icon('heroicon-m-plus')
-                    ->action(fn($livewire) => $livewire->dispatch('openModal', 'modals.payment-method.add-payment-method')),
+                    ->action(fn($livewire) => $livewire->dispatch(
+                        'openModal',
+                        component: 'modals.payment-method.add-payment-method'
+                    )),
             ]);
     }
 
     #[On("payment-method-updated")]
     public function refresh()
     {
-        // Refresh table
+        // No action needed, #[On] will trigger a re-render
     }
 
     #[Layout('layouts.app')]
