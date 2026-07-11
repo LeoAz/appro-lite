@@ -110,7 +110,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 ->required()
                                 ->prefix('FCFA')
                                 ->default(0)
-                                ->live(debounce: 1000),
+                                ->live(debounce: 5000),
                             DatePicker::make('date')
                                 ->label(fn() => $this->type === 'advance' ? 'Date de l\'avance' : 'Date du règlement')
                                 ->required()
@@ -145,6 +145,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                             if (!$clientId) return [];
                                             return InvoiceItem::whereHas('invoice', fn($q) => $q->where('client_id', $clientId))
                                                 ->where('is_paid', false)
+                                                ->whereNull('client_payment_id')
                                                 ->with(['delivery', 'invoice'])
                                                 ->get()
                                                 ->mapWithKeys(fn($item) => [
@@ -168,7 +169,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                         ->numeric()
                                         ->default(0)
                                         ->required()
-                                        ->live(debounce: 500)
+                                        ->live(debounce: 5000)
                                         ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                             $qty = floatval($get('quantity_delivered') ?: 0);
                                             $price = floatval($get('unit_price') ?: 0);
@@ -220,7 +221,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                         ]),
                 ])
                 ->contained(false)
-                ->submitAction(null)
+                ->submitAction(new \Illuminate\Support\HtmlString('<button type="submit" class="fi-btn fi-btn-size-md relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-primary fi-btn-color-primary bg-primary-600 text-white hover:bg-primary-500 focus-visible:ring-primary-500/50 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus-visible:ring-primary-400/50 gap-1.5 px-3 py-2 text-sm inline-grid">Enregistrer le règlement</button>'))
             ])
             ->statePath('data');
     }

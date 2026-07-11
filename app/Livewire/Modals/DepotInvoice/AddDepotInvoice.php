@@ -112,7 +112,7 @@ class AddDepotInvoice extends ModalComponent implements HasForms
                             ->label('Quantité')
                             ->numeric()
                             ->required()
-                            ->live(debounce: 2000)
+                            ->live(debounce: 5000)
                             ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                 $comp = Compartment::find($get('compartment_id'));
                                 if ($comp && $state > $comp->quantity) {
@@ -129,7 +129,7 @@ class AddDepotInvoice extends ModalComponent implements HasForms
                             ->label('Prix Unitaire')
                             ->numeric()
                             ->required()
-                            ->live(debounce: 2000)
+                            ->live(debounce: 5000)
                             ->afterStateUpdated(fn (Get $get, Set $set) => $this->updateItemTotal($get, $set)),
                         TextInput::make('total')
                             ->label('Total')
