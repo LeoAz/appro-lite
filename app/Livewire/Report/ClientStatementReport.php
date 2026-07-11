@@ -17,6 +17,7 @@ use Illuminate\Support\Collection;
 use Filament\Tables\Columns\Summarizers\Sum;
 
 use App\Models\InvoiceItem;
+use App\Models\DepotInvoiceItem;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
