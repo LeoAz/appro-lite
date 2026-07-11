@@ -6,7 +6,7 @@
 
     <hr class="my-8">
 
-    <div>
+    <div class="mb-8">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Historique des chargements</h3>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -53,5 +53,12 @@
         <div class="mt-4">
             {{ $loads->links() }}
         </div>
+    </div>
+
+    <hr class="my-8">
+
+    <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Historique des ventes</h3>
+        {{ $this->salesTable }}
     </div>
 </div>
