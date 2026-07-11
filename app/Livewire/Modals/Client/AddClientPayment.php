@@ -143,13 +143,16 @@ class AddClientPayment extends ModalComponent implements HasForms
                                         ->options(function (Get $get) {
                                             $clientId = $get('../../client_id');
                                             if (!$clientId) return [];
-                                            return InvoiceItem::whereHas('invoice', fn($q) => $q->where('client_id', $clientId))
+                                            return InvoiceItem::where(function($query) use ($clientId) {
+                                                $query->whereHas('invoice', fn($q) => $q->where('client_id', $clientId))
+                                                      ->orWhereHas('delivery', fn($q) => $q->where('client_id', $clientId));
+                                            })
                                                 ->where('is_paid', false)
                                                 ->whereNull('client_payment_id')
                                                 ->with(['delivery', 'invoice'])
                                                 ->get()
                                                 ->mapWithKeys(fn($item) => [
-                                                    $item->id => "Facture: {$item->invoice->number} - Véhicule: " . ($item->delivery->vehicle_registration ?? 'N/A') . " - Date: {$item->delivery->unload_date->format('d/m/Y')} - Reste: " . number_format($item->total, 0, '.', ' ') . " FCFA"
+                                                    $item->id => "Facture: " . ($item->invoice->number ?? 'N/A') . " - Véhicule: " . ($item->delivery->vehicle_registration ?? 'N/A') . " - Date: " . ($item->delivery->unload_date?->format('d/m/Y') ?? 'N/A') . " - Reste: " . number_format($item->total, 0, '.', ' ') . " FCFA"
                                                 ]);
                                         })
                                         ->searchable()
@@ -196,7 +199,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 ->itemLabel(function (array $state) {
                                     if (empty($state['invoice_item_id'])) return null;
                                     $item = InvoiceItem::with(['delivery', 'invoice'])->find($state['invoice_item_id']);
-                                    return $item ? "Facture: {$item->invoice->number} - {$item->delivery->vehicle_registration}" : null;
+                                    return $item ? "Facture: " . ($item->invoice->number ?? 'N/A') . " - " . ($item->delivery->vehicle_registration ?? 'N/A') : null;
                                 }),
                         ]),
                     Step::make('Récapitulatif')
@@ -214,7 +217,9 @@ class AddClientPayment extends ModalComponent implements HasForms
                                     foreach ($items as $i) {
                                         if (empty($i['invoice_item_id'])) continue;
                                         $item = InvoiceItem::with(['delivery', 'invoice'])->find($i['invoice_item_id']);
-                                        $summary[] = "- Facture {$item->invoice->number} ({$item->delivery->vehicle_registration}) : Nouveau total " . number_format($i['new_total'], 0, '.', ' ') . " FCFA (Manquant: {$i['missing_quantity']}L)";
+                                        $invoiceNumber = $item->invoice->number ?? 'N/A';
+                                        $vehicle = $item->delivery->vehicle_registration ?? 'N/A';
+                                        $summary[] = "- Facture {$invoiceNumber} ({$vehicle}) : Nouveau total " . number_format($i['new_total'], 0, '.', ' ') . " FCFA (Manquant: {$i['missing_quantity']}L)";
                                     }
                                     return new \Illuminate\Support\HtmlString(implode('<br>', $summary));
                                 }),
@@ -272,10 +277,12 @@ class AddClientPayment extends ModalComponent implements HasForms
 
                         // Mettre à jour la facture parente
                         $invoice = $item->invoice;
-                        $invoice->update([
-                            'total_missing' => $invoice->items()->sum('missing_quantity'),
-                            'total_amount' => $invoice->items()->sum('total'),
-                        ]);
+                        if ($invoice) {
+                            $invoice->update([
+                                'total_missing' => $invoice->items()->sum('missing_quantity'),
+                                'total_amount' => $invoice->items()->sum('total'),
+                            ]);
+                        }
                     }
                 }
             }

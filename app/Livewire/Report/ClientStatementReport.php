@@ -83,9 +83,10 @@ class ClientStatementReport extends Component implements HasForms, HasTable
         return $table
             ->query(
                 InvoiceItem::query()
-                    ->whereHas('invoice', function ($query) {
+                    ->where(function ($query) {
                         if ($this->client_id) {
-                            $query->where('client_id', $this->client_id);
+                            $query->whereHas('invoice', fn($q) => $q->where('client_id', $this->client_id))
+                                  ->orWhereHas('delivery', fn($q) => $q->where('client_id', $this->client_id));
                         }
                     })
                     ->when($this->activeTab === 'receivables', fn($query) => $query->where('is_paid', false))
@@ -320,8 +321,11 @@ class ClientStatementReport extends Component implements HasForms, HasTable
         $finalBalance = $openingBalance + $totalDebit - $totalCredit;
 
         $receivables = InvoiceItem::query()
-            ->whereHas('invoice', function ($query) {
-                $query->where('client_id', $this->client_id);
+            ->where(function ($query) {
+                if ($this->client_id) {
+                    $query->whereHas('invoice', fn($q) => $q->where('client_id', $this->client_id))
+                          ->orWhereHas('delivery', fn($q) => $q->where('client_id', $this->client_id));
+                }
             })
             ->with(['invoice.client', 'delivery', 'payment'])
             ->get();
