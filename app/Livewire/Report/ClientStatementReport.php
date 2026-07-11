@@ -61,13 +61,13 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->native(false)
                     ->displayFormat('d/m/Y')
                     ->live()
-                    ->hidden(fn () => $this->activeTab === 'receivables'),
+                    ->hidden(fn () => $this->activeTab === 'receivables' || $this->activeTab === 'payment_history'),
                 DatePicker::make('date_to')
                     ->label('au')
                     ->native(false)
                     ->displayFormat('d/m/Y')
                     ->live()
-                    ->hidden(fn () => $this->activeTab === 'receivables'),
+                    ->hidden(fn () => $this->activeTab === 'receivables' || $this->activeTab === 'payment_history'),
             ])
             ->columns(3);
     }
@@ -82,7 +82,9 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                             $query->where('client_id', $this->client_id);
                         }
                     })
-                    ->with(['invoice.client', 'delivery'])
+                    ->when($this->activeTab === 'receivables', fn($query) => $query->where('is_paid', false))
+                    ->when($this->activeTab === 'payment_history', fn($query) => $query->where('is_paid', true))
+                    ->with(['invoice.client', 'delivery', 'payment'])
             )
             ->columns([
                 TextColumn::make('invoice.number')
@@ -109,28 +111,33 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->numeric()
                     ->suffix(' L'),
                 TextColumn::make('total')
-                    ->label('Montant Dû')
+                    ->label('Montant')
                     ->numeric()
                     ->suffix(' FCFA')
                     ->summarize(Sum::make()->label('Total')),
+                TextColumn::make('payment.date')
+                    ->label('Date Paiement')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->visible(fn() => $this->activeTab === 'payment_history'),
+                TextColumn::make('payment.reference')
+                    ->label('Réf. Règlement')
+                    ->searchable()
+                    ->visible(fn() => $this->activeTab === 'payment_history'),
                 IconColumn::make('is_paid')
                     ->label('Statut')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
-                    ->falseColor('danger'),
+                    ->falseColor('danger')
+                    ->visible(fn() => $this->activeTab === 'statement'), // On ne le montre que dans le relevé si besoin, mais ici la table n'est pas utilisée pour le relevé
             ])
             ->defaultSort('invoice.date', 'asc')
             ->filters([
-                SelectFilter::make('is_paid')
-                    ->label('Statut')
-                    ->options([
-                        '1' => 'Payé',
-                        '0' => 'Non Payé',
-                    ])
+                // Filtres supprimés car on utilise les onglets maintenant
             ])
-            ->emptyStateHeading('Aucune créance pour ce client');
+            ->emptyStateHeading($this->activeTab === 'receivables' ? 'Aucune créance pour ce client' : 'Aucun historique de paiement');
     }
 
     public function getStatementDataProperty(): Collection
@@ -260,6 +267,16 @@ class ClientStatementReport extends Component implements HasForms, HasTable
             if ($payment->payment_method) {
                 $operation .= " ({$payment->payment_method})";
             }
+
+            // Détailler les items payés par ce règlement
+            $itemsPaid = $payment->invoiceItems()->with('delivery')->get();
+            if ($itemsPaid->count() > 0) {
+                $details = $itemsPaid->map(function($item) {
+                    return $item->delivery ? "{$item->delivery->vehicle_registration} ({$item->quantity_delivered}L)" : "Item #{$item->id}";
+                })->implode(', ');
+                $operation .= " - Payé: " . $details;
+            }
+
             if ($payment->note) {
                 $operation .= " - {$payment->note}";
             }

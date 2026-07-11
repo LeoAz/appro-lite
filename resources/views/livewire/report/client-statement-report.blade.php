@@ -74,6 +74,15 @@
                                 <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
                             @endif
                         </button>
+                        <button
+                            wire:click="$set('activeTab', 'payment_history')"
+                            class="pb-4 text-sm font-bold transition-all relative {{ $activeTab === 'payment_history' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600' }}"
+                        >
+                            HISTORIQUE DES PAIEMENTS
+                            @if($activeTab === 'payment_history')
+                                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+                            @endif
+                        </button>
                     </div>
                 </div>
 
@@ -192,7 +201,7 @@
                             <p class="text-gray-400 font-medium">Veuillez sélectionner un client pour afficher sa situation.</p>
                         </div>
                     @endif
-                @elseif($activeTab === 'receivables')
+                @elseif($activeTab === 'receivables' || $activeTab === 'payment_history')
                     <div class="mt-4">
                         {{ $this->table }}
                     </div>

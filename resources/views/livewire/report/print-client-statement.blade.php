@@ -244,7 +244,7 @@
 
     <div style="clear: both; margin-bottom: 40px;"></div>
 
-    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">II. État des Créances (Chargements)</div>
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">II. État des Créances (Chargements non payés)</div>
     <table class="items-table">
         <thead>
             <tr>
@@ -254,29 +254,27 @@
                 <th>Véhicule</th>
                 <th>Produit</th>
                 <th class="text-right">Montant</th>
-                <th class="text-right">Statut</th>
             </tr>
         </thead>
         <tbody>
-            @php $currentReceivable = 0; @endphp
-            @foreach($receivables as $index => $item)
+            @php $currentReceivable = 0; $receivableCount = 0; @endphp
+            @foreach($receivables->where('is_paid', false) as $item)
+                @php $receivableCount++; @endphp
                 <tr>
-                    <td class="text-gray">{{ $index + 1 }}</td>
+                    <td class="text-gray">{{ $receivableCount }}</td>
                     <td class="font-bold text-gray">{{ $item->invoice->number }}</td>
                     <td class="text-gray">{{ $item->invoice->date->format('d/m/Y') }}</td>
                     <td class="text-gray">{{ $item->delivery?->vehicle_registration }}</td>
                     <td class="text-gray">{{ $item->delivery?->product }}</td>
                     <td class="text-right font-bold">{{ number_format($item->total, 0, '.', ' ') }} FCFA</td>
-                    <td class="text-right">
-                        @if($item->is_paid)
-                            <span class="status-badge status-paid">Payé</span>
-                        @else
-                            <span class="status-badge status-unpaid">Non Payé</span>
-                        @endif
-                    </td>
                 </tr>
-                @php if(!$item->is_paid) $currentReceivable += $item->total; @endphp
+                @php $currentReceivable += $item->total; @endphp
             @endforeach
+            @if($receivableCount === 0)
+                <tr>
+                    <td colspan="6" class="text-center text-gray">Aucune créance en cours.</td>
+                </tr>
+            @endif
         </tbody>
     </table>
 
@@ -290,6 +288,43 @@
             </tr>
         </table>
     </div>
+
+    <div style="clear: both; margin-bottom: 40px;"></div>
+
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">III. Historique des Paiements (Chargements payés)</div>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th width="5%">N°</th>
+                <th>N° Facture</th>
+                <th>Date Fact.</th>
+                <th>Véhicule</th>
+                <th>Montant</th>
+                <th>Date Paiement</th>
+                <th class="text-right">Réf. Règlement</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php $paidCount = 0; @endphp
+            @foreach($receivables->where('is_paid', true) as $item)
+                @php $paidCount++; @endphp
+                <tr>
+                    <td class="text-gray">{{ $paidCount }}</td>
+                    <td class="font-bold text-gray">{{ $item->invoice->number }}</td>
+                    <td class="text-gray">{{ $item->invoice->date->format('d/m/Y') }}</td>
+                    <td class="text-gray">{{ $item->delivery?->vehicle_registration }}</td>
+                    <td class="text-gray">{{ number_format($item->total, 0, '.', ' ') }} FCFA</td>
+                    <td class="text-gray">{{ $item->payment?->date->format('d/m/Y') }}</td>
+                    <td class="text-right font-bold">{{ $item->payment?->reference }}</td>
+                </tr>
+            @endforeach
+            @if($paidCount === 0)
+                <tr>
+                    <td colspan="7" class="text-center text-gray">Aucun historique de paiement.</td>
+                </tr>
+            @endif
+        </tbody>
+    </table>
 
     <div class="footer">
         Document généré le {{ $date->format('d/m/Y H:i') }}<br>

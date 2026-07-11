@@ -3,6 +3,7 @@
 namespace App\Livewire\Load;
 
 use App\Models\Load;
+use App\Enums\LoadStatus;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;

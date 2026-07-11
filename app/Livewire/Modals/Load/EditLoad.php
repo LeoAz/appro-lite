@@ -6,6 +6,7 @@ use App\Models\City;
 use App\Models\Client;
 use App\Models\Load;
 use App\Models\Depot;
+use App\Enums\LoadStatus;
 use App\Models\Compartment;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -48,7 +49,7 @@ class EditLoad extends ModalComponent implements HasForms
 
     public function form(Form $form): Form
     {
-        $isLivre = in_array($this->load->status, ['LIVRÉ', 'LIVRÉ ET FACTURÉ', 'PAYÉ']);
+        $isLivre = in_array($this->load->status, [LoadStatus::Unloaded, LoadStatus::Invoiced, LoadStatus::Paid]);
 
         return $form
             ->columns(2)
@@ -174,9 +175,9 @@ class EditLoad extends ModalComponent implements HasForms
         });
 
         Notification::make()
-            ->title(in_array($this->load->status, ['LIVRÉ', 'LIVRÉ ET FACTURÉ']) ? "Livraison mise à jour" : "Chargement mise à jour")
+            ->title(in_array($this->load->status, [LoadStatus::Unloaded, LoadStatus::Invoiced]) ? "Livraison mise à jour" : "Chargement mise à jour")
             ->success()
-            ->body(in_array($this->load->status, ['LIVRÉ', 'LIVRÉ ET FACTURÉ']) ? "La livraison a été mise à jour avec succès!" : "Le chargement a été mise à jour avec succés!")
+            ->body(in_array($this->load->status, [LoadStatus::Unloaded, LoadStatus::Invoiced]) ? "La livraison a été mise à jour avec succès!" : "Le chargement a été mise à jour avec succés!")
             ->send();
 
         $this->dispatch("update-load");
