@@ -17,7 +17,10 @@ return new class extends Migration
                 $table->foreignId('client_payment_id')->nullable()->after('status')->constrained('client_payments')->nullOnDelete();
             }
 
-            $table->boolean('is_paid')->default(false)->after('status');
+            // Ajouter is_paid s'il n'existe pas déjà
+            if (!Schema::hasColumn('loads', 'is_paid')) {
+                $table->boolean('is_paid')->default(false)->after('status');
+            }
         });
 
         // Synchroniser is_paid basé sur client_payment_id existant
