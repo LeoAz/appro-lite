@@ -15,33 +15,33 @@
 
     <div class="mb-6 border-b border-gray-200">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500">
-            <li class="mr-2">
-                <button wire:click="setActiveTab('history')" class="inline-block p-4 border-b-2 rounded-t-lg {{ $activeTab === 'history' ? 'text-blue-600 border-blue-600 active' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}">
+            <li class="mr-2" wire:key="tab-history">
+                <button type="button" wire:click="setActiveTab('history')" class="inline-block p-4 border-b-2 rounded-t-lg {{ $activeTab === 'history' ? 'text-blue-600 border-blue-600 active' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}">
                     Historique Global
                 </button>
             </li>
-            <li class="mr-2">
-                <button wire:click="setActiveTab('invoices')" class="inline-block p-4 border-b-2 rounded-t-lg {{ $activeTab === 'invoices' ? 'text-blue-600 border-blue-600 active' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}">
+            <li class="mr-2" wire:key="tab-invoices">
+                <button type="button" wire:click="setActiveTab('invoices')" class="inline-block p-4 border-b-2 rounded-t-lg {{ $activeTab === 'invoices' ? 'text-blue-600 border-blue-600 active' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}">
                     Factures
                 </button>
             </li>
-            <li class="mr-2">
-                <button wire:click="setActiveTab('payments')" class="inline-block p-4 border-b-2 rounded-t-lg {{ $activeTab === 'payments' ? 'text-blue-600 border-blue-600 active' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}">
+            <li class="mr-2" wire:key="tab-payments">
+                <button type="button" wire:click="setActiveTab('payments')" class="inline-block p-4 border-b-2 rounded-t-lg {{ $activeTab === 'payments' ? 'text-blue-600 border-blue-600 active' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}">
                     Règlements / Avances
                 </button>
             </li>
         </ul>
     </div>
 
-    <div class="mb-4 flex justify-between items-center">
+    <div class="mb-4 flex justify-between items-center" wire:key="actions-bar">
         <div>
-            <button wire:click="$dispatch('openModal', { component: 'modals.client.add-client-payment', arguments: { client: {{ $client->id }} } })" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150">
+            <button type="button" wire:click="$dispatch('openModal', { component: 'modals.client.add-client-payment', arguments: { client: {{ $client->id }} } })" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 Ajouter un règlement
             </button>
         </div>
         @if($activeTab === 'history')
-        <a href="{{ route('client.account.pdf', $client->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-900 focus:outline-none focus:border-red-900 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150">
+        <a wire:key="print-btn" href="{{ route('client.account.pdf', $client->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-900 focus:outline-none focus:border-red-900 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
             Imprimer (PDF)
         </a>

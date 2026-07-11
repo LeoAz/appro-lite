@@ -118,12 +118,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 ->default(now()),
                             Select::make('payment_method')
                                 ->label('Méthode de paiement')
-                                ->options([
-                                    'Espèces' => 'Espèces',
-                                    'Chèque' => 'Chèque',
-                                    'Virement' => 'Virement',
-                                    'Autre' => 'Autre',
-                                ])
+                                ->options(\App\Models\PaymentMethod::pluck('name', 'name'))
                                 ->required()
                                 ->placeholder('Choisir une méthode'),
                             TextInput::make('reference')

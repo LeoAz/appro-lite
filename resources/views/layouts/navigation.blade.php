@@ -96,6 +96,7 @@
                         <x-dropdown-link :href="route('carriers')">Transporteurs</x-dropdown-link>
                         <x-dropdown-link :href="route('clients')">Clients</x-dropdown-link>
                         <x-dropdown-link :href="route('depots')">Dépots</x-dropdown-link>
+                        <x-dropdown-link :href="route('payment-methods')">Règlements</x-dropdown-link>
                     </x-slot>
                 </x-dropdown>
 
@@ -202,6 +203,7 @@
                 <x-responsive-nav-link :href="route('carriers')" class="text-white">Transporteurs</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('clients')" class="text-white">Clients</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('depots')" class="text-white">Dépots</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('payment-methods')" class="text-white">Règlements</x-responsive-nav-link>
             </div>
         </div>
 

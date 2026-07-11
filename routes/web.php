@@ -34,6 +34,8 @@ Route::middleware("auth")->group(function () {
     Route::get("/depot-invoices", \App\Http\Controllers\DepotInvoiceController::class)->name("depot-invoices");
     Route::get("/depot-invoices/{invoice}/print", [\App\Http\Controllers\DepotInvoiceController::class, 'print'])->name("depot-invoices.print");
 
+    Route::get("/payment-methods", \App\Livewire\PaymentMethod\ListPaymentMethod::class)->name("payment-methods");
+
     Route::get("/profile", [ProfileController::class, "edit"])->name(
         "profile.edit"
     );
