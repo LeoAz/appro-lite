@@ -33,7 +33,7 @@ class ShowDepot extends Component implements HasForms, HasTable
         $this->depot = $depot;
     }
 
-    public function table(Table $table): Table
+    public function compartmentsTable(Table $table): Table
     {
         return $table
             ->query(Compartment::query()->where('depot_id', $this->depot->id))
@@ -59,6 +59,11 @@ class ShowDepot extends Component implements HasForms, HasTable
                 DeleteAction::make()
                     ->label('Supprimer'),
             ]);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $this->compartmentsTable($table);
     }
 
     public function salesTable(Table $table): Table
