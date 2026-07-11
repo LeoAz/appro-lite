@@ -39,4 +39,14 @@ class InvoiceItem extends Model
     {
         return $this->belongsTo(ClientPayment::class, 'client_payment_id');
     }
+
+    public function depotInvoice()
+    {
+        return $this->belongsTo(DepotInvoice::class);
+    }
+
+    public function compartment()
+    {
+        return $this->belongsTo(Compartment::class);
+    }
 }

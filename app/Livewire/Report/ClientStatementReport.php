@@ -110,23 +110,18 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                                 'quantity',
                                 \DB::raw("'depot' as item_type")
                             )
-                            ->whereHas('depotInvoice', function($q) {
-                                if ($this->client_id) {
-                                    $q->where('client_id', $this->client_id);
-                                }
-                            })
                     )
                     ->where(function ($query) {
                         if ($this->client_id) {
                             $query->where(function($q) {
                                 $q->where('item_type', 'load')
                                   ->where(function($sq) {
-                                      $sq->whereHas('invoice', fn($f) => $f->where('client_id', $this->client_id))
-                                         ->orWhereHas('delivery', fn($f) => $f->where('client_id', $this->client_id));
+                                      $sq->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoice_items.invoice_id', 'invoices.id')->where('client_id', $this->client_id))
+                                         ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('invoice_items.load_id', 'loads.id')->where('client_id', $this->client_id));
                                   });
                             })->orWhere(function($q) {
                                 $q->where('item_type', 'depot')
-                                  ->whereHas('depotInvoice', fn($f) => $f->where('client_id', $this->client_id));
+                                  ->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('depot_invoices')->whereColumn('depot_invoice_items.depot_invoice_id', 'depot_invoices.id')->where('client_id', $this->client_id));
                             });
                         }
                     })
@@ -144,27 +139,27 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->color(fn($state) => $state === 'load' ? 'info' : 'warning'),
                 TextColumn::make('invoice.number')
                     ->label('N° Facture')
-                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice->number ?? '-') : ($record->invoice->number ?? '-'))
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice?->number ?? '-') : ($record->invoice?->number ?? '-'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('invoice.date')
                     ->label('Date Facture')
-                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice->date?->format('d/m/Y') ?? '-') : ($record->invoice->date?->format('d/m/Y') ?? '-'))
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice?->date?->format('d/m/Y') ?? '-') : ($record->invoice?->date?->format('d/m/Y') ?? '-'))
                     ->sortable(),
                 TextColumn::make('invoice.client.nom')
                     ->label('Client')
-                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice->client->nom ?? '-') : ($record->invoice->client->nom ?? '-'))
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice?->client?->nom ?? '-') : ($record->invoice?->client?->nom ?? '-'))
                     ->sortable()
                     ->searchable()
                     ->hidden(fn () => !empty($this->client_id)),
                 TextColumn::make('delivery.vehicle_registration')
                     ->label('Véhicule / Dépôt')
-                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice->depot->name ?? '-') : ($record->delivery->vehicle_registration ?? '-'))
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice?->depot?->name ?? '-') : ($record->delivery?->vehicle_registration ?? '-'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('delivery.product')
                     ->label('Produit')
-                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->compartment->product ?? '-') : ($record->delivery->product ?? '-')),
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->compartment?->product ?? '-') : ($record->delivery?->product ?? '-')),
                 TextColumn::make('quantity')
                     ->label('Qté Facturée')
                     ->numeric()
