@@ -98,15 +98,15 @@ class ShowDepot extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make('quantity')
                     ->label('Quantité')
-                    ->suffix(' L')
+                    ->formatStateUsing(fn ($state) => number_format($state, 0, ',', ' ') . ' L')
                     ->numeric(),
                 TextColumn::make('unit_price')
                     ->label('Prix Unitaire')
-                    ->suffix(' FCFA')
+                    ->formatStateUsing(fn ($state) => number_format($state, 0, ',', ' ') . ' FCFA')
                     ->numeric(),
                 TextColumn::make('total_price')
                     ->label('Montant Total')
-                    ->suffix(' FCFA')
+                    ->formatStateUsing(fn ($state) => number_format($state, 0, ',', ' ') . ' FCFA')
                     ->numeric(),
             ])
             ->defaultSort('purchase_date', 'desc');
@@ -146,8 +146,7 @@ class ShowDepot extends Component implements HasForms, HasTable
             );
 
         return $table
-            ->query(fn () => InvoiceItem::query()
-                ->fromRaw("({$salesQuery->toSql()}) as sales_report")
+            ->query(fn () => DB::table(DB::raw("({$salesQuery->toSql()}) as sales_report"))
                 ->mergeBindings($salesQuery)
             )
             ->columns([
@@ -165,11 +164,11 @@ class ShowDepot extends Component implements HasForms, HasTable
                     ->label('Produit'),
                 TextColumn::make('quantity')
                     ->label('Quantité')
-                    ->suffix(' L')
+                    ->formatStateUsing(fn ($state) => number_format($state, 0, ',', ' ') . ' L')
                     ->numeric(),
                 TextColumn::make('total')
                     ->label('Montant Total')
-                    ->suffix(' FCFA')
+                    ->formatStateUsing(fn ($state) => number_format($state, 0, ',', ' ') . ' FCFA')
                     ->numeric(),
                 TextColumn::make('type')
                     ->label('Type')
