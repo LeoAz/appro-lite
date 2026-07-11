@@ -104,6 +104,18 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                                   ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('loads.id', 'invoice_items.load_id')->where('client_id', $this->client_id));
                             });
                         }
+
+                        if ($this->activeTab === 'receivables') {
+                            $query->where('is_paid', false)
+                                ->whereExists(function($sq) {
+                                    $sq->select(\DB::raw(1))
+                                        ->from('loads')
+                                        ->whereColumn('loads.id', 'invoice_items.load_id')
+                                        ->where('status', \App\Enums\LoadStatus::Unloaded);
+                                });
+                        } elseif ($this->activeTab === 'payment_history') {
+                            $query->where('is_paid', true);
+                        }
                     })
                     ->union(
                         DepotInvoiceItem::query()
@@ -124,24 +136,17 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                                 if ($this->client_id) {
                                     $query->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('depot_invoices')->whereColumn('depot_invoices.id', 'depot_invoice_items.depot_invoice_id')->where('client_id', $this->client_id));
                                 }
+
+                                if ($this->activeTab === 'receivables') {
+                                    $query->where('is_paid', false);
+                                } elseif ($this->activeTab === 'payment_history') {
+                                    $query->where('is_paid', true);
+                                }
                             })
                     )
-                    ->when($this->activeTab === 'receivables', function($query) {
-                        $query->where('is_paid', false)
-                            ->where(function($q) {
-                                // Pour les livraisons, elles doivent être au statut LIVRÉ pour apparaître dans l'état des créances éligibles au paiement
-                                // Si c'est un item de dépôt, il n'y a pas de statut donc il apparaît toujours
-                                $q->where('item_type', 'depot')
-                                  ->orWhereExists(function($sq) {
-                                      $sq->select(\DB::raw(1))
-                                         ->from('loads')
-                                         ->whereColumn('loads.id', 'load_id')
-                                         ->where('status', \App\Enums\LoadStatus::Unloaded);
-                                  });
-                            });
-                    })
-                    ->when($this->activeTab === 'payment_history', function($query) {
-                        $query->where('is_paid', true);
+                    ->when($this->activeTab === 'statement', function($query) {
+                        // Pas de filtre is_paid spécifique pour l'onglet relevé global si besoin,
+                        // mais ici on garde la logique existante.
                     })
                     ->with(['invoice.client', 'delivery', 'payment', 'depotInvoice.client', 'compartment'])
             )
