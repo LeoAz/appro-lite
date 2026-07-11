@@ -158,7 +158,6 @@ class AddClientPayment extends ModalComponent implements HasForms
                                         })
                                         ->searchable()
                                         ->required()
-                                        ->distinct()
                                         ->live()
                                         ->afterStateUpdated(function (Set $set, $state) {
                                             $item = InvoiceItem::find($state);
@@ -225,7 +224,6 @@ class AddClientPayment extends ModalComponent implements HasForms
                                         })
                                         ->searchable()
                                         ->required()
-                                        ->distinct()
                                         ->live()
                                         ->afterStateUpdated(function (Set $set, $state) {
                                             $item = DepotInvoiceItem::find($state);
@@ -311,8 +309,13 @@ class AddClientPayment extends ModalComponent implements HasForms
 
             // 2. Mettre à jour les chargements (invoice_items)
             if (!empty($data['selected_items']) && $this->type === 'load') {
+                $processedItems = [];
                 foreach ($data['selected_items'] as $itemData) {
                     if (empty($itemData['invoice_item_id'])) continue;
+
+                    // Éviter de traiter le même item plusieurs fois si le distinct a été retiré du formulaire
+                    if (in_array($itemData['invoice_item_id'], $processedItems)) continue;
+                    $processedItems[] = $itemData['invoice_item_id'];
 
                     $item = InvoiceItem::find($itemData['invoice_item_id']);
                     if ($item) {
@@ -348,8 +351,12 @@ class AddClientPayment extends ModalComponent implements HasForms
 
             // 3. Mettre à jour les items de facture dépôt
             if (!empty($data['depot_items']) && $this->type === 'depot') {
+                $processedDepotItems = [];
                 foreach ($data['depot_items'] as $itemData) {
                     if (empty($itemData['depot_invoice_item_id'])) continue;
+
+                    if (in_array($itemData['depot_invoice_item_id'], $processedDepotItems)) continue;
+                    $processedDepotItems[] = $itemData['depot_invoice_item_id'];
 
                     $item = DepotInvoiceItem::find($itemData['depot_invoice_item_id']);
                     if ($item) {
