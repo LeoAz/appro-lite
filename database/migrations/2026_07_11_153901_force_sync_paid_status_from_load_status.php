@@ -15,7 +15,7 @@ return new class extends Migration
     public function up(): void
     {
         // On récupère les IDs des chargements qui ont le statut PAYÉ
-        $paidLoadIds = Load::where('status', LoadStatus::Paid->value ?? LoadStatus::Paid)
+        $paidLoadIds = Load::where('status', LoadStatus::Invoiced->value ?? LoadStatus::Invoiced)
             ->pluck('id');
 
         if ($paidLoadIds->isNotEmpty()) {
@@ -33,7 +33,7 @@ return new class extends Migration
 
         if ($isPaidLoadIds->isNotEmpty()) {
             Load::whereIn('id', $isPaidLoadIds)
-                ->update(['status' => LoadStatus::Paid]);
+                ->update(['status' => LoadStatus::Invoiced]);
         }
     }
 

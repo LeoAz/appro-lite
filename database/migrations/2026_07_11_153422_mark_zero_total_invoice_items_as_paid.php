@@ -20,7 +20,7 @@ return new class extends Migration
             // Si l'item est lié à un chargement, on met à jour le statut du chargement en PAYÉ
             if ($item->load_id) {
                 \App\Models\Load::where('id', $item->load_id)->update([
-                    'status' => \App\Enums\LoadStatus::Paid
+                    'status' => \App\Enums\LoadStatus::Invoiced
                 ]);
             }
         }

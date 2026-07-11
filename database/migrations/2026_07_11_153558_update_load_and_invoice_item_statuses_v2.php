@@ -25,7 +25,7 @@ return new class extends Migration
             ->unique();
 
         if ($paidLoadIds->isNotEmpty()) {
-            Load::whereIn('id', $paidLoadIds)->update(['status' => LoadStatus::Paid]);
+            Load::whereIn('id', $paidLoadIds)->update(['status' => LoadStatus::Invoiced]);
         }
 
         // 3. Cas particulier : On m'a demandé de ne pas me baser sur le montant (total à zéro)
