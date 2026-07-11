@@ -110,7 +110,10 @@ class ShowDepot extends Component implements HasForms, HasTable
             );
 
         return $table
-            ->query(DB::table(DB::raw("({$salesQuery->toSql()}) as sales_report"))->mergeBindings($salesQuery))
+            ->query(fn () => InvoiceItem::query()
+                ->fromRaw("({$salesQuery->toSql()}) as sales_report")
+                ->mergeBindings($salesQuery)
+            )
             ->columns([
                 TextColumn::make('date')
                     ->label('Date')
