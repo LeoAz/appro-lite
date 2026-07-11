@@ -139,7 +139,8 @@ class EditClientPayment extends ModalComponent implements HasForms
                                                 ->where(function($query) {
                                                     $query->where(function($q) {
                                                         $q->where('is_paid', false)
-                                                          ->whereNull('client_payment_id');
+                                                          ->whereNull('client_payment_id')
+                                                          ->whereHas('delivery', fn($sq) => $sq->where('status', \App\Enums\LoadStatus::Unloaded));
                                                     })->orWhere('client_payment_id', $this->payment->id);
                                                 })
                                                 ->with(['delivery', 'invoice'])

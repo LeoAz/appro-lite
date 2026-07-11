@@ -126,7 +126,20 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                                 }
                             })
                     )
-                    ->when($this->activeTab === 'receivables', fn($query) => $query->where('is_paid', false))
+                    ->when($this->activeTab === 'receivables', function($query) {
+                        $query->where('is_paid', false)
+                            ->where(function($q) {
+                                // Pour les livraisons, elles doivent être au statut LIVRÉ pour apparaître dans l'état des créances éligibles au paiement
+                                // Si c'est un item de dépôt, il n'y a pas de statut donc il apparaît toujours
+                                $q->where('item_type', 'depot')
+                                  ->orWhereExists(function($sq) {
+                                      $sq->select(\DB::raw(1))
+                                         ->from('loads')
+                                         ->whereColumn('loads.id', 'load_id')
+                                         ->where('status', \App\Enums\LoadStatus::Unloaded);
+                                  });
+                            });
+                    })
                     ->when($this->activeTab === 'payment_history', function($query) {
                         $query->where('is_paid', true);
                     })
