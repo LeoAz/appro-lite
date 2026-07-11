@@ -66,6 +66,16 @@ class ShowDepot extends Component implements HasForms, HasTable
         return $this->compartmentsTable($table);
     }
 
+    public function getCompartmentsTableProperty(): Table
+    {
+        return $this->compartmentsTable(new Table($this));
+    }
+
+    public function getSalesTableProperty(): Table
+    {
+        return $this->salesTable(new Table($this));
+    }
+
     public function salesTable(Table $table): Table
     {
         $salesQuery = DB::table('invoice_items')

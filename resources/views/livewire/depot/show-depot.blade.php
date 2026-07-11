@@ -1,7 +1,7 @@
 <div class="p-6">
     <div class="mb-8">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Compartiments</h3>
-        {{ $this->table }}
+        {{ $this->compartmentsTable }}
     </div>
 
     <hr class="my-8">
