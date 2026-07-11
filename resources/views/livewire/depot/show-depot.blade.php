@@ -57,6 +57,13 @@
 
     <hr class="my-8">
 
+    <div class="mb-8">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Historique des achats</h3>
+        {{ $this->purchasesTable }}
+    </div>
+
+    <hr class="my-8">
+
     <div>
         <h3 class="text-lg font-medium text-gray-900 mb-4">Historique des ventes</h3>
         {{ $this->salesTable }}

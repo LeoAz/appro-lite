@@ -7,6 +7,7 @@ use App\Models\Compartment;
 use App\Models\Load;
 use App\Models\InvoiceItem;
 use App\Models\DepotInvoiceItem;
+use App\Models\FuelPurchase;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
@@ -78,35 +79,68 @@ class ShowDepot extends Component implements HasForms, HasTable
         return $this->salesTable(new Table($this));
     }
 
+    public function getPurchasesTableProperty(): Table
+    {
+        return $this->purchasesTable(new Table($this));
+    }
+
+    public function purchasesTable(Table $table): Table
+    {
+        return $table
+            ->query(FuelPurchase::query()->where('depot_id', $this->depot->id))
+            ->columns([
+                TextColumn::make('purchase_date')
+                    ->label('Date')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                TextColumn::make('product')
+                    ->label('Produit')
+                    ->searchable(),
+                TextColumn::make('quantity')
+                    ->label('Quantité')
+                    ->suffix(' L')
+                    ->numeric(),
+                TextColumn::make('unit_price')
+                    ->label('Prix Unitaire')
+                    ->suffix(' FCFA')
+                    ->numeric(),
+                TextColumn::make('total_price')
+                    ->label('Montant Total')
+                    ->suffix(' FCFA')
+                    ->numeric(),
+            ])
+            ->defaultSort('purchase_date', 'desc');
+    }
+
     public function salesTable(Table $table): Table
     {
         $salesQuery = DB::table('invoice_items')
             ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
-            ->join('loads', 'loads.id', '=', 'invoice_items.load_id')
+            ->leftJoin('loads', 'loads.id', '=', 'invoice_items.load_id')
             ->where('loads.depot_id', $this->depot->id)
             ->select(
-                'invoice_items.id',
+                'invoice_items.id as id',
                 'invoices.number as reference',
-                'invoices.date',
-                'invoices.client_name',
-                'invoice_items.total',
+                'invoices.date as date',
+                'invoices.client_name as client_name',
+                'invoice_items.total as total',
                 'invoice_items.quantity_delivered as quantity',
-                'loads.product',
+                'loads.product as product',
                 DB::raw("'Chargement' as type")
             )
             ->union(
                 DB::table('depot_invoice_items')
                     ->join('depot_invoices', 'depot_invoices.id', '=', 'depot_invoice_items.depot_invoice_id')
-                    ->join('clients', 'clients.id', '=', 'depot_invoices.client_id')
+                    ->leftJoin('clients', 'clients.id', '=', 'depot_invoices.client_id')
                     ->where('depot_invoices.depot_id', $this->depot->id)
                     ->select(
-                        'depot_invoice_items.id',
+                        'depot_invoice_items.id as id',
                         'depot_invoices.number as reference',
-                        'depot_invoices.date',
+                        'depot_invoices.date as date',
                         'clients.nom as client_name',
-                        'depot_invoice_items.total',
+                        'depot_invoice_items.total as total',
                         'depot_invoice_items.quantity as quantity',
-                        'depot_invoices.product',
+                        'depot_invoices.product as product',
                         DB::raw("'Direct Dépôt' as type")
                     )
             );
