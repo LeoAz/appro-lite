@@ -57,7 +57,7 @@
                 <div class="mb-6 border-b border-gray-100">
                     <div class="flex gap-8">
                         <button
-                            wire:click="$set('activeTab', 'statement')"
+                            wire:click="setActiveTab('statement')"
                             class="pb-4 text-sm font-bold transition-all relative {{ $activeTab === 'statement' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600' }}"
                         >
                             RELEVÉ DE COMPTE

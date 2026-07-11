@@ -91,8 +91,7 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     })
                     ->when($this->activeTab === 'receivables', fn($query) => $query->where('is_paid', false))
                     ->when($this->activeTab === 'payment_history', function($query) {
-                        $query->where('is_paid', true)
-                              ->whereNotNull('client_payment_id');
+                        $query->where('is_paid', true);
                     })
                     ->with(['invoice.client', 'delivery', 'payment'])
             )
