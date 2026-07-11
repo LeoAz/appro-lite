@@ -245,6 +245,84 @@
     <div style="clear: both; margin-bottom: 40px;"></div>
 
     @php
+        $allPayments = \App\Models\ClientPayment::where('client_id', $client->id)
+            ->whereBetween('date', [$date_from, $date_to])
+            ->orderBy('date', 'desc')
+            ->get();
+    @endphp
+
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">II. Récapitulatif des Règlements (Période du relevé)</div>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th width="5%">N°</th>
+                <th width="15%">Date</th>
+                <th width="20%">Référence</th>
+                <th width="20%">Mode</th>
+                <th width="25%">Type / Nature</th>
+                <th width="15%" class="text-right">Montant</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php $payCount = 0; $totalPay = 0; @endphp
+            @foreach($allPayments as $payment)
+                @php
+                    $payCount++;
+                    if (!$payment->parent_id) {
+                        $totalPay += $payment->amount;
+                    }
+
+                    $nature = "";
+                    if ($payment->is_advance) {
+                        $nature = "Avance";
+                    } elseif ($payment->parent_id) {
+                        $nature = "Règlement via Avance";
+                    } else {
+                        $nature = $payment->payment_type === 'depot' ? 'Règlement Dépôt' : 'Règlement Chargement';
+                    }
+                @endphp
+                <tr>
+                    <td class="text-gray">{{ $payCount }}</td>
+                    <td class="text-gray">{{ $payment->date->format('d/m/Y') }}</td>
+                    <td class="font-bold text-gray">{{ $payment->reference }}</td>
+                    <td class="text-gray">{{ $payment->payment_method ?? '-' }}</td>
+                    <td class="text-gray">
+                        <span style="{{ $payment->is_advance ? 'color: #2563eb;' : ($payment->parent_id ? 'color: #0d9488;' : '') }}">
+                            {{ $nature }}
+                        </span>
+                    </td>
+                    <td class="text-right font-bold">
+                        {{ number_format($payment->amount, 0, '.', ' ') }} FCFA
+                    </td>
+                </tr>
+            @endforeach
+            @if($payCount === 0)
+                <tr>
+                    <td colspan="6" class="text-center text-gray">Aucun règlement enregistré sur cette période.</td>
+                </tr>
+            @endif
+        </tbody>
+    </table>
+
+    <div class="totals-section">
+        <table class="totals-table">
+            <tr class="balance-row">
+                <td class="balance-label">Total Encaissé*:</td>
+                <td class="balance-value text-green">
+                    {{ number_format($totalPay, 0, '.', ' ') }} FCFA
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-right text-gray" style="font-size: 8px; font-style: italic;">
+                    * Hors règlements via utilisation d'avances pour éviter les doubles comptes.
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="clear: both; margin-bottom: 40px;"></div>
+
+    @php
         $allReceivables = $receivables->where('is_paid', false)->map(function($item) {
             return [
                 'number' => $item->invoice->number ?? '-',
@@ -273,7 +351,7 @@
         $allReceivables = $allReceivables->sortBy('date');
     @endphp
 
-    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">II. État des Créances (Chargements et Dépôts non payés)</div>
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">III. État des Créances (Chargements et Dépôts non payés)</div>
     <table class="items-table">
         <thead>
             <tr>
@@ -351,7 +429,7 @@
         $allPaidItems = $allPaidItems->sortByDesc('payment_date');
     @endphp
 
-    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">III. Historique des Paiements (Chargements et Dépôts payés)</div>
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">IV. Historique des Paiements (Chargements et Dépôts payés)</div>
     <table class="items-table">
         <thead>
             <tr>
@@ -386,83 +464,6 @@
         </tbody>
     </table>
 
-    <div style="clear: both; margin-bottom: 40px;"></div>
-
-    @php
-        $allPayments = \App\Models\ClientPayment::where('client_id', $client->id)
-            ->whereBetween('date', [$date_from, $date_to])
-            ->orderBy('date', 'desc')
-            ->get();
-    @endphp
-
-    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">IV. Récapitulatif des Règlements (Période du relevé)</div>
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th width="5%">N°</th>
-                <th width="15%">Date</th>
-                <th width="20%">Référence</th>
-                <th width="20%">Mode</th>
-                <th width="25%">Type / Nature</th>
-                <th width="15%" class="text-right">Montant</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php $payCount = 0; $totalPay = 0; @endphp
-            @foreach($allPayments as $payment)
-                @php
-                    $payCount++;
-                    if (!$payment->parent_id) {
-                        $totalPay += $payment->amount;
-                    }
-
-                    $nature = "";
-                    if ($payment->is_advance) {
-                        $nature = "Avance";
-                    } elseif ($payment->parent_id) {
-                        $nature = "Règlement via Avance";
-                    } else {
-                        $nature = $payment->payment_type === 'depot' ? 'Règlement Dépôt' : 'Règlement Chargement';
-                    }
-                @endphp
-                <tr>
-                    <td class="text-gray">{{ $payCount }}</td>
-                    <td class="text-gray">{{ $payment->date->format('d/m/Y') }}</td>
-                    <td class="font-bold text-gray">{{ $payment->reference }}</td>
-                    <td class="text-gray">{{ $payment->payment_method ?? '-' }}</td>
-                    <td class="text-gray">
-                        <span style="{{ $payment->is_advance ? 'color: #2563eb;' : ($payment->parent_id ? 'color: #0d9488;' : '') }}">
-                            {{ $nature }}
-                        </span>
-                    </td>
-                    <td class="text-right font-bold">
-                        {{ number_format($payment->amount, 0, '.', ' ') }} FCFA
-                    </td>
-                </tr>
-            @endforeach
-            @if($payCount === 0)
-                <tr>
-                    <td colspan="6" class="text-center text-gray">Aucun règlement enregistré sur cette période.</td>
-                </tr>
-            @endif
-        </tbody>
-    </table>
-
-    <div class="totals-section">
-        <table class="totals-table">
-            <tr class="balance-row">
-                <td class="balance-label">Total Encaissé*:</td>
-                <td class="balance-value text-green">
-                    {{ number_format($totalPay, 0, '.', ' ') }} FCFA
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" class="text-right text-gray" style="font-size: 8px; font-style: italic;">
-                    * Hors règlements via utilisation d'avances pour éviter les doubles comptes.
-                </td>
-            </tr>
-        </table>
-    </div>
 
     <div class="footer">
         Document généré le {{ $date->format('d/m/Y H:i') }}<br>
