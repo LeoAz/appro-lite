@@ -94,7 +94,8 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                         \DB::raw('NULL as depot_invoice_id'),
                         \DB::raw('NULL as compartment_id'),
                         \DB::raw('quantity_delivered as quantity'),
-                        \DB::raw("'load' as item_type")
+                        \DB::raw("'load' as item_type"),
+                        \DB::raw("(select date from invoices where invoices.id = invoice_items.invoice_id limit 1) as item_date")
                     )
                     ->union(
                         DepotInvoiceItem::query()
@@ -108,14 +109,16 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                                 'depot_invoice_id',
                                 'compartment_id',
                                 'quantity',
-                                \DB::raw("'depot' as item_type")
+                                \DB::raw("'depot' as item_type"),
+                                \DB::raw("(select date from depot_invoices where depot_invoices.id = depot_invoice_items.depot_invoice_id limit 1) as item_date")
                             )
                     )
                     ->where(function ($query) {
                         if ($this->client_id) {
                             $query->where(function($q) {
-                                $q->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoice_items.invoice_id', 'invoices.id')->where('client_id', $this->client_id))
-                                  ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('invoice_items.load_id', 'loads.id')->where('client_id', $this->client_id));
+                                $q->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoices.id', 'invoice_items.invoice_id')->where('client_id', $this->client_id))
+                                  ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('loads.id', 'invoice_items.load_id')->where('client_id', $this->client_id))
+                                  ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('depot_invoices')->whereColumn('depot_invoices.id', 'depot_invoice_items.depot_invoice_id')->where('client_id', $this->client_id));
                             });
                         }
                     })
@@ -136,9 +139,9 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice?->number ?? '-') : ($record->invoice?->number ?? '-'))
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('invoice.date')
+                TextColumn::make('item_date')
                     ->label('Date Facture')
-                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice?->date?->format('d/m/Y') ?? '-') : ($record->invoice?->date?->format('d/m/Y') ?? '-'))
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('invoice.client.nom')
                     ->label('Client')
@@ -183,7 +186,7 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->falseColor('danger')
                     ->visible(fn() => $this->activeTab === 'statement'), // On ne le montre que dans le relevé si besoin, mais ici la table n'est pas utilisée pour le relevé
             ])
-            ->defaultSort('invoice.date', 'asc')
+            ->defaultSort('item_date', 'asc')
             ->filters([
                 // Filtres supprimés car on utilise les onglets maintenant
             ])
