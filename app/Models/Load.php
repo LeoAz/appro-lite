@@ -25,12 +25,14 @@ class Load extends Model
         "status",
         "compartment_id",
         "client_payment_id",
+        "is_paid",
     ];
 
     protected $casts = [
         "load_date" => "datetime",
         "unload_date" => "datetime",
         "is_unload" => "boolean",
+        "is_paid" => "boolean",
     ];
 
     public function vehicle()

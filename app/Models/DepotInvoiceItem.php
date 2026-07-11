@@ -17,6 +17,10 @@ class DepotInvoiceItem extends Model
         'total',
     ];
 
+    protected $casts = [
+        'is_paid' => 'boolean',
+    ];
+
     public function payment()
     {
         return $this->belongsTo(ClientPayment::class, 'client_payment_id');

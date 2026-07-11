@@ -320,6 +320,7 @@ class EditClientPayment extends ModalComponent implements HasForms
                         if ($oldItem->delivery) {
                             $oldItem->delivery->update([
                                 'client_payment_id' => null,
+                                'is_paid' => false,
                                 'status' => \App\Enums\LoadStatus::Unloaded, // Revenir à l'état livré
                             ]);
                         }
@@ -353,6 +354,7 @@ class EditClientPayment extends ModalComponent implements HasForms
                             if ($item->delivery) {
                                 $item->delivery->update([
                                     'client_payment_id' => $this->payment->id,
+                                    'is_paid' => true,
                                     'status' => \App\Enums\LoadStatus::Invoiced,
                                 ]);
                             }
@@ -427,6 +429,7 @@ class EditClientPayment extends ModalComponent implements HasForms
                     if ($item->delivery) {
                         $item->delivery->update([
                             'client_payment_id' => null,
+                            'is_paid' => false,
                             'status' => \App\Enums\LoadStatus::Unloaded,
                         ]);
                     }
@@ -436,6 +439,17 @@ class EditClientPayment extends ModalComponent implements HasForms
                     $invoice->update([
                         'total_missing' => $invoice->items()->sum('missing_quantity'),
                         'total_amount' => $invoice->items()->sum('total'),
+                    ]);
+                }
+            }
+
+            // Si c'est un règlement sur dépôt
+            if ($this->payment->payment_type === 'depot') {
+                $depotItems = $this->payment->depotInvoiceItems;
+                foreach ($depotItems as $item) {
+                    $item->update([
+                        'client_payment_id' => null,
+                        'is_paid' => false,
                     ]);
                 }
             }

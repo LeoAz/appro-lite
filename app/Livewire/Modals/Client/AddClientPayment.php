@@ -330,6 +330,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                             $item->delivery->update([
                                 'status' => \App\Enums\LoadStatus::Invoiced,
                                 'client_payment_id' => $payment->id,
+                                'is_paid' => true,
                             ]);
                         }
 
