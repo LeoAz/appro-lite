@@ -23,7 +23,7 @@
                     @forelse ($loads as $load)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $load->load_date?->format('d/m/Y H:i') }}
+                                {{ $load->load_date?->format('d/m/Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ $load->vehicle_registration }}

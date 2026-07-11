@@ -20,7 +20,7 @@
     <div class="header">
         <div class="title">Rapport de Vente sur Dépôt</div>
         <div>CORRIDOR PETROLEUM</div>
-        <div style="margin-top: 5px;">Généré le {{ $date->format('d/m/Y H:i') }}</div>
+        <div style="margin-top: 5px;">Généré le {{ $date->format('d/m/Y') }}</div>
     </div>
 
     <div class="filters">

@@ -40,7 +40,8 @@ class AddVehicle extends ModalComponent implements HasForms
             ->columns(2)
             ->schema([
                 TextInput::make("registration")
-                    ->name("N° de plaque")
+                    ->label("N° de plaque")
+                    ->unique('vehicles', 'registration')
                     ->required(),
                 TextInput::make("capacity")
                     ->label("La capacité")

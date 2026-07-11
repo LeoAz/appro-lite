@@ -36,7 +36,7 @@ class EditCompartment extends ModalComponent implements HasForms
                         'GASOIL' => 'GASOIL',
                     ])
                     ->required()
-                    ->unique('compartments', 'product', ignoreRecord: true, modifyRuleUsing: function ($rule) {
+                    ->unique('compartments', 'product', ignorable: $this->compartment, modifyRuleUsing: function ($rule) {
                         return $rule->where('depot_id', $this->compartment->depot_id);
                     }),
                 TextInput::make('quantity')

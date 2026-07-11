@@ -57,13 +57,13 @@
         </div>
         <div style="width: 40%; text-align: center;">
             <h1 style="margin: 0; font-size: 18px;">LISTE DES {{ $status === 'EN COURS' ? 'CHARGEMENTS' : 'LIVRAISONS' }}</h1>
-            <div style="font-size: 10px;">Date d'édition: {{ now()->format('d/m/Y H:i') }}</div>
+            <div style="font-size: 10px;">Date d'édition: {{ now()->format('d/m/Y') }}</div>
         </div>
         <div style="width: 30%; text-align: right;">
             <div style="font-size: 10px;">Document Officiel</div>
             @php
                 $qrData = "APPRO-LITE - LISTE DES " . ($status === 'EN COURS' ? 'CHARGEMENTS' : 'LIVRAISONS') . "\n" .
-                          "Date: " . now()->format('d/m/Y H:i') . "\n" .
+                          "Date: " . now()->format('d/m/Y') . "\n" .
                           "Total Volume: " . number_format($loads->sum('volume'), 0, ',', ' ') . " L";
             @endphp
             <div style="margin-top: 5px;">

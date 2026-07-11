@@ -36,7 +36,7 @@ class ListPaymentMethod extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make("created_at")
                     ->label("Date de création")
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('d/m/Y')
                     ->sortable(),
             ])
             ->emptyStateHeading('Aucune méthode de règlement disponible')

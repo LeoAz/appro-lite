@@ -136,7 +136,7 @@
             <tr>
                 <td style="width: 50%;">
                     <div class="report-title">RELEVÉ DE COMPTE CLIENT</div>
-                    <div class="date-info">Édité le : <span>{{ now()->format('d/m/Y H:i') }}</span></div>
+                    <div class="date-info">Édité le : <span>{{ now()->format('d/m/Y') }}</span></div>
                 </td>
                 <td style="width: 50%;" class="issuer-info">
                     <div class="issuer-name">SOCIETE DE TRANSPORT</div>

@@ -282,7 +282,7 @@
 
     <div class="footer">
         CORRIDOR PETROLEUM - Siège social: Cotonou, Bénin - SARL au capital de 1.000.000 FCFA<br>
-        Facture générée le {{ date('d/m/Y à H:i') }} par Appro-Lite
+        Facture générée le {{ date('d/m/Y') }} par Appro-Lite
     </div>
 </body>
 </html>

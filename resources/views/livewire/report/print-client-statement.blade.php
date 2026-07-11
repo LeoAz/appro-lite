@@ -466,7 +466,7 @@
 
 
     <div class="footer">
-        Document généré le {{ $date->format('d/m/Y H:i') }}<br>
+        Document généré le {{ $date->format('d/m/Y') }}<br>
         © {{ date('Y') }} Application de Gestion de Transport.
     </div>
 </body>

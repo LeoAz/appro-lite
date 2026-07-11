@@ -37,7 +37,8 @@ class EditVehicle extends ModalComponent implements HasForms
             ->columns(2)
             ->schema([
                 TextInput::make("registration")
-                    ->name("N° de plaque")
+                    ->label("N° de plaque")
+                    ->unique('vehicles', 'registration', ignorable: $this->vehicle)
                     ->required(),
                 TextInput::make("capacity")->name("La capacité")->required(),
                 Select::make("carrier_id")
@@ -63,7 +64,7 @@ class EditVehicle extends ModalComponent implements HasForms
 
     public function update()
     {
-        $this->customer->update($this->form->getState());
+        $this->vehicle->update($this->form->getState());
         Notification::make()
             ->title("Véhicule mise à jour")
             ->success()

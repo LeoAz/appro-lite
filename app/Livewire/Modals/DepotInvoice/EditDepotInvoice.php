@@ -64,7 +64,7 @@ class EditDepotInvoice extends ModalComponent implements HasForms
                     ->label('Numéro de facture')
                     ->required()
                     ->dehydrated()
-                    ->unique('depot_invoices', 'number', ignoreRecord: true),
+                    ->unique('depot_invoices', 'number', ignorable: $this->invoice),
                 DatePicker::make('date')
                     ->label('Date')
                     ->native(false)

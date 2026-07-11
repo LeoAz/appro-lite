@@ -104,7 +104,7 @@
                     @php
                         $qrData = "Rapport de Stock\n" .
                                   "Dépôt: " . ($selectedDepot->name ?? 'Tous') . "\n" .
-                                  "Date: " . $date->format('d/m/Y H:i') . "\n" .
+                                  "Date: " . $date->format('d/m/Y') . "\n" .
                                   "Stock Total: " . number_format($compartments->sum('quantity'), 0, ',', ' ') . " L";
                     @endphp
                     <div style="float: right; margin-left: 10px;">
@@ -134,7 +134,7 @@
         @endif
         <div class="info-item">
             <span class="info-label">Date d'édition :</span>
-            {{ $date->format('d/m/Y H:i') }}
+            {{ $date->format('d/m/Y') }}
         </div>
     </div>
 
@@ -241,7 +241,7 @@
     @endif
 
     <div class="footer">
-        CORRIDOR PETROLEUM - Rapport généré le {{ now()->format('d/m/Y H:i') }}
+        CORRIDOR PETROLEUM - Rapport généré le {{ now()->format('d/m/Y') }}
     </div>
 </body>
 </html>

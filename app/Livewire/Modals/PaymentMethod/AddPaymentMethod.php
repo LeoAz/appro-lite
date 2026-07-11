@@ -35,7 +35,7 @@ class AddPaymentMethod extends ModalComponent implements HasForms
                 TextInput::make('name')
                     ->label('Nom de la méthode')
                     ->required()
-                    ->unique(PaymentMethod::class, 'name', ignoreRecord: true)
+                    ->unique(PaymentMethod::class, 'name', ignorable: $this->paymentMethod)
                     ->placeholder('Ex: Mobile Money, Espèces, etc.'),
             ])
             ->statePath('data');

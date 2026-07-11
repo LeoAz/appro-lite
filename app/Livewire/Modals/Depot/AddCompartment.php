@@ -38,7 +38,7 @@ class AddCompartment extends ModalComponent implements HasForms
                     ->required()
                     ->unique('compartments', 'product', modifyRuleUsing: function ($rule) {
                         return $rule->where('depot_id', $this->depot_id);
-                    }, ignoreRecord: true),
+                    }),
                 TextInput::make('quantity')
                     ->label('Quantité initiale (Litres)')
                     ->numeric()
