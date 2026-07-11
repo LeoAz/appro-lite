@@ -75,7 +75,7 @@
                                     <td class="py-4 text-gray-600">{{ $load->product }}</td>
                                     <td class="py-4 text-right font-bold text-gray-900">{{ number_format((float) ($load->volume ?? 0), 0, ',', ' ') }} L</td>
                                     <td class="py-4">
-                                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $load->status === 'LIVRÉ' ? 'bg-green-100 text-green-700' : ($load->status === 'LIVRÉ ET FACTURÉ' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700') }}">
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $load->status === 'LIVRÉ' ? 'bg-green-100 text-green-700' : ($load->status === 'LIVRÉ ET PAYÉ' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700') }}">
                                             {{ $load->status }}
                                         </span>
                                     </td>

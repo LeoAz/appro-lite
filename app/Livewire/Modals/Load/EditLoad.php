@@ -49,7 +49,7 @@ class EditLoad extends ModalComponent implements HasForms
 
     public function form(Form $form): Form
     {
-        $isLivre = in_array($this->load->status, [LoadStatus::Unloaded, LoadStatus::Invoiced, LoadStatus::Paid]);
+        $isLivre = in_array($this->load->status, [LoadStatus::Unloaded, LoadStatus::Invoiced]);
 
         return $form
             ->columns(2)

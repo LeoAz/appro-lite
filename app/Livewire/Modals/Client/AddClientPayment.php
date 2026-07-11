@@ -266,7 +266,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                         // Marquer le chargement comme payé
                         if ($item->delivery) {
                             $item->delivery->update([
-                                'status' => \App\Enums\LoadStatus::Paid
+                                'status' => \App\Enums\LoadStatus::Invoiced
                             ]);
                         }
 
