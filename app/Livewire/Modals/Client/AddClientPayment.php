@@ -18,6 +18,7 @@ use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Actions\Action;
+use App\Models\DepotInvoiceItem;
 use App\Models\InvoiceItem;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Placeholder;
@@ -202,27 +203,86 @@ class AddClientPayment extends ModalComponent implements HasForms
                                     return $item ? "Facture: " . ($item->invoice->number ?? 'N/A') . " - " . ($item->delivery->vehicle_registration ?? 'N/A') : null;
                                 }),
                         ]),
+                    Step::make('Détails des factures (Dépôt)')
+                        ->hidden(fn () => $this->type !== 'depot')
+                        ->schema([
+                            Repeater::make('depot_items')
+                                ->label('Sélectionner les factures de dépôt')
+                                ->schema([
+                                    Select::make('depot_invoice_item_id')
+                                        ->label('Facture Dépôt')
+                                        ->options(function (Get $get) {
+                                            $clientId = $get('../../client_id');
+                                            if (!$clientId) return [];
+                                            return DepotInvoiceItem::whereHas('depotInvoice', fn($q) => $q->where('client_id', $clientId))
+                                                ->where('is_paid', false)
+                                                ->whereNull('client_payment_id')
+                                                ->with(['depotInvoice', 'compartment'])
+                                                ->get()
+                                                ->mapWithKeys(fn($item) => [
+                                                    $item->id => "Facture: " . ($item->depotInvoice->number ?? 'N/A') . " - Produit: " . ($item->compartment->product ?? 'N/A') . " - Date: " . ($item->depotInvoice->date?->format('d/m/Y') ?? 'N/A') . " - Total: " . number_format($item->total, 0, '.', ' ') . " FCFA"
+                                                ]);
+                                        })
+                                        ->searchable()
+                                        ->required()
+                                        ->distinct()
+                                        ->live()
+                                        ->afterStateUpdated(function (Set $set, $state) {
+                                            $item = DepotInvoiceItem::find($state);
+                                            if ($item) {
+                                                $set('total', $item->total);
+                                            }
+                                        }),
+                                    TextInput::make('total')
+                                        ->label('Montant')
+                                        ->numeric()
+                                        ->readOnly()
+                                        ->prefix('FCFA'),
+                                ])
+                                ->columns(2)
+                                ->addActionLabel('Ajouter une facture dépôt')
+                                ->itemLabel(function (array $state) {
+                                    if (empty($state['depot_invoice_item_id'])) return null;
+                                    $item = DepotInvoiceItem::with(['depotInvoice', 'compartment'])->find($state['depot_invoice_item_id']);
+                                    return $item ? "Facture: " . ($item->depotInvoice->number ?? 'N/A') . " - " . ($item->compartment->product ?? 'N/A') : null;
+                                }),
+                        ]),
                     Step::make('Récapitulatif')
-                        ->hidden(fn () => $this->type === 'depot')
                         ->schema([
                             Placeholder::make('recap_amount')
                                 ->label('Montant du règlement')
                                 ->content(fn (Get $get) => number_format($get('amount') ?: 0, 0, '.', ' ') . ' FCFA'),
                             Placeholder::make('recap_items')
-                                ->label('Chargements concernés')
+                                ->label('Éléments concernés')
                                 ->content(function (Get $get) {
-                                    $items = $get('selected_items') ?: [];
-                                    if (empty($items)) return 'Aucun chargement sélectionné';
-                                    $summary = [];
-                                    foreach ($items as $i) {
-                                        if (empty($i['invoice_item_id'])) continue;
-                                        $item = InvoiceItem::with(['delivery', 'invoice'])->find($i['invoice_item_id']);
-                                        $invoiceNumber = $item->invoice->number ?? 'N/A';
-                                        $vehicle = $item->delivery->vehicle_registration ?? 'N/A';
-                                        $summary[] = "- Facture {$invoiceNumber} ({$vehicle}) : Nouveau total " . number_format($i['new_total'], 0, '.', ' ') . " FCFA (Manquant: {$i['missing_quantity']}L)";
+                                    if ($this->type === 'load') {
+                                        $items = $get('selected_items') ?: [];
+                                        if (empty($items)) return 'Aucun chargement sélectionné';
+                                        $summary = [];
+                                        foreach ($items as $i) {
+                                            if (empty($i['invoice_item_id'])) continue;
+                                            $item = InvoiceItem::with(['delivery', 'invoice'])->find($i['invoice_item_id']);
+                                            $invoiceNumber = $item->invoice->number ?? 'N/A';
+                                            $vehicle = $item->delivery->vehicle_registration ?? 'N/A';
+                                            $summary[] = "- Facture {$invoiceNumber} ({$vehicle}) : Nouveau total " . number_format($i['new_total'], 0, '.', ' ') . " FCFA (Manquant: {$i['missing_quantity']}L)";
+                                        }
+                                        return new \Illuminate\Support\HtmlString(implode('<br>', $summary));
+                                    } elseif ($this->type === 'depot') {
+                                        $items = $get('depot_items') ?: [];
+                                        if (empty($items)) return 'Aucune facture dépôt sélectionnée';
+                                        $summary = [];
+                                        foreach ($items as $i) {
+                                            if (empty($i['depot_invoice_item_id'])) continue;
+                                            $item = DepotInvoiceItem::with(['depotInvoice', 'compartment'])->find($i['depot_invoice_item_id']);
+                                            $invoiceNumber = $item->depotInvoice->number ?? 'N/A';
+                                            $product = $item->compartment->product ?? 'N/A';
+                                            $summary[] = "- Facture {$invoiceNumber} ({$product}) : Montant " . number_format($item->total, 0, '.', ' ') . " FCFA";
+                                        }
+                                        return new \Illuminate\Support\HtmlString(implode('<br>', $summary));
                                     }
-                                    return new \Illuminate\Support\HtmlString(implode('<br>', $summary));
-                                }),
+                                    return 'N/A';
+                                })
+                                ->hidden(fn() => $this->type === 'advance'),
                         ]),
                 ])
                 ->contained(false)
@@ -249,14 +309,13 @@ class AddClientPayment extends ModalComponent implements HasForms
                 'note' => $data['note'] ?? ($data['parent_id'] ? 'Règlement effectué via une avance' : null),
             ]);
 
-            // 2. Mettre à jour les chargements (invoice_items) et les factures (invoices)
-            if (!empty($data['selected_items'])) {
+            // 2. Mettre à jour les chargements (invoice_items)
+            if (!empty($data['selected_items']) && $this->type === 'load') {
                 foreach ($data['selected_items'] as $itemData) {
                     if (empty($itemData['invoice_item_id'])) continue;
 
                     $item = InvoiceItem::find($itemData['invoice_item_id']);
                     if ($item) {
-                        $oldTotal = $item->total;
                         $newTotal = floatval($itemData['new_total']);
                         $missing = floatval($itemData['missing_quantity']);
 
@@ -283,6 +342,21 @@ class AddClientPayment extends ModalComponent implements HasForms
                                 'total_amount' => $invoice->items()->sum('total'),
                             ]);
                         }
+                    }
+                }
+            }
+
+            // 3. Mettre à jour les items de facture dépôt
+            if (!empty($data['depot_items']) && $this->type === 'depot') {
+                foreach ($data['depot_items'] as $itemData) {
+                    if (empty($itemData['depot_invoice_item_id'])) continue;
+
+                    $item = DepotInvoiceItem::find($itemData['depot_invoice_item_id']);
+                    if ($item) {
+                        $item->update([
+                            'client_payment_id' => $payment->id,
+                            'is_paid' => true,
+                        ]);
                     }
                 }
             }

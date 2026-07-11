@@ -45,4 +45,9 @@ class ClientPayment extends Model
     {
         return $this->hasMany(InvoiceItem::class);
     }
+
+    public function depotInvoiceItems()
+    {
+        return $this->hasMany(DepotInvoiceItem::class);
+    }
 }

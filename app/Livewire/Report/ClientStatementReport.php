@@ -83,6 +83,16 @@ class ClientStatementReport extends Component implements HasForms, HasTable
         return $table
             ->query(
                 InvoiceItem::query()
+                    ->select('invoice_items.*', \DB::raw("'load' as item_type"))
+                    ->union(
+                        DepotInvoiceItem::query()
+                            ->select('depot_invoice_items.*', \DB::raw("'depot' as item_type"))
+                            ->whereHas('depotInvoice', function($q) {
+                                if ($this->client_id) {
+                                    $q->where('client_id', $this->client_id);
+                                }
+                            })
+                    )
                     ->where(function ($query) {
                         if ($this->client_id) {
                             $query->whereHas('invoice', fn($q) => $q->where('client_id', $this->client_id))
@@ -93,30 +103,35 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->when($this->activeTab === 'payment_history', function($query) {
                         $query->where('is_paid', true);
                     })
-                    ->with(['invoice.client', 'delivery', 'payment'])
+                    ->with(['invoice.client', 'delivery', 'payment', 'depotInvoice.client', 'compartment'])
             )
             ->columns([
                 TextColumn::make('invoice.number')
                     ->label('N° Facture')
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice->number ?? '-') : ($record->invoice->number ?? '-'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('invoice.date')
                     ->label('Date Facture')
-                    ->date('d/m/Y')
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice->date?->format('d/m/Y') ?? '-') : ($record->invoice->date?->format('d/m/Y') ?? '-'))
                     ->sortable(),
                 TextColumn::make('invoice.client.nom')
                     ->label('Client')
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice->client->nom ?? '-') : ($record->invoice->client->nom ?? '-'))
                     ->sortable()
                     ->searchable()
                     ->hidden(fn () => !empty($this->client_id)),
                 TextColumn::make('delivery.vehicle_registration')
-                    ->label('Véhicule')
+                    ->label('Véhicule / Dépôt')
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->depotInvoice->depot->name ?? '-') : ($record->delivery->vehicle_registration ?? '-'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('delivery.product')
-                    ->label('Produit'),
+                    ->label('Produit')
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? ($record->compartment->product ?? '-') : ($record->delivery->product ?? '-')),
                 TextColumn::make('quantity_delivered')
                     ->label('Qté Facturée')
+                    ->getStateUsing(fn($record) => $record->item_type === 'depot' ? $record->quantity : $record->quantity_delivered)
                     ->numeric()
                     ->suffix(' L'),
                 TextColumn::make('total')
@@ -128,10 +143,12 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->label('Date Paiement')
                     ->date('d/m/Y')
                     ->sortable()
+                    ->placeholder('-')
                     ->visible(fn() => $this->activeTab === 'payment_history'),
                 TextColumn::make('payment.reference')
                     ->label('Réf. Règlement')
                     ->searchable()
+                    ->placeholder('-')
                     ->visible(fn() => $this->activeTab === 'payment_history'),
                 IconColumn::make('is_paid')
                     ->label('Statut')
@@ -237,14 +254,6 @@ class ClientStatementReport extends Component implements HasForms, HasTable
 
         foreach ($payments as $payment) {
             // Ne pas afficher les règlements qui utilisent une avance (pour éviter double compte crédit)
-            // OU BIEN afficher l'utilisation de l'avance mais avec un montant débit/crédit neutre dans le calcul global?
-            // En fait, le montant de l'avance est déjà compté en crédit.
-            // Si on utilise l'avance pour payer une facture, le solde change ?
-            // Facture 1000 (Débit 1000)
-            // Avance 1000 (Crédit 1000) -> Solde 0
-            // Règlement via avance 1000 -> Si on remet Crédit 1000, Solde -1000 (Faux)
-            // Donc le règlement par avance ne doit pas rajouter de crédit, mais il "consomme" l'avance.
-
             if ($payment->is_advance) {
                 $operation = "AVANCE CLIENT #{$payment->reference}";
                 $type = 'advance';
@@ -271,19 +280,42 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                 if ($vehicles) {
                     $operation .= " [Vhc: {$vehicles}]";
                 }
+
+                // Détailler les items payés par ce règlement
+                $itemsPaid = $payment->invoiceItems()->with('delivery')->get();
+                if ($itemsPaid->count() > 0) {
+                    $details = $itemsPaid->map(function($item) {
+                        return $item->delivery ? "{$item->delivery->vehicle_registration} ({$item->quantity_delivered}L)" : "Item #{$item->id}";
+                    })->implode(', ');
+                    $operation .= " - Payé: " . $details;
+                }
+            }
+
+            // Si c'est un règlement sur dépôt, mentionner les factures concernées
+            if (!$payment->is_advance && $payment->payment_type === 'depot') {
+                $depotInvoices = $payment->depotInvoiceItems()
+                    ->with('depotInvoice')
+                    ->get()
+                    ->map(fn($item) => $item->depotInvoice?->number)
+                    ->filter()
+                    ->unique()
+                    ->implode(', ');
+
+                if ($depotInvoices) {
+                    $operation .= " [Factures: {$depotInvoices}]";
+                }
+
+                $itemsPaid = $payment->depotInvoiceItems()->with('compartment')->get();
+                if ($itemsPaid->count() > 0) {
+                    $details = $itemsPaid->map(function($item) {
+                        return "{$item->compartment?->product} ({$item->quantity}L)";
+                    })->implode(', ');
+                    $operation .= " - Payé: " . $details;
+                }
             }
 
             if ($payment->payment_method) {
                 $operation .= " ({$payment->payment_method})";
-            }
-
-            // Détailler les items payés par ce règlement
-            $itemsPaid = $payment->invoiceItems()->with('delivery')->get();
-            if ($itemsPaid->count() > 0) {
-                $details = $itemsPaid->map(function($item) {
-                    return $item->delivery ? "{$item->delivery->vehicle_registration} ({$item->quantity_delivered}L)" : "Item #{$item->id}";
-                })->implode(', ');
-                $operation .= " - Payé: " . $details;
             }
 
             if ($payment->note) {
@@ -329,6 +361,13 @@ class ClientStatementReport extends Component implements HasForms, HasTable
             ->with(['invoice.client', 'delivery', 'payment'])
             ->get();
         $total_receivable = $receivables->where('is_paid', false)->sum('total');
+
+        $depotReceivables = DepotInvoiceItem::query()
+            ->whereHas('depotInvoice', fn($q) => $q->where('client_id', $this->client_id))
+            ->where('is_paid', false)
+            ->sum('total');
+
+        $total_receivable += $depotReceivables;
 
         $pdf = Pdf::loadView('livewire.report.print-client-statement', [
             'client' => $client,

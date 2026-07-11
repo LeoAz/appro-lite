@@ -244,31 +244,60 @@
 
     <div style="clear: both; margin-bottom: 40px;"></div>
 
-    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">II. État des Créances (Chargements non payés)</div>
+    @php
+        $allReceivables = $receivables->where('is_paid', false)->map(function($item) {
+            return [
+                'number' => $item->invoice->number ?? '-',
+                'date' => $item->invoice->date,
+                'reference' => $item->delivery?->vehicle_registration ?? '-',
+                'product' => $item->delivery?->product ?? '-',
+                'total' => $item->total,
+                'type' => 'load'
+            ];
+        });
+
+        $depotReceivablesItems = \App\Models\DepotInvoiceItem::whereHas('depotInvoice', function($q) use ($client) {
+            $q->where('client_id', $client->id);
+        })->where('is_paid', false)->with(['depotInvoice', 'compartment'])->get();
+
+        foreach($depotReceivablesItems as $depotItem) {
+            $allReceivables->push([
+                'number' => $depotItem->depotInvoice->number ?? '-',
+                'date' => $depotItem->depotInvoice->date,
+                'reference' => $depotItem->depotInvoice->depot->name ?? '-',
+                'product' => $depotItem->compartment->product ?? '-',
+                'total' => $depotItem->total,
+                'type' => 'depot'
+            ]);
+        }
+        $allReceivables = $allReceivables->sortBy('date');
+    @endphp
+
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">II. État des Créances (Chargements et Dépôts non payés)</div>
     <table class="items-table">
         <thead>
             <tr>
                 <th width="5%">N°</th>
                 <th>N° Facture</th>
                 <th>Date</th>
-                <th>Véhicule</th>
+                <th>Véhicule / Dépôt</th>
                 <th>Produit</th>
                 <th class="text-right">Montant</th>
             </tr>
         </thead>
         <tbody>
             @php $currentReceivable = 0; $receivableCount = 0; @endphp
-            @foreach($receivables->where('is_paid', false) as $item)
+            @foreach($allReceivables as $receivableRow)
                 @php $receivableCount++; @endphp
                 <tr>
                     <td class="text-gray">{{ $receivableCount }}</td>
-                    <td class="font-bold text-gray">{{ $item->invoice->number }}</td>
-                    <td class="text-gray">{{ $item->invoice->date->format('d/m/Y') }}</td>
-                    <td class="text-gray">{{ $item->delivery?->vehicle_registration }}</td>
-                    <td class="text-gray">{{ $item->delivery?->product }}</td>
-                    <td class="text-right font-bold">{{ number_format($item->total, 0, '.', ' ') }} FCFA</td>
+                    <td class="font-bold text-gray">{{ $receivableRow['number'] }}</td>
+                    <td class="text-gray">{{ $receivableRow['date']->format('d/m/Y') }}</td>
+                    <td class="text-gray">{{ $receivableRow['reference'] }}</td>
+                    <td class="text-gray">{{ $receivableRow['product'] }}</td>
+                    <td class="text-right font-bold">{{ number_format($receivableRow['total'], 0, '.', ' ') }} FCFA</td>
                 </tr>
-                @php $currentReceivable += $item->total; @endphp
+                @php $currentReceivable += $receivableRow['total']; @endphp
             @endforeach
             @if($receivableCount === 0)
                 <tr>
@@ -291,14 +320,45 @@
 
     <div style="clear: both; margin-bottom: 40px;"></div>
 
-    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">III. Historique des Paiements (Chargements payés)</div>
+    @php
+        $allPaidItems = $receivables->where('is_paid', true)->map(function($item) {
+            return [
+                'number' => $item->invoice->number ?? '-',
+                'date' => $item->invoice->date,
+                'reference' => $item->delivery?->vehicle_registration ?? '-',
+                'total' => $item->total,
+                'payment_date' => $item->payment?->date,
+                'payment_ref' => $item->payment?->reference,
+                'type' => 'load'
+            ];
+        });
+
+        $depotPaidItems = \App\Models\DepotInvoiceItem::whereHas('depotInvoice', function($q) use ($client) {
+            $q->where('client_id', $client->id);
+        })->where('is_paid', true)->with(['depotInvoice', 'payment'])->get();
+
+        foreach($depotPaidItems as $paidItem) {
+            $allPaidItems->push([
+                'number' => $paidItem->depotInvoice->number ?? '-',
+                'date' => $paidItem->depotInvoice->date,
+                'reference' => $paidItem->depotInvoice->depot->name ?? '-',
+                'total' => $paidItem->total,
+                'payment_date' => $paidItem->payment?->date,
+                'payment_ref' => $paidItem->payment?->reference,
+                'type' => 'depot'
+            ]);
+        }
+        $allPaidItems = $allPaidItems->sortByDesc('payment_date');
+    @endphp
+
+    <div class="billing-label" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">III. Historique des Paiements (Chargements et Dépôts payés)</div>
     <table class="items-table">
         <thead>
             <tr>
                 <th width="5%">N°</th>
                 <th>N° Facture</th>
                 <th>Date Fact.</th>
-                <th>Véhicule</th>
+                <th>Véhicule / Dépôt</th>
                 <th>Montant</th>
                 <th>Date Paiement</th>
                 <th class="text-right">Réf. Règlement</th>
@@ -306,16 +366,16 @@
         </thead>
         <tbody>
             @php $paidCount = 0; @endphp
-            @foreach($receivables->where('is_paid', true) as $item)
+            @foreach($allPaidItems as $itemRow)
                 @php $paidCount++; @endphp
                 <tr>
                     <td class="text-gray">{{ $paidCount }}</td>
-                    <td class="font-bold text-gray">{{ $item->invoice->number }}</td>
-                    <td class="text-gray">{{ $item->invoice->date->format('d/m/Y') }}</td>
-                    <td class="text-gray">{{ $item->delivery?->vehicle_registration }}</td>
-                    <td class="text-gray">{{ number_format($item->total, 0, '.', ' ') }} FCFA</td>
-                    <td class="text-gray">{{ $item->payment?->date->format('d/m/Y') }}</td>
-                    <td class="text-right font-bold">{{ $item->payment?->reference }}</td>
+                    <td class="font-bold text-gray">{{ $itemRow['number'] }}</td>
+                    <td class="text-gray">{{ $itemRow['date']->format('d/m/Y') }}</td>
+                    <td class="text-gray">{{ $itemRow['reference'] }}</td>
+                    <td class="text-gray">{{ number_format($itemRow['total'], 0, '.', ' ') }} FCFA</td>
+                    <td class="text-gray">{{ $itemRow['payment_date']?->format('d/m/Y') ?? '-' }}</td>
+                    <td class="text-right font-bold">{{ $itemRow['payment_ref'] ?? '-' }}</td>
                 </tr>
             @endforeach
             @if($paidCount === 0)

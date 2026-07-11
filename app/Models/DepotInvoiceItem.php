@@ -10,10 +10,17 @@ class DepotInvoiceItem extends Model
     protected $fillable = [
         'depot_invoice_id',
         'compartment_id',
+        'client_payment_id',
+        'is_paid',
         'quantity',
         'unit_price',
         'total',
     ];
+
+    public function payment()
+    {
+        return $this->belongsTo(ClientPayment::class, 'client_payment_id');
+    }
 
     public function depotInvoice()
     {
