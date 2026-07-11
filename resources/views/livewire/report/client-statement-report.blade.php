@@ -66,7 +66,7 @@
                             @endif
                         </button>
                         <button
-                            wire:click="$set('activeTab', 'receivables')"
+                            wire:click="setActiveTab('receivables')"
                             class="pb-4 text-sm font-bold transition-all relative {{ $activeTab === 'receivables' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600' }}"
                         >
                             ÉTAT DES CRÉANCES
@@ -75,7 +75,7 @@
                             @endif
                         </button>
                         <button
-                            wire:click="$set('activeTab', 'payment_history')"
+                            wire:click="setActiveTab('payment_history')"
                             class="pb-4 text-sm font-bold transition-all relative {{ $activeTab === 'payment_history' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600' }}"
                         >
                             HISTORIQUE DES PAIEMENTS

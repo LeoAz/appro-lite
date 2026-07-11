@@ -44,6 +44,12 @@ class ClientStatementReport extends Component implements HasForms, HasTable
         ]);
     }
 
+    public function setActiveTab($tab)
+    {
+        $this->activeTab = $tab;
+        $this->resetTable();
+    }
+
     public function form(Form $form): Form
     {
         return $form
@@ -111,7 +117,7 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->numeric()
                     ->suffix(' L'),
                 TextColumn::make('total')
-                    ->label('Montant')
+                    ->label(fn() => $this->activeTab === 'receivables' ? 'Montant Dû' : 'Montant Payé')
                     ->numeric()
                     ->suffix(' FCFA')
                     ->summarize(Sum::make()->label('Total')),
