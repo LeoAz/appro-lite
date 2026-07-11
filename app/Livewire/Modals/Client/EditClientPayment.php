@@ -316,6 +316,14 @@ class EditClientPayment extends ModalComponent implements HasForms
                             'total' => $oldItem->quantity_delivered * $oldItem->unit_price,
                         ]);
 
+                        // Détacher aussi le règlement du chargement
+                        if ($oldItem->delivery) {
+                            $oldItem->delivery->update([
+                                'client_payment_id' => null,
+                                'status' => \App\Enums\LoadStatus::Unloaded, // Revenir à l'état livré
+                            ]);
+                        }
+
                         // Mettre à jour la facture parente
                         $invoice = $oldItem->invoice;
                         if ($invoice) {
@@ -340,6 +348,14 @@ class EditClientPayment extends ModalComponent implements HasForms
                                 'total' => $itemData['new_total'],
                                 'is_paid' => true,
                             ]);
+
+                            // Lier aussi le règlement au chargement
+                            if ($item->delivery) {
+                                $item->delivery->update([
+                                    'client_payment_id' => $this->payment->id,
+                                    'status' => \App\Enums\LoadStatus::Invoiced,
+                                ]);
+                            }
 
                             // Mettre à jour la facture parente
                             $invoice = $item->invoice;
@@ -406,6 +422,14 @@ class EditClientPayment extends ModalComponent implements HasForms
                         'missing_quantity' => 0,
                         'total' => $item->quantity_delivered * $item->unit_price,
                     ]);
+
+                    // Détacher aussi le règlement du chargement
+                    if ($item->delivery) {
+                        $item->delivery->update([
+                            'client_payment_id' => null,
+                            'status' => \App\Enums\LoadStatus::Unloaded,
+                        ]);
+                    }
 
                     // Mettre à jour la facture parente
                     $invoice = $item->invoice;

@@ -144,6 +144,12 @@ class ListLoad extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->hidden(fn() => $this->status === "EN COURS")
                     ->searchable(),
+                TextColumn::make("payment.reference")
+                    ->label("Règlement")
+                    ->description(fn(Load $record) => $record->payment?->date?->format('d/m/Y'))
+                    ->toggleable()
+                    ->hidden(fn() => $this->status === "EN COURS")
+                    ->searchable(),
             ])
             ->emptyStateHeading(fn() => $this->status === "EN COURS" ? "Aucun Chargement n'est disponible" : "Aucune Livraison n'est disponible")
             ->filters([])
