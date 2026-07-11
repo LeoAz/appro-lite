@@ -29,6 +29,26 @@
                 Supprimer
             </button>
             <div class="flex gap-x-3">
+                <button type="button"
+                        class="inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-all"
+                        wire:click="$dispatch('closeModal')"
+                >
+                    Fermer
+                </button>
+                @if($payment->is_advance || $payment->payment_type === 'depot')
+                    <button type="button"
+                            class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-slate-900 border border-transparent rounded-lg shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all"
+                            wire:click="save"
+                    >
+                        <div wire:loading.remove>
+                            Enregistrer
+                        </div>
+                        <div wire:loading>
+                            <x-filament::loading-indicator class="h-5 w-5" />
+                        </div>
+                    </button>
+                @endif
+
                 @if($payment->is_advance)
                     <x-filament::dropdown>
                         <x-slot name="trigger">
@@ -50,24 +70,6 @@
                         </x-filament::dropdown.list>
                     </x-filament::dropdown>
                 @endif
-
-                <button type="button"
-                        class="inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-all"
-                        wire:click="$dispatch('closeModal')"
-                >
-                    Fermer
-                </button>
-                <button type="button"
-                        class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-slate-900 border border-transparent rounded-lg shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all"
-                        wire:click="save"
-                >
-                    <div wire:loading.remove>
-                        Enregistrer
-                    </div>
-                    <div wire:loading>
-                        <x-filament::loading-indicator class="h-5 w-5" />
-                    </div>
-                </button>
             </div>
         </div>
     </x-slot>
