@@ -36,7 +36,6 @@ class ShowDepot extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->name('compartments')
             ->query(Compartment::query()->where('depot_id', $this->depot->id))
             ->columns([
                 TextColumn::make('product')
@@ -96,7 +95,6 @@ class ShowDepot extends Component implements HasForms, HasTable
             );
 
         return $table
-            ->name('sales')
             ->query(DB::table(DB::raw("({$salesQuery->toSql()}) as sales_report"))->mergeBindings($salesQuery))
             ->columns([
                 TextColumn::make('date')

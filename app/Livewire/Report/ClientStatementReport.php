@@ -113,7 +113,7 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                                         $q->select(\DB::raw(1))
                                             ->from('loads')
                                             ->whereColumn('loads.id', 'invoice_items.load_id')
-                                            ->where('loads.status', \App\Enums\LoadStatus::Unloaded);
+                                            ->whereIn('loads.status', [\App\Enums\LoadStatus::Unloaded, \App\Enums\LoadStatus::Invoiced]);
                                     })->orWhereNull('invoice_items.load_id');
                                 });
                         } elseif ($this->activeTab === 'payment_history') {
@@ -430,7 +430,7 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     $q->select(\DB::raw(1))
                         ->from('loads')
                         ->whereColumn('loads.id', 'invoice_items.load_id')
-                        ->where('loads.status', \App\Enums\LoadStatus::Unloaded);
+                        ->whereIn('loads.status', [\App\Enums\LoadStatus::Unloaded, \App\Enums\LoadStatus::Invoiced]);
                 })->orWhereNull('invoice_items.load_id');
             })
             ->union(

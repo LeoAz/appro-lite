@@ -143,7 +143,7 @@ class AddClientPayment extends ModalComponent implements HasForms
                                                 $query->whereHas('invoice', fn($q) => $q->where('client_id', $clientId))
                                                       ->orWhereHas('delivery', fn($q) => $q->where('client_id', $clientId));
                                             })
-                                                ->whereHas('delivery', fn($q) => $q->where('status', \App\Enums\LoadStatus::Unloaded))
+                                                ->whereHas('delivery', fn($q) => $q->whereIn('status', [\App\Enums\LoadStatus::Unloaded, \App\Enums\LoadStatus::Invoiced]))
                                                 ->where('is_paid', false)
                                                 ->whereNull('client_payment_id')
                                                 ->with(['delivery', 'invoice'])
