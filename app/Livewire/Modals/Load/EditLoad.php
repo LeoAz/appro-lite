@@ -48,7 +48,7 @@ class EditLoad extends ModalComponent implements HasForms
 
     public function form(Form $form): Form
     {
-        $isLivre = $this->load->status === 'LIVRÉ' || $this->load->status === 'LIVRÉ ET FACTURÉ';
+        $isLivre = in_array($this->load->status, ['LIVRÉ', 'LIVRÉ ET FACTURÉ', 'PAYÉ']);
 
         return $form
             ->columns(2)

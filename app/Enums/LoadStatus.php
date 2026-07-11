@@ -9,4 +9,5 @@ final class LoadStatus extends Enum
     const Pending = "EN COURS";
     const Unloaded = "LIVRÉ";
     const Invoiced = "LIVRÉ ET FACTURÉ";
+    const Paid = "PAYÉ";
 }
