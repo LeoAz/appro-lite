@@ -137,38 +137,46 @@ class EditLoad extends ModalComponent implements HasForms
 
         $compartment = Compartment::find($newCompartmentId);
 
-        // Vérification du stock
-        // Si c'est le même compartiment, on vérifie si la nouvelle quantité est possible
-        // (dispo actuelle + ancienne quantité réservée >= nouvelle quantité)
-        if ($oldCompartmentId == $newCompartmentId) {
-            if (($compartment->quantity + $oldVolume) < $newVolume) {
-                Notification::make()
-                    ->title("Stock insuffisant")
-                    ->danger()
-                    ->body("La quantité demandée ({$newVolume} L) dépasse le stock disponible avec l'ajustement.")
-                    ->send();
-                return;
-            }
-        } else {
-            // Si le compartiment change, on vérifie simplement le nouveau stock
-            if ($compartment->quantity < $newVolume) {
-                Notification::make()
-                    ->title("Stock insuffisant")
-                    ->danger()
-                    ->body("Le nouveau compartiment n'a pas assez de stock ({$compartment->quantity} L).")
-                    ->send();
-                return;
+        // Vérification du stock (uniquement si pas encore livré/facturé)
+        $isLivreOuFacture = in_array($this->load->status, [LoadStatus::Unloaded, LoadStatus::Invoiced]);
+        if (!$isLivreOuFacture) {
+            // Si c'est le même compartiment, on vérifie si la nouvelle quantité est possible
+            // (dispo actuelle + ancienne quantité réservée >= nouvelle quantité)
+            if ($oldCompartmentId == $newCompartmentId) {
+                if (($compartment->quantity + $oldVolume) < $newVolume) {
+                    Notification::make()
+                        ->title("Stock insuffisant")
+                        ->danger()
+                        ->body("La quantité demandée ({$newVolume} L) dépasse le stock disponible avec l'ajustement.")
+                        ->send();
+                    return;
+                }
+            } else {
+                // Si le compartiment change, on vérifie simplement le nouveau stock
+                if ($compartment->quantity < $newVolume) {
+                    Notification::make()
+                        ->title("Stock insuffisant")
+                        ->danger()
+                        ->body("Le nouveau compartiment n'a pas assez de stock ({$compartment->quantity} L).")
+                        ->send();
+                    return;
+                }
             }
         }
 
         DB::transaction(function () use ($data, $oldVolume, $oldCompartmentId, $newVolume, $newCompartmentId) {
-            // Remettre l'ancien stock
-            if ($oldCompartmentId) {
-                Compartment::find($oldCompartmentId)?->increment('quantity', $oldVolume);
-            }
+            // Ne pas modifier le stock si c'est déjà facturé ou livré (déjà déduit lors de la création/chargement)
+            $isLivreOuFacture = in_array($this->load->status, [LoadStatus::Unloaded, LoadStatus::Invoiced]);
 
-            // Déduire le nouveau stock
-            Compartment::find($newCompartmentId)->decrement('quantity', $newVolume);
+            if (!$isLivreOuFacture) {
+                // Remettre l'ancien stock
+                if ($oldCompartmentId) {
+                    Compartment::find($oldCompartmentId)?->increment('quantity', $oldVolume);
+                }
+
+                // Déduire le nouveau stock
+                Compartment::find($newCompartmentId)->decrement('quantity', $newVolume);
+            }
 
             // Mettre à jour le chargement
             $this->load->update($data);

@@ -114,14 +114,8 @@ class ClientStatementReport extends Component implements HasForms, HasTable
                     ->where(function ($query) {
                         if ($this->client_id) {
                             $query->where(function($q) {
-                                $q->where('item_type', 'load')
-                                  ->where(function($sq) {
-                                      $sq->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoice_items.invoice_id', 'invoices.id')->where('client_id', $this->client_id))
-                                         ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('invoice_items.load_id', 'loads.id')->where('client_id', $this->client_id));
-                                  });
-                            })->orWhere(function($q) {
-                                $q->where('item_type', 'depot')
-                                  ->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('depot_invoices')->whereColumn('depot_invoice_items.depot_invoice_id', 'depot_invoices.id')->where('client_id', $this->client_id));
+                                $q->whereExists(fn($eq) => $eq->select(\DB::raw(1))->from('invoices')->whereColumn('invoice_items.invoice_id', 'invoices.id')->where('client_id', $this->client_id))
+                                  ->orWhereExists(fn($eq) => $eq->select(\DB::raw(1))->from('loads')->whereColumn('invoice_items.load_id', 'loads.id')->where('client_id', $this->client_id));
                             });
                         }
                     })
