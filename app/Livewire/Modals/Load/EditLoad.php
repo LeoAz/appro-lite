@@ -48,7 +48,7 @@ class EditLoad extends ModalComponent implements HasForms
 
     public function form(Form $form): Form
     {
-        $isLivre = $this->load->status === 'LIVRÉ';
+        $isLivre = $this->load->status === 'LIVRÉ' || $this->load->status === 'LIVRÉ ET FACTURÉ';
 
         return $form
             ->columns(2)
@@ -174,9 +174,9 @@ class EditLoad extends ModalComponent implements HasForms
         });
 
         Notification::make()
-            ->title($this->load->status === 'LIVRÉ' ? "Livraison mise à jour" : "Chargement mise à jour")
+            ->title(in_array($this->load->status, ['LIVRÉ', 'LIVRÉ ET FACTURÉ']) ? "Livraison mise à jour" : "Chargement mise à jour")
             ->success()
-            ->body($this->load->status === 'LIVRÉ' ? "La livraison a été mise à jour avec succès!" : "Le chargement a été mise à jour avec succés!")
+            ->body(in_array($this->load->status, ['LIVRÉ', 'LIVRÉ ET FACTURÉ']) ? "La livraison a été mise à jour avec succès!" : "Le chargement a été mise à jour avec succés!")
             ->send();
 
         $this->dispatch("update-load");

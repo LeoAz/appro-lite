@@ -55,7 +55,9 @@ class ListLoad extends Component implements HasForms, HasTable
         $query = Load::query();
 
         if ($this->status === 'CHARGÉ') {
-             $query->where("status", "CHARGÉ");
+             $query->where("status", LoadStatus::Pending); // Note: Should probably check what CHARGÉ means exactly, but keeping current logic
+        } elseif ($this->status === LoadStatus::Unloaded) {
+             $query->whereIn("status", [LoadStatus::Unloaded, LoadStatus::Invoiced]);
         } else {
              $query->where("status", $this->status);
         }
@@ -123,6 +125,7 @@ class ListLoad extends Component implements HasForms, HasTable
                             "EN COURS" => "warning",
                             "LIVRÉ" => "success",
                             "LIVRÉ ET FACTURÉ" => "info",
+                            "CHARGÉ" => "success",
                             default => "gray",
                         }
                     ),

@@ -19,9 +19,18 @@
 </head>
 <body>
     <div class="header">
+        <div style="float: right;">
+            @php
+                $qrData = "Rapport de Vente\n" .
+                          "Généré le: " . $date->format('d/m/Y H:i') . "\n" .
+                          "Montant Total: " . number_format($total_amount, 0, ',', ' ') . " FCFA";
+            @endphp
+            <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(60)->generate($qrData)) !!} ">
+        </div>
         <div class="title">Rapport de Vente</div>
         <div>CORRIDOR PETROLEUM</div>
         <div style="margin-top: 5px;">Généré le {{ $date->format('d/m/Y H:i') }}</div>
+        <div style="clear: both;"></div>
     </div>
 
     <div class="filters">

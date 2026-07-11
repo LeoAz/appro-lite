@@ -101,6 +101,15 @@
                     <div style="font-size: 10px;">IMPORT - EXPORT - TRANSPORT - HYDROCARBURES</div>
                 </td>
                 <td class="issuer-info">
+                    @php
+                        $qrData = "Rapport de Stock\n" .
+                                  "Dépôt: " . ($selectedDepot->name ?? 'Tous') . "\n" .
+                                  "Date: " . $date->format('d/m/Y H:i') . "\n" .
+                                  "Stock Total: " . number_format($compartments->sum('quantity'), 0, ',', ' ') . " L";
+                    @endphp
+                    <div style="float: right; margin-left: 10px;">
+                        <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(60)->generate($qrData)) !!} ">
+                    </div>
                     <div class="issuer-name">CORRIDOR PETROLEUM</div>
                     <div>BAMAKO, MALI</div>
                 </td>

@@ -16,8 +16,17 @@
 </head>
 <body>
     <div class="header">
+        <div style="float: right;">
+            @php
+                $qrData = "Achats Carburant\n" .
+                          "Date: " . now()->format('d/m/Y H:i') . "\n" .
+                          "Total: " . number_format($purchases->sum('total_price'), 0, ',', ' ') . " FCFA";
+            @endphp
+            <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(60)->generate($qrData)) !!} ">
+        </div>
         <h1>Liste des Achats de Carburant</h1>
         <p>Généré le : {{ now()->format('d/m/Y H:i') }}</p>
+        <div style="clear: both;"></div>
     </div>
 
     <table>

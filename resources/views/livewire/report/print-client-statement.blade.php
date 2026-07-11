@@ -28,6 +28,11 @@
             font-size: 12px;
             margin-bottom: 4px;
         }
+        .qrcode-container {
+            float: right;
+            text-align: right;
+            margin-top: -10px;
+        }
         .divider {
             border-bottom: 1px solid #3b82f6;
             margin: 20px 0;
@@ -159,8 +164,14 @@
                 </td>
                 <td style="width: 40%;" class="issuer-info">
                     <div class="issuer-name">SOCIETE DE TRANSPORT</div>
-                    <div>Contact: +225 00 00 00 00 00</div>
-                    <div>Email: contact@societe.com</div>
+                    @php
+                        $qrData = "Rapport Situation Client: " . $client->nom . "\n" .
+                                  "Période: Du " . \Carbon\Carbon::parse($date_from)->format('d/m/Y') . " Au " . \Carbon\Carbon::parse($date_to)->format('d/m/Y') . "\n" .
+                                  "Solde: " . number_format($finalBalance, 0, '.', ' ') . " FCFA";
+                    @endphp
+                    <div class="qrcode-container">
+                        <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(70)->generate($qrData)) !!} ">
+                    </div>
                 </td>
             </tr>
         </table>

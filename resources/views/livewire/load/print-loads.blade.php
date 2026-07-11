@@ -61,6 +61,14 @@
         </div>
         <div style="width: 30%; text-align: right;">
             <div style="font-size: 10px;">Document Officiel</div>
+            @php
+                $qrData = "APPRO-LITE - LISTE DES " . ($status === 'EN COURS' ? 'CHARGEMENTS' : 'LIVRAISONS') . "\n" .
+                          "Date: " . now()->format('d/m/Y H:i') . "\n" .
+                          "Total Volume: " . number_format($loads->sum('volume'), 0, ',', ' ') . " L";
+            @endphp
+            <div style="margin-top: 5px;">
+                <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(60)->generate($qrData)) !!} ">
+            </div>
         </div>
     </div>
 

@@ -36,11 +36,15 @@
             color: #1e40af;
             font-weight: bold;
             font-size: 14px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .invoice-title span {
             color: #333;
             font-weight: normal;
+        }
+        .qrcode-container {
+            float: right;
+            text-align: right;
         }
         .date-info {
             margin-bottom: 30px;
@@ -158,6 +162,16 @@
     </div>
 
     <div class="divider"></div>
+
+    <div class="qrcode-container">
+        @php
+            $qrData = "Facture: " . $invoice->number . "\n" .
+                      "Client: " . ($invoice->client?->nom ?? $invoice->client_name) . "\n" .
+                      "Date: " . $invoice->date->format('d/m/Y') . "\n" .
+                      "Montant: " . number_format($invoice->total_amount, 0, ',', ' ') . " FCFA";
+        @endphp
+        <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(80)->generate($qrData)) !!} ">
+    </div>
 
     <div class="invoice-title">Facture N° : <span>{{ $invoice->number }}</span></div>
 
